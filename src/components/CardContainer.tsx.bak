@@ -1,0 +1,188 @@
+'use client'
+
+import React, { useRef, useEffect, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Card } from './Card'
+import { CardInsertButton } from './CardInsertButton'
+import { Card as CardType } from '@/lib/types'
+import { cn } from '@/lib/utils'
+
+interface CardContainerProps {
+  cards: CardType[]
+  onSelectCard: (cardId: string) => void
+  onDeleteCard: (cardId: string) => void
+  onContentChange: (cardId: string, content: string) => void
+  onStartEditing: (cardId: string) => void
+  onStopEditing: () => void
+  onInsertCard: (type: 'session' | 'break', position: number) => void
+  editingCardId: string | null
+  canEdit: boolean
+}
+
+export function CardContainer({ cards, onSelectCard, onDeleteCard, onContentChange, onStartEditing, onStopEditing, onInsertCard, editingCardId, canEdit }: CardContainerProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const updateScrollButtons = () => {
+    if (containerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = containerRef.current
+      setCanScrollLeft(scrollLeft > 0)
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1)
+    }
+  }
+
+  useEffect(() => {
+    updateScrollButtons()
+    const container = containerRef.current
+    if (container) {
+      container.addEventListener('scroll', updateScrollButtons)
+      window.addEventListener('resize', updateScrollButtons)
+      
+      return () => {
+        container.removeEventListener('scroll', updateScrollButtons)
+        window.removeEventListener('resize', updateScrollButtons)
+      }
+    }
+  }, [cards])
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (containerRef.current) {
+      const scrollAmount = 320 // Card width + margin
+      const newScrollLeft = containerRef.current.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount)
+      
+      containerRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!canEdit) return // Only allow navigation when editing is enabled
+      
+      const selectedIndex = cards.findIndex(card => card.isSelected)
+      
+      if (e.key === 'ArrowLeft' && selectedIndex > 0) {
+        e.preventDefault()
+        onSelectCard(cards[selectedIndex - 1].id)
+        
+        // Scroll to ensure card is visible
+        setTimeout(() => {
+          if (containerRef.current) {
+            const cardElement = containerRef.current.children[selectedIndex - 1] as HTMLElement
+            cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center' })
+          }
+        }, 100)
+      } else if (e.key === 'ArrowRight' && selectedIndex < cards.length - 1) {
+        e.preventDefault()
+        onSelectCard(cards[selectedIndex + 1].id)
+        
+        // Scroll to ensure card is visible
+        setTimeout(() => {
+          if (containerRef.current) {
+            const cardElement = containerRef.current.children[selectedIndex + 1] as HTMLElement
+            cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center' })
+          }
+        }, 100)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [cards, onSelectCard, canEdit])
+
+  if (cards.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[500px]">
+        <div className="text-center">
+          <div className="w-24 h-24 mx-auto mb-6 bg-slate-100 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-slate-300 rounded-lg" />
+          </div>
+          <h3 className="text-xl font-semibold text-slate-800 mb-2">
+            No cards yet
+          </h3>
+          <p className="text-slate-600 mb-4 max-w-sm">
+            Create your first session or break card to get started with your productivity journey.
+          </p>
+          <div className="text-sm text-slate-500">
+            Use the + button in the header to add cards
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative flex-1">
+      {/* Left Scroll Indicator */}
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll('left')}
+          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full flex items-center justify-center transition-all"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-5 h-5 text-slate-600" />
+        </button>
+      )}
+
+      {/* Right Scroll Indicator */}
+      {canScrollRight && (
+        <button
+          onClick={() => scroll('right')}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full flex items-center justify-center transition-all"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-5 h-5 text-slate-600" />
+        </button>
+      )}
+
+      {/* Cards Container */}
+      <div
+        ref={containerRef}
+        className="flex items-start py-8 px-6 overflow-x-auto custom-scrollbar"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {/* Insert button at the beginning */}
+        <CardInsertButton
+          onInsert={onInsertCard}
+          position={0}
+          canEdit={canEdit}
+        />
+        
+        {cards.map((card, index) => (
+          <React.Fragment key={card.id}>
+            <Card
+              card={card}
+              onSelect={onSelectCard}
+              onDelete={onDeleteCard}
+              onContentChange={onContentChange}
+              onStartEditing={onStartEditing}
+              onStopEditing={onStopEditing}
+              isEditing={editingCardId === card.id}
+              canEdit={canEdit}
+            />
+            
+            {/* Insert button after each card */}
+            <CardInsertButton
+              onInsert={onInsertCard}
+              position={index + 1}
+              canEdit={canEdit}
+            />
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* Keyboard Navigation Hint */}
+      {canEdit && cards.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+          <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-slate-500 border border-slate-200">
+            Use ← → keys to navigate cards
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
