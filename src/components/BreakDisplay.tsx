@@ -10,11 +10,16 @@ interface BreakDisplayProps {
 }
 
 export function BreakDisplay({ isActive, remainingTime, totalTime }: BreakDisplayProps) {
-  // Initialize with a random quote for each break card instance
-  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(() => 
-    Math.floor(Math.random() * quotes.quotes.length)
-  )
+  // Initialize with first quote to avoid hydration mismatch
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0)
   const [fadeClass, setFadeClass] = useState('opacity-100')
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  // Randomize quote after hydration
+  useEffect(() => {
+    setCurrentQuoteIndex(Math.floor(Math.random() * quotes.quotes.length))
+    setIsHydrated(true)
+  }, [])
   
   // Calculate reading time (assuming 200 words per minute)
   const calculateReadingTime = (text: string): number => {
@@ -30,8 +35,8 @@ export function BreakDisplay({ isActive, remainingTime, totalTime }: BreakDispla
   
   // Auto-cycle quotes based on reading time
   useEffect(() => {
-    if (!isActive) return
-    
+    if (!isActive || !isHydrated) return
+
     const cycleTime = Math.max(readingTime * 1000, 5000) // Minimum 5 seconds, convert to milliseconds
     const fadeOutTime = cycleTime - 500 // Start fade 500ms before change
     
@@ -52,7 +57,7 @@ export function BreakDisplay({ isActive, remainingTime, totalTime }: BreakDispla
       clearTimeout(fadeOutTimer)
       clearTimeout(cycleTimer)
     }
-  }, [currentQuoteIndex, isActive, readingTime])
+  }, [currentQuoteIndex, isActive, readingTime, isHydrated])
   
   // Handle break activation changes
   useEffect(() => {

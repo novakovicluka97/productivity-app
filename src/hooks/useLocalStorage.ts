@@ -3,25 +3,27 @@
 import { useState, useEffect } from 'react'
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === 'undefined') {
-      return initialValue
-    }
+  const [storedValue, setStoredValue] = useState<T>(initialValue)
+  const [isHydrated, setIsHydrated] = useState(false)
 
+  // Load from localStorage after mount to avoid hydration issues
+  useEffect(() => {
     try {
       const item = window.localStorage.getItem(key)
-      return item ? JSON.parse(item) : initialValue
+      if (item) {
+        setStoredValue(JSON.parse(item))
+      }
     } catch (error) {
       console.warn(`Error reading localStorage key "${key}":`, error)
-      return initialValue
     }
-  })
+    setIsHydrated(true)
+  }, [key])
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value
       setStoredValue(valueToStore)
-      
+
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(key, JSON.stringify(valueToStore))
       }
@@ -32,7 +34,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   // Listen for changes in other tabs/windows
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (typeof window === 'undefined' || !isHydrated) {
       return
     }
 
@@ -48,7 +50,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
-  }, [key])
+  }, [key, isHydrated])
 
   return [storedValue, setValue] as const
 }
