@@ -82,7 +82,7 @@ export function BreakDisplay({ isActive, remainingTime, totalTime }: BreakDispla
         <div className={`transition-opacity duration-500 ${fadeClass}`}>
           <blockquote className="relative">
             <div className="text-lg font-medium text-slate-700 mb-3 italic">
-              "{currentQuote.text}"
+              &ldquo;{currentQuote.text}&rdquo;
             </div>
             <cite className="text-sm text-slate-500 not-italic">
               — {currentQuote.author}
