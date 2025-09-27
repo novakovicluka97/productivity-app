@@ -77,10 +77,7 @@ export default function Home() {
     } else {
       // Select and start this card
       selectCard(cardId)
-      // Use setTimeout to ensure selection happens first
-      setTimeout(() => {
-        startTimer()
-      }, 0)
+      startTimer(cardId)
     }
   }
 
@@ -187,7 +184,7 @@ export default function Home() {
 
   // Removed handleFormatCommand - using TipTap editor commands instead
 
-  const canEdit = !isPlaying
+  const canEdit = true // Allow editing while timer is running
 
   // Update localStorage when cards change
   React.useEffect(() => {

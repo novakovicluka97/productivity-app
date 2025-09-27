@@ -9,7 +9,7 @@ interface UseTimerReturn {
   isPlaying: boolean
   activeCardId: string | null
   selectedCardId: string | null
-  startTimer: () => void
+  startTimer: (cardIdToStart?: string) => void
   pauseTimer: () => void
   toggleTimer: () => void
   setCards: (cards: Card[]) => void
@@ -101,9 +101,9 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
     )
   }, [selectedCardId])
 
-  const startTimer = useCallback(() => {
-    // Start with selected card if no active card, or continue with active card
-    let cardToActivate = activeCardId
+  const startTimer = useCallback((cardIdToStart?: string) => {
+    // Use provided cardId or fall back to existing logic
+    let cardToActivate = cardIdToStart || activeCardId
 
     if (!cardToActivate && selectedCardId) {
       const selectedCard = cards.find(card => card.id === selectedCardId)
@@ -114,7 +114,7 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
 
     // If no valid card to activate, find first incomplete card
     if (!cardToActivate) {
-      const firstIncompleteCard = cards.find(card => 
+      const firstIncompleteCard = cards.find(card =>
         card.timeRemaining > 0 && !card.isCompleted
       )
       if (firstIncompleteCard) {

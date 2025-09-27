@@ -80,22 +80,6 @@ export function Card({
       {/* Action Buttons */}
       {canEdit && (
         <>
-          {/* Complete Button */}
-          {!card.isCompleted && (
-            <Button
-              onClick={(e) => {
-                e.stopPropagation()
-                onCompleteCard(card.id)
-              }}
-              variant="default"
-              size="icon"
-              className="absolute -top-2 -right-10 z-10 h-6 w-6 rounded-full bg-green-500 hover:bg-green-600"
-              aria-label="Complete card"
-            >
-              <CheckCircle className="h-3 w-3" />
-            </Button>
-          )}
-
           {/* Delete Button */}
           <Button
             onClick={(e) => {
@@ -109,6 +93,22 @@ export function Card({
           >
             <X className="h-3 w-3" />
           </Button>
+
+          {/* Complete Button - positioned below delete button */}
+          {!card.isCompleted && (
+            <Button
+              onClick={(e) => {
+                e.stopPropagation()
+                onCompleteCard(card.id)
+              }}
+              variant="default"
+              size="icon"
+              className="absolute top-4 -right-2 z-10 h-6 w-6 rounded-full bg-green-500 hover:bg-green-600"
+              aria-label="Complete card"
+            >
+              <CheckCircle className="h-3 w-3" />
+            </Button>
+          )}
         </>
       )}
 
