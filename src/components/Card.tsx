@@ -46,37 +46,53 @@ export function Card({
   const progress = card.duration > 0 ? ((card.duration - card.timeRemaining) / card.duration) * 100 : 0
 
   return (
-    <ShadcnCard
-      className={cn(
-        'relative flex-shrink-0 mx-1 cursor-pointer flex flex-col transition-all duration-300 transform-gpu',
-        'hover:shadow-lg',
-        // Base size
-        'w-96 min-h-[600px] max-h-[800px]',
-        // Expand when selected - seamless expansion in all directions
-        card.isSelected && 'scale-105 w-[420px] min-h-[650px] max-h-[850px] z-20',
-        card.isSelected && 'ring-2 ring-primary ring-offset-2 shadow-2xl',
-        card.isActive && 'shadow-xl',
-        card.isCompleted && 'opacity-60 grayscale',
-        isEditing && 'ring-2 ring-blue-500'
+    <div className="relative flex-shrink-0 mx-2">
+      {/* Animated gradient background for active/selected cards */}
+      {(card.isActive || card.isSelected) && (
+        <div className={cn(
+          "absolute inset-0 rounded-3xl blur-2xl transition-all duration-500",
+          isSession
+            ? "bg-gradient-to-br from-blue-400/30 via-purple-400/30 to-pink-400/30"
+            : "bg-gradient-to-br from-green-400/30 via-teal-400/30 to-cyan-400/30",
+          card.isActive && "animate-pulse"
+        )} />
       )}
-      onClick={() => onSelect(card.id)}
-      data-card-id={card.id}
-      role="button"
-      tabIndex={0}
-      aria-label={`${isSession ? 'Session' : 'Break'} card - ${formatTime(card.timeRemaining)} remaining`}
-      aria-pressed={card.isSelected}
-      onKeyDown={(e) => {
-        // Don't prevent Enter/Space if editing text
-        const target = e.target as HTMLElement
-        if (target.contentEditable === 'true' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-          return
-        }
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onSelect(card.id)
-        }
-      }}
-    >
+
+      <ShadcnCard
+        className={cn(
+          'relative flex-shrink-0 cursor-pointer flex flex-col transition-all duration-500 transform-gpu',
+          // Glass morphism effect
+          'backdrop-blur-md bg-white/80 border-white/50',
+          'hover:shadow-2xl hover:bg-white/90',
+          // Base size
+          'w-96 min-h-[600px] max-h-[800px]',
+          // Modern rounded corners
+          'rounded-3xl',
+          // Expand when selected - seamless expansion in all directions
+          card.isSelected && 'scale-105 w-[420px] min-h-[650px] max-h-[850px] z-20',
+          card.isSelected && 'shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)] border-2',
+          card.isActive && 'shadow-2xl',
+          card.isCompleted && 'opacity-60 grayscale',
+          isEditing && 'ring-2 ring-blue-500'
+        )}
+        onClick={() => onSelect(card.id)}
+        data-card-id={card.id}
+        role="button"
+        tabIndex={0}
+        aria-label={`${isSession ? 'Session' : 'Break'} card - ${formatTime(card.timeRemaining)} remaining`}
+        aria-pressed={card.isSelected}
+        onKeyDown={(e) => {
+          // Don't prevent Enter/Space if editing text
+          const target = e.target as HTMLElement
+          if (target.contentEditable === 'true' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+            return
+          }
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onSelect(card.id)
+          }
+        }}
+      >
       {/* Action Buttons */}
       {canEdit && (
         <>
@@ -114,18 +130,28 @@ export function Card({
 
       {/* Card Header */}
       <CardHeader className={cn(
-        'flex flex-row items-center justify-between space-y-0 pb-2',
-        isSession ? 'bg-gradient-to-r from-blue-500 to-blue-600' : 'bg-gradient-to-r from-green-500 to-green-600',
-        'text-white rounded-t-lg'
+        'flex flex-row items-center justify-between space-y-0 pb-2 relative overflow-hidden',
+        'rounded-t-3xl'
       )}>
-        <CardTitle className="text-sm font-medium">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            <span className="capitalize">{card.type}</span>
+        {/* Animated gradient background */}
+        <div className={cn(
+          "absolute inset-0 bg-gradient-to-r opacity-90",
+          isSession
+            ? "from-blue-500 via-purple-500 to-pink-500"
+            : "from-green-500 via-teal-500 to-cyan-500"
+        )} />
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
+
+        <CardTitle className="relative z-10 text-sm font-medium">
+          <div className="flex items-center gap-2 text-white">
+            <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
+              <Clock className="h-4 w-4" />
+            </div>
+            <span className="capitalize font-semibold tracking-wide">{card.type}</span>
           </div>
         </CardTitle>
         {card.isActive && (
-          <Badge variant="secondary" className="bg-white/20 text-white border-0">
+          <Badge className="relative z-10 bg-white/20 text-white border-white/30 backdrop-blur-sm hover:bg-white/30">
             Active
           </Badge>
         )}
@@ -139,11 +165,8 @@ export function Card({
             totalTime={card.duration}
             className="transform scale-90"
             showSevenSegment={true}
+            isActive={card.isActive}
           />
-
-          <p className="text-sm text-muted-foreground mt-4">
-            Total: {formatTime(card.duration)}
-          </p>
 
           {/* Timer Control Buttons */}
           <CardTimerControls
@@ -162,7 +185,7 @@ export function Card({
       {/* Card Content Area */}
       <CardContent className="flex-1 overflow-y-auto px-4 pb-4" onClick={(e) => e.stopPropagation()}>
         {isSession ? (
-          <div className="h-full bg-muted/50 rounded-lg border">
+          <div className="h-full rounded-2xl backdrop-blur-sm bg-gradient-to-br from-white/50 to-gray-50/50 border border-white/50 shadow-inner">
             <RichTextEditor
               content={card.content || ''}
               onChange={(content) => onContentChange(card.id, content)}
@@ -174,7 +197,7 @@ export function Card({
             />
           </div>
         ) : (
-          <div className="h-full bg-green-50 rounded-lg border border-green-200">
+          <div className="h-full rounded-2xl backdrop-blur-sm bg-gradient-to-br from-green-50/50 to-teal-50/50 border border-green-200/50 shadow-inner">
             <BreakDisplay
               isActive={card.isActive}
               remainingTime={card.timeRemaining}
@@ -186,12 +209,13 @@ export function Card({
 
       {/* Completed Overlay */}
       {card.isCompleted && (
-        <div className="absolute inset-0 bg-background/50 rounded-lg flex items-center justify-center">
-          <Badge variant="secondary" className="shadow-lg">
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-sm rounded-3xl flex items-center justify-center">
+          <Badge className="shadow-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 px-4 py-2 text-lg">
             ✓ Completed
           </Badge>
         </div>
       )}
-    </ShadcnCard>
+      </ShadcnCard>
+    </div>
   )
 }

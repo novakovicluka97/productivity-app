@@ -5,6 +5,11 @@ import StarterKit from '@tiptap/starter-kit'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import Placeholder from '@tiptap/extension-placeholder'
+import Underline from '@tiptap/extension-underline'
+import Highlight from '@tiptap/extension-highlight'
+import { TextStyle } from '@tiptap/extension-text-style'
+import { Color } from '@tiptap/extension-color'
+import { FontFamily } from '@tiptap/extension-font-family'
 import { useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { useEditorContext } from './EditorManager'
@@ -48,6 +53,15 @@ export function RichTextEditor({
       }),
       Placeholder.configure({
         placeholder,
+      }),
+      Underline,
+      Highlight.configure({
+        multicolor: true,
+      }),
+      TextStyle,
+      Color,
+      FontFamily.configure({
+        types: ['textStyle'],
       }),
     ],
     content,
@@ -96,6 +110,17 @@ export function RichTextEditor({
 
         .tiptap-editor .ProseMirror p {
           margin: 0.5rem 0;
+        }
+
+        /* Highlight styles */
+        .tiptap-editor .ProseMirror mark {
+          padding: 0.125rem 0;
+          border-radius: 0.125rem;
+        }
+
+        /* Font family styles */
+        .tiptap-editor .ProseMirror [style*="font-family"] {
+          font-family: var(--font-family);
         }
 
         .tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {

@@ -1,9 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { TimeControls } from '@/components/TimeControls'
+import { UnifiedHeader } from '@/components/UnifiedHeader'
 import { CardContainer } from '@/components/CardContainer'
-import { UniversalToolbar } from '@/components/UniversalToolbar'
 import { EditorProvider } from '@/components/EditorManager'
 import { useTimer } from '@/hooks/useTimer'
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
@@ -218,18 +217,25 @@ export default function Home() {
 
   return (
     <EditorProvider>
-      <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <UniversalToolbar
+      <main className="min-h-screen relative overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50" />
+        <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent" />
+
+        {/* Animated floating orbs for depth */}
+        <div className="fixed top-20 left-20 w-72 h-72 bg-blue-300/30 rounded-full blur-3xl animate-pulse" />
+        <div className="fixed bottom-20 right-20 w-96 h-96 bg-purple-300/30 rounded-full blur-3xl animate-pulse animation-delay-2000" />
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300/20 rounded-full blur-3xl animate-pulse animation-delay-4000" />
+
+        <div className="relative z-10">
+        <UnifiedHeader
+          isPlaying={isPlaying}
+          onPlayPause={handlePlayPause}
+          onAddCard={handleAddCard}
+          canEdit={canEdit}
           isEditing={!!editingCardId}
           activeCardId={editingCardId}
         />
-
-      <TimeControls
-        isPlaying={isPlaying}
-        onPlayPause={handlePlayPause}
-        onAddCard={handleAddCard}
-        canEdit={canEdit}
-      />
 
       <div className="container mx-auto card-container">
         <CardContainer
@@ -270,6 +276,7 @@ export default function Home() {
           Keyboard: Space/Enter=Play/Pause, ←/→=Navigate, Del=Delete
         </div>
       </div>
+        </div>
       </main>
     </EditorProvider>
   )
