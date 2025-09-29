@@ -47,21 +47,21 @@ export function RichTextEditor({
           keepAttributes: false,
         },
       }),
+      TextStyle,
+      Color,
+      Highlight.configure({
+        multicolor: true,
+      }),
+      FontFamily.configure({
+        types: ['textStyle'],
+      }),
+      Underline,
       TaskList,
       TaskItem.configure({
         nested: true,
       }),
       Placeholder.configure({
         placeholder,
-      }),
-      Underline,
-      Highlight.configure({
-        multicolor: true,
-      }),
-      TextStyle,
-      Color,
-      FontFamily.configure({
-        types: ['textStyle'],
       }),
     ],
     content,
@@ -75,10 +75,23 @@ export function RichTextEditor({
       onFocus?.()
     },
     onBlur: ({ editor }) => {
-      setActiveEditor(null)
+      // Don't clear activeEditor on blur - keep it for toolbar use
       onBlur?.()
     },
   })
+
+  // Set the active editor when component mounts/editor is created
+  useEffect(() => {
+    if (editor) {
+      setActiveEditor(editor)
+    }
+    return () => {
+      // Clean up when component unmounts
+      if (editor) {
+        setActiveEditor(null)
+      }
+    }
+  }, [editor, setActiveEditor])
 
   // Update editor content when prop changes
   useEffect(() => {

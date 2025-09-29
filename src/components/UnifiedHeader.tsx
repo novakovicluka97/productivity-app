@@ -228,15 +228,19 @@ export function UnifiedHeader({
                           key={color}
                           className="w-8 h-8 rounded border border-gray-300 hover:scale-110 transition-transform"
                           style={{ backgroundColor: color }}
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => {
                             setHighlightColor(color)
-                            activeEditor?.chain().focus().toggleHighlight({ color }).run()
+                            if (activeEditor) {
+                              activeEditor.chain().focus().toggleHighlight({ color }).run()
+                            }
                           }}
                         />
                       ))}
                     </div>
                     <button
                       className="w-full mt-2 text-xs py-1 hover:bg-gray-100 rounded"
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={() => activeEditor?.chain().focus().unsetHighlight().run()}
                     >
                       Clear Highlight
@@ -267,6 +271,7 @@ export function UnifiedHeader({
                           key={color}
                           className="w-8 h-8 rounded border border-gray-300 hover:scale-110 transition-transform"
                           style={{ backgroundColor: color }}
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => {
                             setTextColor(color)
                             activeEditor?.chain().focus().setColor(color).run()
@@ -276,6 +281,7 @@ export function UnifiedHeader({
                     </div>
                     <button
                       className="w-full mt-2 text-xs py-1 hover:bg-gray-100 rounded"
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={() => activeEditor?.chain().focus().unsetColor().run()}
                     >
                       Reset Color
