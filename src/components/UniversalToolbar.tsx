@@ -27,10 +27,6 @@ interface UniversalToolbarProps {
 export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarProps) {
   const { activeEditor } = useEditorContext()
 
-  if (!isEditing || !activeCardId || !activeEditor) {
-    return null
-  }
-
   const handleCommand = (command: string) => {
     if (!activeEditor) return
 
@@ -76,6 +72,7 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
                     onPressedChange={() => handleCommand('bold')}
                     onMouseDown={handleMouseDown}
                     aria-label="Bold"
+                    disabled={!isEditing || !activeEditor}
                   >
                     <Bold className="h-4 w-4" />
                   </Toggle>
@@ -93,6 +90,7 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
                     onPressedChange={() => handleCommand('italic')}
                     onMouseDown={handleMouseDown}
                     aria-label="Italic"
+                    disabled={!isEditing || !activeEditor}
                   >
                     <Italic className="h-4 w-4" />
                   </Toggle>
@@ -110,6 +108,7 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
                     onPressedChange={() => handleCommand('underline')}
                     onMouseDown={handleMouseDown}
                     aria-label="Underline"
+                    disabled={!isEditing || !activeEditor}
                   >
                     <Underline className="h-4 w-4" />
                   </Toggle>
@@ -129,6 +128,7 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
                     onPressedChange={() => handleCommand('bulletList')}
                     onMouseDown={handleMouseDown}
                     aria-label="Bullet List"
+                    disabled={!isEditing || !activeEditor}
                   >
                     <List className="h-4 w-4" />
                   </Toggle>
@@ -146,6 +146,7 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
                     onPressedChange={() => handleCommand('orderedList')}
                     onMouseDown={handleMouseDown}
                     aria-label="Numbered List"
+                    disabled={!isEditing || !activeEditor}
                   >
                     <ListOrdered className="h-4 w-4" />
                   </Toggle>
@@ -163,6 +164,7 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
                     onPressedChange={() => handleCommand('taskList')}
                     onMouseDown={handleMouseDown}
                     aria-label="Task List"
+                    disabled={!isEditing || !activeEditor}
                   >
                     <CheckSquare className="h-4 w-4" />
                   </Toggle>
@@ -173,9 +175,11 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
               </Tooltip>
             </div>
 
-            <Badge variant="outline">
-              Editing: {activeCardId}
-            </Badge>
+            {isEditing && activeCardId && (
+              <Badge variant="outline">
+                Editing: {activeCardId}
+              </Badge>
+            )}
           </div>
         </div>
       </div>

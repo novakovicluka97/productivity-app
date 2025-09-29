@@ -88,7 +88,7 @@ export function Card({
             }}
             variant="destructive"
             size="icon"
-            className="absolute -top-2 -right-2 z-10 h-6 w-6 rounded-full"
+            className="absolute top-2 right-2 z-10 h-6 w-6 rounded-full"
             aria-label="Delete card"
           >
             <X className="h-3 w-3" />
@@ -103,7 +103,7 @@ export function Card({
               }}
               variant="default"
               size="icon"
-              className="absolute top-4 -right-2 z-10 h-6 w-6 rounded-full bg-green-500 hover:bg-green-600"
+              className="absolute top-9 right-2 z-10 h-6 w-6 rounded-full bg-green-500 hover:bg-green-600"
               aria-label="Complete card"
             >
               <CheckCircle className="h-3 w-3" />

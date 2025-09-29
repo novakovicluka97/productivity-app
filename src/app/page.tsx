@@ -191,6 +191,21 @@ export default function Home() {
     setSavedCards(cards)
   }, [cards, setSavedCards])
 
+  // Update document title with timer and card type
+  React.useEffect(() => {
+    const activeCard = cards.find(card => card.id === activeCardId)
+
+    if (activeCard && isPlaying) {
+      const minutes = Math.floor(activeCard.timeRemaining / 60)
+      const seconds = activeCard.timeRemaining % 60
+      const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      const cardType = activeCard.type === 'session' ? 'Session' : 'Break'
+      document.title = `${timeString} - ${cardType}`
+    } else {
+      document.title = 'Session-Break'
+    }
+  }, [cards, activeCardId, isPlaying])
+
   // Keyboard navigation
   useKeyboardNavigation({
     cards,

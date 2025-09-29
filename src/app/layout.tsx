@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'Productivity App',
+  title: 'Session-Break',
   description: 'A minimalist productivity app for managing sessions and breaks',
 }
 

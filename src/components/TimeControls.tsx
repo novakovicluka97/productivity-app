@@ -21,18 +21,18 @@ export function TimeControls({ isPlaying, onPlayPause, onAddCard, canEdit }: Tim
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo/Title */}
-          <div className="flex items-center gap-3">
+        <div className="flex items-center">
+          {/* Logo/Title - Left aligned */}
+          <div className="flex items-center gap-3 flex-1">
             <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
               <div className="w-3 h-3 bg-primary-foreground rounded-sm" />
             </div>
             <h1 className="text-xl font-semibold">
-              Productivity
+              Session-Break
             </h1>
           </div>
 
-          {/* Main Controls */}
+          {/* Main Controls - Center/Right */}
           <div className="flex items-center gap-2">
             {/* Play/Pause Button */}
             <Button
