@@ -297,6 +297,13 @@ export default function Home() {
           canEdit={canEdit}
           isEditing={!!editingCardId}
           activeCardId={editingCardId}
+          selectedTrack={activeCard?.selectedTrack}
+          volume={activeCard?.volume || 50}
+          isMusicPlaying={activeCard?.isMusicPlaying || false}
+          isTimerActive={activeCard?.isActive || false}
+          onTrackSelect={handleTrackSelect}
+          onVolumeChange={handleVolumeChange}
+          onMusicToggle={handleMusicToggle}
         />
 
       <div className="container mx-auto card-container">

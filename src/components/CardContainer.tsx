@@ -39,9 +39,6 @@ export function CardContainer({
   onResetCard,
   onUpdateTime,
   onCompleteCard,
-  onTrackSelect,
-  onVolumeChange,
-  onMusicToggle,
   isPlaying,
   editingCardId,
   canEdit
@@ -224,9 +221,6 @@ export function CardContainer({
               onResetCard={onResetCard}
               onUpdateTime={onUpdateTime}
               onCompleteCard={onCompleteCard}
-              onTrackSelect={onTrackSelect}
-              onVolumeChange={onVolumeChange}
-              onMusicToggle={onMusicToggle}
               isPlaying={isPlaying}
               isEditing={editingCardId === card.id}
               canEdit={canEdit}

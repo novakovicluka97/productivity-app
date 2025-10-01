@@ -19,7 +19,7 @@ export function useCardAudio({
   isMusicPlaying,
   isTimerActive
 }: UseCardAudioProps) {
-  const { load, play, pause, stop, playing, setVolume } = useAudioPlayer()
+  const { load, play, pause, stop, isPlaying, setVolume } = useAudioPlayer()
   const currentTrackRef = useRef<string | undefined>(undefined)
   const wasActiveRef = useRef(false)
 
@@ -57,7 +57,7 @@ export function useCardAudio({
   useEffect(() => {
     if (!isActive) {
       // If this card WAS active but isn't anymore, stop the audio
-      if (wasActiveRef.current && playing) {
+      if (wasActiveRef.current && isPlaying) {
         console.log(`[Audio ${cardId}] Card deactivated, stopping playback`)
         pause()
       }
@@ -71,29 +71,29 @@ export function useCardAudio({
 
     const shouldPlay = isMusicPlaying
 
-    if (shouldPlay && !playing) {
+    if (shouldPlay && !isPlaying) {
       console.log(`[Audio ${cardId}] Starting playback`)
       play()
-    } else if (!shouldPlay && playing) {
+    } else if (!shouldPlay && isPlaying) {
       console.log(`[Audio ${cardId}] Pausing playback`)
       pause()
     }
-  }, [isActive, isMusicPlaying, selectedTrack, playing, play, pause, cardId])
+  }, [isActive, isMusicPlaying, selectedTrack, isPlaying, play, pause, cardId])
 
   // Cleanup
   useEffect(() => {
     return () => {
-      if (wasActiveRef.current && playing) {
+      if (wasActiveRef.current && isPlaying) {
         console.log(`[Audio ${cardId}] Unmounting, stopping audio`)
         stop()
       }
     }
-  }, [playing, stop, cardId])
+  }, [isPlaying, stop, cardId])
 
   const togglePlayPause = () => {
     if (!isActive || !selectedTrack) return
-    
-    if (playing) {
+
+    if (isPlaying) {
       pause()
     } else {
       play()
@@ -101,7 +101,7 @@ export function useCardAudio({
   }
 
   return {
-    isPlaying: playing,
+    isPlaying,
     togglePlayPause,
     stop
   }
