@@ -105,7 +105,6 @@ export function UnifiedHeader({
                 Session-Break
               </h1>
             {/* Music Player - Always visible in header */}
-            {activeCardId && (
               <div className="mx-4">
                 <MusicPlayer
                   selectedTrack={selectedTrack}
@@ -115,10 +114,10 @@ export function UnifiedHeader({
                   onTrackSelect={onTrackSelect}
                   onVolumeChange={onVolumeChange}
                   onPlayToggle={onMusicToggle}
-                  className="min-w-[300px]"
+                  isActive={!!activeCardId}
+                  className="min-w-[320px]"
                 />
               </div>
-            )}
 
             </div>
 
