@@ -66,16 +66,18 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('bold')}
-                    onPressedChange={() => handleCommand('bold')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Bold"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <Bold className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('bold') || false}
+                      onPressedChange={() => handleCommand('bold')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Bold"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <Bold className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Bold (Ctrl+B)</p>
@@ -84,16 +86,18 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('italic')}
-                    onPressedChange={() => handleCommand('italic')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Italic"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <Italic className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('italic') || false}
+                      onPressedChange={() => handleCommand('italic')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Italic"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <Italic className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Italic (Ctrl+I)</p>
@@ -102,16 +106,18 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('underline')}
-                    onPressedChange={() => handleCommand('underline')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Underline"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <Underline className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('underline') || false}
+                      onPressedChange={() => handleCommand('underline')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Underline"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <Underline className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Underline (Ctrl+U)</p>
@@ -122,16 +128,18 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('bulletList')}
-                    onPressedChange={() => handleCommand('bulletList')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Bullet List"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <List className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('bulletList') || false}
+                      onPressedChange={() => handleCommand('bulletList')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Bullet List"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <List className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Bullet List</p>
@@ -140,16 +148,18 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('orderedList')}
-                    onPressedChange={() => handleCommand('orderedList')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Numbered List"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <ListOrdered className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('orderedList') || false}
+                      onPressedChange={() => handleCommand('orderedList')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Numbered List"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <ListOrdered className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Numbered List</p>
@@ -158,16 +168,18 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('taskList')}
-                    onPressedChange={() => handleCommand('taskList')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Task List"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <CheckSquare className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('taskList') || false}
+                      onPressedChange={() => handleCommand('taskList')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Task List"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <CheckSquare className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Task List (Checkboxes)</p>

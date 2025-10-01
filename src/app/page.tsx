@@ -4,10 +4,12 @@ import React, { useState } from 'react'
 import { UnifiedHeader } from '@/components/UnifiedHeader'
 import { CardContainer } from '@/components/CardContainer'
 import { EditorProvider } from '@/components/EditorManager'
+import { AudioPlayerProvider } from 'react-use-audio-player'
 import { useTimer } from '@/hooks/useTimer'
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useAutoTransfer } from '@/hooks/useAutoTransfer'
+import { useCardAudio } from '@/hooks/useCardAudio'
 import { Card } from '@/lib/types'
 
 // Demo data for Step 1 testing
@@ -63,6 +65,17 @@ export default function Home() {
   } = useTimer(savedCards)
 
   // Auto-transfer unchecked todos
+  // Get active card for music control
+  const activeCard = cards.find(card => card.id === activeCardId)
+  
+  // Single audio player instance for active card only
+  useCardAudio({
+    cardId: activeCardId || '',
+    selectedTrack: activeCard?.selectedTrack,
+    volume: activeCard?.volume || 50,
+    isMusicPlaying: activeCard?.isMusicPlaying || false,
+    isTimerActive: activeCard?.isActive || false
+  })
   useAutoTransfer(cards, setCards, activeCardId)
 
   const handlePlayPause = () => {
@@ -93,6 +106,28 @@ export default function Home() {
     if (cardId === activeCardId) {
       pauseTimer()
     }
+  }
+
+  const handleResetCard = (cardId: string) => {
+    resetCard(cardId)
+    // Sync to localStorage after reset
+    const updatedCards = cards.map(card =>
+      card.id === cardId
+        ? { ...card, timeRemaining: card.duration, isCompleted: false, isActive: false }
+        : card
+    )
+    setSavedCards(updatedCards)
+  }
+
+  const handleUpdateTime = (cardId: string, newTime: number) => {
+    updateCardTime(cardId, newTime)
+    // Sync to localStorage after time update
+    const updatedCards = cards.map(card =>
+      card.id === cardId
+        ? { ...card, timeRemaining: newTime, duration: Math.max(card.duration, newTime), isCompleted: newTime === 0 }
+        : card
+    )
+    setSavedCards(updatedCards)
   }
 
   const handleAddCard = (type: 'session' | 'break') => {
@@ -181,14 +216,40 @@ export default function Home() {
     setEditingCardId(null)
   }
 
+  // Music control handlers
+  const handleTrackSelect = (trackId: string) => {
+    if (!activeCardId) return
+    const newCards = cards.map(card =>
+      card.id === activeCardId ? { ...card, selectedTrack: trackId } : card
+    )
+    setCards(newCards)
+    setSavedCards(newCards)
+  }
+
+  const handleVolumeChange = (volume: number) => {
+    if (!activeCardId) return
+    const newCards = cards.map(card =>
+      card.id === activeCardId ? { ...card, volume } : card
+    )
+    setCards(newCards)
+    setSavedCards(newCards)
+  }
+
+  const handleMusicToggle = () => {
+    if (!activeCardId) return
+    const newCards = cards.map(card =>
+      card.id === activeCardId ? { ...card, isMusicPlaying: !card.isMusicPlaying } : card
+    )
+    setCards(newCards)
+    setSavedCards(newCards)
+  }
+
   // Removed handleFormatCommand - using TipTap editor commands instead
 
   const canEdit = true // Allow editing while timer is running
 
-  // Update localStorage when cards change
-  React.useEffect(() => {
-    setSavedCards(cards)
-  }, [cards, setSavedCards])
+  // Note: Removed automatic localStorage sync to prevent infinite re-render loop
+  // Cards are now saved to localStorage only on explicit user actions
 
   // Update document title with timer and card type
   React.useEffect(() => {
@@ -216,8 +277,9 @@ export default function Home() {
   })
 
   return (
-    <EditorProvider>
-      <main className="min-h-screen relative overflow-hidden">
+    <AudioPlayerProvider>
+      <EditorProvider>
+        <main className="min-h-screen relative overflow-hidden">
         {/* Animated gradient background */}
         <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50" />
         <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent" />
@@ -247,8 +309,8 @@ export default function Home() {
           onStopEditing={handleStopEditing}
           onInsertCard={handleInsertCard}
           onToggleTimer={handleToggleTimer}
-          onResetCard={resetCard}
-          onUpdateTime={updateCardTime}
+          onResetCard={handleResetCard}
+          onUpdateTime={handleUpdateTime}
           onCompleteCard={handleCompleteCard}
           isPlaying={isPlaying}
           editingCardId={editingCardId}
@@ -278,6 +340,7 @@ export default function Home() {
       </div>
         </div>
       </main>
-    </EditorProvider>
+      </EditorProvider>
+    </AudioPlayerProvider>
   )
 }

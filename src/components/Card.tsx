@@ -45,6 +45,7 @@ export function Card({
   const isSession = card.type === 'session'
   const progress = card.duration > 0 ? ((card.duration - card.timeRemaining) / card.duration) * 100 : 0
 
+
   return (
     <div className="relative flex-shrink-0 mx-2">
       {/* Animated gradient background for active/selected cards */}
@@ -179,6 +180,7 @@ export function Card({
             onUpdateTime={onUpdateTime}
             canEdit={canEdit}
           />
+
         </div>
       </CardContent>
 

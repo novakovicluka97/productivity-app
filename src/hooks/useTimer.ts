@@ -25,9 +25,14 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(
     initialCards.find(card => card.isSelected)?.id || null
   )
-  
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const { playCompletionSound } = useSoundNotification()
+
+  // Sync with external card changes
+  useEffect(() => {
+    setCardsState(initialCards)
+  }, [initialCards])
 
   // Timer logic - runs every second when playing
   useEffect(() => {

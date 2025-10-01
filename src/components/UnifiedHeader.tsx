@@ -6,6 +6,7 @@ import {
   Highlighter, Type, Palette, ChevronDown
 } from 'lucide-react'
 import { useState } from 'react'
+import { MusicPlayer } from './MusicPlayer'
 import { Button } from './ui/button'
 import {
   DropdownMenu,
@@ -31,6 +32,14 @@ interface UnifiedHeaderProps {
   canEdit: boolean
   isEditing: boolean
   activeCardId: string | null
+  // Music props
+  selectedTrack?: string
+  volume: number
+  isMusicPlaying: boolean
+  isTimerActive: boolean
+  onTrackSelect: (trackId: string) => void
+  onVolumeChange: (volume: number) => void
+  onMusicToggle: () => void
 }
 
 export function UnifiedHeader({
@@ -39,7 +48,14 @@ export function UnifiedHeader({
   onAddCard,
   canEdit,
   isEditing,
-  activeCardId
+  activeCardId,
+  selectedTrack,
+  volume,
+  isMusicPlaying,
+  isTimerActive,
+  onTrackSelect,
+  onVolumeChange,
+  onMusicToggle,
 }: UnifiedHeaderProps) {
   const { activeEditor } = useEditorContext()
   const [highlightColor, setHighlightColor] = useState('#FFFF00')
@@ -88,6 +104,22 @@ export function UnifiedHeader({
               <h1 className="text-xl font-semibold">
                 Session-Break
               </h1>
+            {/* Music Player - Always visible in header */}
+            {activeCardId && (
+              <div className="mx-4">
+                <MusicPlayer
+                  selectedTrack={selectedTrack}
+                  volume={volume}
+                  isMusicPlaying={isMusicPlaying}
+                  isTimerActive={isTimerActive}
+                  onTrackSelect={onTrackSelect}
+                  onVolumeChange={onVolumeChange}
+                  onPlayToggle={onMusicToggle}
+                  className="min-w-[300px]"
+                />
+              </div>
+            )}
+
             </div>
 
             <Separator orientation="vertical" className="h-8" />
@@ -96,16 +128,18 @@ export function UnifiedHeader({
             <div className="flex items-center gap-1 flex-1">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('bold')}
-                    onPressedChange={() => handleCommand('bold')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Bold"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <Bold className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('bold') || false}
+                      onPressedChange={() => handleCommand('bold')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Bold"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <Bold className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Bold (Ctrl+B)</p>
@@ -114,16 +148,18 @@ export function UnifiedHeader({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('italic')}
-                    onPressedChange={() => handleCommand('italic')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Italic"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <Italic className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('italic') || false}
+                      onPressedChange={() => handleCommand('italic')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Italic"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <Italic className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Italic (Ctrl+I)</p>
@@ -132,16 +168,18 @@ export function UnifiedHeader({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('underline')}
-                    onPressedChange={() => handleCommand('underline')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Underline"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <Underline className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('underline') || false}
+                      onPressedChange={() => handleCommand('underline')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Underline"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <Underline className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Underline (Ctrl+U)</p>
@@ -152,16 +190,18 @@ export function UnifiedHeader({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('bulletList')}
-                    onPressedChange={() => handleCommand('bulletList')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Bullet List"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <List className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('bulletList') || false}
+                      onPressedChange={() => handleCommand('bulletList')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Bullet List"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <List className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Bullet List</p>
@@ -170,16 +210,18 @@ export function UnifiedHeader({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('orderedList')}
-                    onPressedChange={() => handleCommand('orderedList')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Numbered List"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <ListOrdered className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('orderedList') || false}
+                      onPressedChange={() => handleCommand('orderedList')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Numbered List"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <ListOrdered className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Numbered List</p>
@@ -188,16 +230,18 @@ export function UnifiedHeader({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Toggle
-                    size="sm"
-                    pressed={activeEditor?.isActive('taskList')}
-                    onPressedChange={() => handleCommand('taskList')}
-                    onMouseDown={handleMouseDown}
-                    aria-label="Task List"
-                    disabled={!isEditing || !activeEditor}
-                  >
-                    <CheckSquare className="h-4 w-4" />
-                  </Toggle>
+                  <div>
+                    <Toggle
+                      size="sm"
+                      pressed={activeEditor?.isActive('taskList') || false}
+                      onPressedChange={() => handleCommand('taskList')}
+                      onMouseDown={handleMouseDown}
+                      aria-label="Task List"
+                      disabled={!isEditing || !activeEditor}
+                    >
+                      <CheckSquare className="h-4 w-4" />
+                    </Toggle>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Task List (Checkboxes)</p>

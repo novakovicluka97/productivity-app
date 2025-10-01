@@ -8,6 +8,10 @@ export interface Card {
   isSelected: boolean
   content?: string // Rich text content with embedded checkboxes
   todos?: TodoItem[] // Keep for backward compatibility during transition
+  // Music properties
+  selectedTrack?: string // Track ID (e.g., 'track-01')
+  volume?: number // Volume level 0-100
+  isMusicPlaying?: boolean // Independent music playing state
 }
 
 export interface TodoItem {
