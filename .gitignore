@@ -28,6 +28,7 @@ TODO.md
 PRODUCTIVITY_APP.md
 CLAUDE.md
 .claude*
+.playwright-mcp/
 
 # OS generated files
 .DS_Store
@@ -95,3 +96,22 @@ tmp/
 
 # Temporary folders
 temp-next/
+
+# Windows reserved names (prevent accidental creation)
+nul
+CON
+PRN
+AUX
+NUL
+COM1
+COM2
+COM3
+COM4
+LPT1
+LPT2
+LPT3
+
+# Backup files
+*.bak
+*.backup
+*~

@@ -10,7 +10,7 @@ import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useAutoTransfer } from '@/hooks/useAutoTransfer'
 import { useCardAudio } from '@/hooks/useCardAudio'
-import { Card } from '@/lib/types'
+import { Card, AppState } from '@/lib/types'
 
 // Demo data for Step 1 testing
 const initialCards: Card[] = [
@@ -49,6 +49,9 @@ export default function Home() {
   const [savedCards, setSavedCards] = useLocalStorage<Card[]>('productivity-cards', initialCards)
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
   const [nextCardId, setNextCardId] = useState(4) // Start from 4 since we have cards 1,2,3
+  const [selectedTrack, setSelectedTrack] = useState<string | undefined>(undefined)
+  const [volume, setVolume] = useState<number>(50)
+  const [isMusicPlaying, setIsMusicPlaying] = useState<boolean>(false)
 
   const {
     cards,
@@ -65,16 +68,14 @@ export default function Home() {
   } = useTimer(savedCards)
 
   // Auto-transfer unchecked todos
-  // Get active card for music control
+  // Get active card for document title
   const activeCard = cards.find(card => card.id === activeCardId)
-  
-  // Single audio player instance for active card only
+
+  // Single audio player instance - fully global (independent of card/timer state)
   useCardAudio({
-    cardId: activeCardId || '',
-    selectedTrack: activeCard?.selectedTrack,
-    volume: activeCard?.volume || 50,
-    isMusicPlaying: activeCard?.isMusicPlaying || false,
-    isTimerActive: activeCard?.isActive || false
+    selectedTrack: selectedTrack,
+    volume: volume,
+    isMusicPlaying: isMusicPlaying
   })
   useAutoTransfer(cards, setCards, activeCardId)
 
@@ -109,15 +110,19 @@ export default function Home() {
   }
 
   const handleResetCard = (cardId: string) => {
+    // Call the hook's resetCard function which updates the cards state
     resetCard(cardId)
-    // Sync to localStorage after reset
-    const updatedCards = cards.map(card =>
-      card.id === cardId
-        ? { ...card, timeRemaining: card.duration, isCompleted: false, isActive: false }
-        : card
-    )
-    setSavedCards(updatedCards)
   }
+
+  // Sync cards to localStorage whenever they change (but only for user actions)
+  React.useEffect(() => {
+    // Only sync if cards have actually changed
+    const cardsString = JSON.stringify(cards)
+    const savedString = JSON.stringify(savedCards)
+    if (cardsString !== savedString) {
+      setSavedCards(cards)
+    }
+  }, [cards, savedCards, setSavedCards])
 
   const handleUpdateTime = (cardId: string, newTime: number) => {
     updateCardTime(cardId, newTime)
@@ -218,30 +223,15 @@ export default function Home() {
 
   // Music control handlers
   const handleTrackSelect = (trackId: string) => {
-    if (!activeCardId) return
-    const newCards = cards.map(card =>
-      card.id === activeCardId ? { ...card, selectedTrack: trackId } : card
-    )
-    setCards(newCards)
-    setSavedCards(newCards)
+    setSelectedTrack(trackId)
   }
 
   const handleVolumeChange = (volume: number) => {
-    if (!activeCardId) return
-    const newCards = cards.map(card =>
-      card.id === activeCardId ? { ...card, volume } : card
-    )
-    setCards(newCards)
-    setSavedCards(newCards)
+    setVolume(volume)
   }
 
   const handleMusicToggle = () => {
-    if (!activeCardId) return
-    const newCards = cards.map(card =>
-      card.id === activeCardId ? { ...card, isMusicPlaying: !card.isMusicPlaying } : card
-    )
-    setCards(newCards)
-    setSavedCards(newCards)
+    setIsMusicPlaying(!isMusicPlaying)
   }
 
   // Removed handleFormatCommand - using TipTap editor commands instead
@@ -291,16 +281,13 @@ export default function Home() {
 
         <div className="relative z-10">
         <UnifiedHeader
-          isPlaying={isPlaying}
-          onPlayPause={handlePlayPause}
           onAddCard={handleAddCard}
           canEdit={canEdit}
           isEditing={!!editingCardId}
           activeCardId={editingCardId}
-          selectedTrack={activeCard?.selectedTrack}
-          volume={activeCard?.volume || 50}
-          isMusicPlaying={activeCard?.isMusicPlaying || false}
-          isTimerActive={activeCard?.isActive || false}
+          selectedTrack={selectedTrack}
+          volume={volume}
+          isMusicPlaying={isMusicPlaying}
           onTrackSelect={handleTrackSelect}
           onVolumeChange={handleVolumeChange}
           onMusicToggle={handleMusicToggle}

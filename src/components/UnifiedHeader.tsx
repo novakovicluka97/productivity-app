@@ -1,7 +1,7 @@
 'use client'
 
 import {
-  Play, Pause, Plus, Settings,
+  Plus, Settings,
   Bold, Italic, Underline, List, ListOrdered, CheckSquare,
   Highlighter, Type, Palette, ChevronDown
 } from 'lucide-react'
@@ -26,8 +26,6 @@ import {
 } from './ui/tooltip'
 
 interface UnifiedHeaderProps {
-  isPlaying: boolean
-  onPlayPause: () => void
   onAddCard: (type: 'session' | 'break') => void
   canEdit: boolean
   isEditing: boolean
@@ -36,15 +34,12 @@ interface UnifiedHeaderProps {
   selectedTrack?: string
   volume: number
   isMusicPlaying: boolean
-  isTimerActive: boolean
   onTrackSelect: (trackId: string) => void
   onVolumeChange: (volume: number) => void
   onMusicToggle: () => void
 }
 
 export function UnifiedHeader({
-  isPlaying,
-  onPlayPause,
   onAddCard,
   canEdit,
   isEditing,
@@ -52,7 +47,6 @@ export function UnifiedHeader({
   selectedTrack,
   volume,
   isMusicPlaying,
-  isTimerActive,
   onTrackSelect,
   onVolumeChange,
   onMusicToggle,
@@ -110,11 +104,9 @@ export function UnifiedHeader({
                   selectedTrack={selectedTrack}
                   volume={volume}
                   isMusicPlaying={isMusicPlaying}
-                  isTimerActive={isTimerActive}
                   onTrackSelect={onTrackSelect}
                   onVolumeChange={onVolumeChange}
                   onPlayToggle={onMusicToggle}
-                  isActive={!!activeCardId}
                   className="min-w-[320px]"
                 />
               </div>
@@ -388,21 +380,6 @@ export function UnifiedHeader({
 
             {/* Main Controls - Right */}
             <div className="flex items-center gap-2">
-              {/* Play/Pause Button */}
-              <Button
-                onClick={onPlayPause}
-                size="icon"
-                className="h-10 w-10 rounded-full"
-                aria-label={isPlaying ? 'Pause timer' : 'Start timer'}
-                aria-pressed={isPlaying}
-              >
-                {isPlaying ? (
-                  <Pause className="h-5 w-5" aria-hidden="true" />
-                ) : (
-                  <Play className="h-5 w-5 ml-0.5" aria-hidden="true" />
-                )}
-              </Button>
-
               {/* Add Card Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

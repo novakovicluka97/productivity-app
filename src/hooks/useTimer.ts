@@ -29,10 +29,11 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const { playCompletionSound } = useSoundNotification()
 
-  // Sync with external card changes
+  // Only sync initialCards on mount, not on every change (prevents infinite loops)
   useEffect(() => {
     setCardsState(initialCards)
-  }, [initialCards])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Timer logic - runs every second when playing
   useEffect(() => {

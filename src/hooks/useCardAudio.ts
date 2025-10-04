@@ -5,37 +5,32 @@ import { useAudioPlayer } from 'react-use-audio-player'
 import { getAudioPath, getTrackById } from '@/lib/audioConfig'
 
 interface UseCardAudioProps {
-  cardId: string
   selectedTrack?: string
   volume: number
   isMusicPlaying: boolean
-  isTimerActive: boolean
 }
 
 export function useCardAudio({
-  cardId,
   selectedTrack,
   volume,
-  isMusicPlaying,
-  isTimerActive
+  isMusicPlaying
 }: UseCardAudioProps) {
   const { load, play, pause, stop, isPlaying, setVolume } = useAudioPlayer()
   const currentTrackRef = useRef<string | undefined>(undefined)
-  const wasActiveRef = useRef(false)
 
-  // CRITICAL: Only the active card should control the audio player
-  // This prevents multiple cards from fighting over the same player
-  const isActive = isTimerActive
+  // Music is now fully decoupled from timer and card state - global audio player
 
-  // Load track when selected AND card becomes active
+  // Load track when selected - music can be loaded independently of timer state
   useEffect(() => {
-    if (!isActive) return // Don't load if not active
-
     if (selectedTrack && selectedTrack !== currentTrackRef.current) {
       const track = getTrackById(selectedTrack)
       if (track) {
         const audioPath = getAudioPath(track.filename)
-        console.log(`[Audio ${cardId}] Loading track:`, audioPath)
+        console.log(`Loading track:`, audioPath)
+
+        // Store current playing state to preserve it after track change
+        const wasPlayingBefore = isPlaying
+
         load(audioPath, {
           autoplay: false,
           loop: true,
@@ -43,55 +38,48 @@ export function useCardAudio({
           html5: true
         })
         currentTrackRef.current = selectedTrack
+
+        // Resume playback if music was playing before track change
+        if (wasPlayingBefore && isMusicPlaying) {
+          // Small delay to ensure track is loaded
+          setTimeout(() => play(), 100)
+        }
       }
     }
-  }, [isActive, selectedTrack, load, cardId])
+  }, [selectedTrack, load, isMusicPlaying, isPlaying, play])
 
-  // Update volume only when active
+  // Update volume - always responsive
   useEffect(() => {
-    if (!isActive) return
     setVolume(volume / 100)
-  }, [isActive, volume, setVolume])
+  }, [volume, setVolume])
 
-  // Handle play/pause - ONLY when this card is active
+  // Handle play/pause - independent of timer state
   useEffect(() => {
-    if (!isActive) {
-      // If this card WAS active but isn't anymore, stop the audio
-      if (wasActiveRef.current && isPlaying) {
-        console.log(`[Audio ${cardId}] Card deactivated, stopping playback`)
-        pause()
-      }
-      wasActiveRef.current = false
-      return
-    }
-
-    wasActiveRef.current = true
-
     if (!selectedTrack) return
 
     const shouldPlay = isMusicPlaying
 
     if (shouldPlay && !isPlaying) {
-      console.log(`[Audio ${cardId}] Starting playback`)
+      console.log(`Starting playback`)
       play()
     } else if (!shouldPlay && isPlaying) {
-      console.log(`[Audio ${cardId}] Pausing playback`)
+      console.log(`Pausing playback`)
       pause()
     }
-  }, [isActive, isMusicPlaying, selectedTrack, isPlaying, play, pause, cardId])
+  }, [isMusicPlaying, selectedTrack, isPlaying, play, pause])
 
-  // Cleanup
+  // Cleanup - stop audio when component unmounts
   useEffect(() => {
     return () => {
-      if (wasActiveRef.current && isPlaying) {
-        console.log(`[Audio ${cardId}] Unmounting, stopping audio`)
+      if (isPlaying) {
+        console.log(`Unmounting, stopping audio`)
         stop()
       }
     }
-  }, [isPlaying, stop, cardId])
+  }, [isPlaying, stop])
 
   const togglePlayPause = () => {
-    if (!isActive || !selectedTrack) return
+    if (!selectedTrack) return
 
     if (isPlaying) {
       pause()

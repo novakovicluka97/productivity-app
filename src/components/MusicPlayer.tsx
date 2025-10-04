@@ -16,32 +16,27 @@ interface MusicPlayerProps {
   selectedTrack: string | undefined
   volume: number
   isMusicPlaying: boolean
-  isTimerActive: boolean
   onTrackSelect: (trackId: string) => void
   onVolumeChange: (volume: number) => void
   onPlayToggle: () => void
   className?: string
-  isActive?: boolean // Whether there's an active card
 }
 
 export function MusicPlayer({
   selectedTrack,
   volume,
   isMusicPlaying,
-  isTimerActive,
   onTrackSelect,
   onVolumeChange,
   onPlayToggle,
-  className,
-  isActive = true
+  className
 }: MusicPlayerProps) {
   const currentTrack = selectedTrack ? getTrackById(selectedTrack) : null
 
   return (
     <div className={cn(
       "relative rounded-lg backdrop-blur-md bg-white/30 border border-white/50 px-3 py-1.5 shadow-sm",
-      "transition-all duration-300",
-      isActive ? "hover:bg-white/40" : "opacity-60",
+      "transition-all duration-300 hover:bg-white/40",
       className
     )}>
       {/* Gradient overlay for depth */}
@@ -56,7 +51,6 @@ export function MusicPlayer({
               variant="ghost"
               size="sm"
               className="h-8 px-2 bg-white/50 hover:bg-white/70 backdrop-blur-sm min-w-[120px] justify-between"
-              disabled={!isActive}
             >
               <span className="text-xs font-medium truncate max-w-[80px]">
                 {currentTrack ? currentTrack.name : 'Select Track'}
@@ -91,7 +85,7 @@ export function MusicPlayer({
             "hover:from-blue-500/30 hover:to-purple-500/30",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
-          disabled={!selectedTrack || !isActive}
+          disabled={!selectedTrack}
           aria-label={isMusicPlaying ? 'Pause music' : 'Play music'}
         >
           {isMusicPlaying ? (
@@ -110,7 +104,7 @@ export function MusicPlayer({
             max={100}
             step={1}
             className="flex-1"
-            disabled={!selectedTrack || !isActive}
+            disabled={!selectedTrack}
             aria-label="Volume control"
           />
           <span className="text-xs text-gray-600 min-w-[2rem] text-right">
@@ -119,7 +113,7 @@ export function MusicPlayer({
         </div>
 
         {/* Playing indicator - inline */}
-        {isMusicPlaying && isTimerActive && (
+        {isMusicPlaying && (
           <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse flex-shrink-0" />
         )}
       </div>
