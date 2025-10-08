@@ -10,7 +10,6 @@ import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useAutoTransfer } from '@/hooks/useAutoTransfer'
 import { useCardAudio } from '@/hooks/useCardAudio'
 import { useTheme } from '@/hooks/useTheme'
-import { ToastProvider } from '@/components/ToastProvider'
 import { Card, AppState } from '@/lib/types'
 
 // Demo data for Step 1 testing
@@ -276,9 +275,8 @@ export default function Home() {
   })
 
   return (
-    <ToastProvider>
-      <EditorProvider>
-        <main className="relative min-h-screen overflow-hidden">
+    <EditorProvider>
+      <main className="relative min-h-screen overflow-hidden">
           {/* Animated gradient background */}
           <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900 forest:from-green-50 forest:via-emerald-50 forest:to-teal-50 ocean:from-cyan-50 ocean:via-blue-50 ocean:to-sky-50" />
           <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent dark:via-slate-800/30 forest:via-green-100/30 ocean:via-blue-100/30" />
@@ -342,8 +340,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </main>
-      </EditorProvider>
-    </ToastProvider>
+      </main>
+    </EditorProvider>
   )
 }

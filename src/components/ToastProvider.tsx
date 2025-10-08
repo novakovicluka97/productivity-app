@@ -122,8 +122,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
 export function useToast() {
   const context = useContext(ToastContext)
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider')
+  if (context) {
+    return context
   }
-  return context
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('useToast called outside of ToastProvider; returning no-op implementation.')
+  }
+
+  return {
+    showToast: () => {
+      // noop on server or when provider not yet mounted
+    }
+  }
 }
