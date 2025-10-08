@@ -71,27 +71,27 @@ export function BreakDisplay({ isActive, remainingTime, totalTime }: BreakDispla
       <div className="text-center max-w-md mx-auto">
         <div className="mb-8">
           <div className="text-5xl mb-4">☕</div>
-          <h3 className="text-lg font-medium text-slate-600 mb-2">
+          <h3 className="text-lg font-medium text-slate-600 dark:text-slate-300 mb-2">
             Take a Break
           </h3>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Recharge and come back stronger
           </p>
         </div>
         
         <div className={`transition-opacity duration-500 ${fadeClass}`}>
           <blockquote className="relative">
-            <div className="text-lg font-medium text-slate-700 mb-3 italic">
+            <div className="text-lg font-medium text-slate-700 dark:text-slate-200 mb-3 italic">
               &ldquo;{currentQuote.text}&rdquo;
             </div>
-            <cite className="text-sm text-slate-500 not-italic">
+            <cite className="text-sm text-slate-500 dark:text-slate-400 not-italic">
               — {currentQuote.author}
             </cite>
           </blockquote>
         </div>
         
         <div className="mt-8 space-y-2">
-          <div className="text-xs text-slate-400">
+          <div className="text-xs text-slate-400 dark:text-slate-500">
             {isActive ? `Next quote in ${Math.max(readingTime, 5)} seconds` : 'Timer paused'}
           </div>
           <div className="flex justify-center space-x-1">
@@ -101,7 +101,7 @@ export function BreakDisplay({ isActive, remainingTime, totalTime }: BreakDispla
                 className={`h-1.5 w-1.5 rounded-full transition-all ${
                   index === currentQuoteIndex
                     ? 'bg-primary-500 w-6'
-                    : 'bg-slate-300'
+                    : 'bg-slate-300 dark:bg-slate-600'
                 }`}
               />
             ))}

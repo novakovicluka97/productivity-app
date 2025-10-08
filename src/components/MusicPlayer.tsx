@@ -36,11 +36,12 @@ export function MusicPlayer({
   return (
     <div className={cn(
       "relative rounded-lg backdrop-blur-md bg-white/30 border border-white/50 px-3 py-1.5 shadow-sm",
-      "transition-all duration-300 hover:bg-white/40",
+      "dark:bg-slate-800/30 dark:border-slate-700/50",
+      "transition-all duration-300 hover:bg-white/40 dark:hover:bg-slate-800/40",
       className
     )}>
       {/* Gradient overlay for depth */}
-      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none" />
+      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 dark:from-blue-600/10 dark:via-purple-600/10 dark:to-pink-600/10 pointer-events-none" />
 
       {/* Compact single-row layout */}
       <div className="relative z-10 flex items-center gap-2">
@@ -50,7 +51,7 @@ export function MusicPlayer({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-2 bg-white/50 hover:bg-white/70 backdrop-blur-sm min-w-[120px] justify-between"
+              className="h-8 px-2 bg-white/50 hover:bg-white/70 dark:bg-slate-700/50 dark:hover:bg-slate-700/70 backdrop-blur-sm min-w-[120px] justify-between"
             >
               <span className="text-xs font-medium truncate max-w-[80px]">
                 {currentTrack ? currentTrack.name : 'Select Track'}
@@ -82,7 +83,9 @@ export function MusicPlayer({
           className={cn(
             "h-8 w-8 rounded-full flex-shrink-0",
             "bg-gradient-to-br from-blue-500/20 to-purple-500/20",
+            "dark:from-blue-600/30 dark:to-purple-600/30",
             "hover:from-blue-500/30 hover:to-purple-500/30",
+            "dark:hover:from-blue-600/40 dark:hover:to-purple-600/40",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
           disabled={!selectedTrack}
@@ -97,7 +100,7 @@ export function MusicPlayer({
 
         {/* Volume Control - Compact */}
         <div className="flex items-center gap-1.5 flex-1 min-w-[120px]">
-          <Volume2 className="h-3.5 w-3.5 text-gray-600 flex-shrink-0" />
+          <Volume2 className="h-3.5 w-3.5 text-gray-600 dark:text-slate-400 flex-shrink-0" />
           <Slider
             value={[volume]}
             onValueChange={([value]) => onVolumeChange(value)}
@@ -107,7 +110,7 @@ export function MusicPlayer({
             disabled={!selectedTrack}
             aria-label="Volume control"
           />
-          <span className="text-xs text-gray-600 min-w-[2rem] text-right">
+          <span className="text-xs text-gray-600 dark:text-slate-400 min-w-[2rem] text-right">
             {volume}%
           </span>
         </div>

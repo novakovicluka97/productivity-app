@@ -27,6 +27,7 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
   )
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const lastTickRef = useRef<number | null>(null)
   const { playCompletionSound } = useSoundNotification()
 
   // Only sync initialCards on mount, not on every change (prevents infinite loops)
@@ -35,26 +36,33 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Timer logic - runs every second when playing
+  // Timer logic - updates while playing, accounting for real elapsed time to prevent drift
   useEffect(() => {
     if (isPlaying && activeCardId) {
+      if (lastTickRef.current === null) {
+        lastTickRef.current = Date.now()
+      }
+
       intervalRef.current = setInterval(() => {
-        setCardsState(prevCards => {
-          return prevCards.map(card => {
+        const now = Date.now()
+        const lastTick = lastTickRef.current ?? now
+        const elapsedSeconds = Math.floor((now - lastTick) / 1000)
+
+        if (elapsedSeconds <= 0) {
+          return
+        }
+
+        lastTickRef.current = lastTick + elapsedSeconds * 1000
+
+        let completedCardType: Card['type'] | null = null
+
+        setCardsState(prevCards =>
+          prevCards.map(card => {
             if (card.id === activeCardId && card.timeRemaining > 0) {
-              const newTimeRemaining = card.timeRemaining - 1
-              
-              // If card completes, mark as completed
-              if (newTimeRemaining === 0) {
-                // Play completion sound for sessions only
-                if (card.type === 'session') {
-                  playCompletionSound()
-                }
-                
-                // Auto-pause when card completes
-                setIsPlaying(false)
-                setActiveCardId(null)
-                
+              const updatedTime = Math.max(card.timeRemaining - elapsedSeconds, 0)
+
+              if (updatedTime === 0) {
+                completedCardType = card.type
                 return {
                   ...card,
                   timeRemaining: 0,
@@ -62,21 +70,31 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
                   isActive: false
                 }
               }
-              
+
               return {
                 ...card,
-                timeRemaining: newTimeRemaining
+                timeRemaining: updatedTime
               }
             }
             return card
           })
-        })
-      }, 1000)
+        )
+
+        if (completedCardType) {
+          if (completedCardType === 'session') {
+            playCompletionSound()
+          }
+          setIsPlaying(false)
+          setActiveCardId(null)
+          lastTickRef.current = null
+        }
+      }, 250)
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
         intervalRef.current = null
       }
+      lastTickRef.current = null
     }
 
     return () => {
@@ -130,6 +148,7 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
     }
 
     if (cardToActivate) {
+      lastTickRef.current = Date.now()
       setActiveCardId(cardToActivate)
       setIsPlaying(true)
     }
@@ -138,6 +157,7 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
   const pauseTimer = useCallback(() => {
     setIsPlaying(false)
     setActiveCardId(null)
+    lastTickRef.current = null
   }, [])
 
   const toggleTimer = useCallback(() => {
@@ -204,6 +224,7 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
     if (cardId === activeCardId) {
       setIsPlaying(false)
       setActiveCardId(null)
+      lastTickRef.current = null
     }
   }, [activeCardId])
 

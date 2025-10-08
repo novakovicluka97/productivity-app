@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { useAudioPlayer } from 'react-use-audio-player'
+import { useEffect, useRef, useState } from 'react'
+import { Howl } from 'howler'
 import { getAudioPath, getTrackById } from '@/lib/audioConfig'
 
 interface UseCardAudioProps {
@@ -15,76 +15,88 @@ export function useCardAudio({
   volume,
   isMusicPlaying
 }: UseCardAudioProps) {
-  const { load, play, pause, stop, isPlaying, setVolume } = useAudioPlayer()
+  const howlRef = useRef<Howl | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
   const currentTrackRef = useRef<string | undefined>(undefined)
 
-  // Music is now fully decoupled from timer and card state - global audio player
-
-  // Load track when selected - music can be loaded independently of timer state
+  // Load track when selected
   useEffect(() => {
     if (selectedTrack && selectedTrack !== currentTrackRef.current) {
       const track = getTrackById(selectedTrack)
       if (track) {
         const audioPath = getAudioPath(track.filename)
-        console.log(`Loading track:`, audioPath)
 
-        // Store current playing state to preserve it after track change
-        const wasPlayingBefore = isPlaying
+        const wasPlaying = isPlaying
 
-        load(audioPath, {
-          autoplay: false,
-          loop: true,
-          format: 'mp3',
-          html5: true
-        })
-        currentTrackRef.current = selectedTrack
-
-        // Resume playback if music was playing before track change
-        if (wasPlayingBefore && isMusicPlaying) {
-          // Small delay to ensure track is loaded
-          setTimeout(() => play(), 100)
+        // Unload previous track
+        if (howlRef.current) {
+          howlRef.current.stop()
+          howlRef.current.unload()
         }
+
+        // Create new Howl instance
+        howlRef.current = new Howl({
+          src: [audioPath],
+          html5: true,
+          loop: true,
+          volume: volume / 100,
+          onload: () => {
+            if (wasPlaying && isMusicPlaying) {
+              howlRef.current?.play()
+              setIsPlaying(true)
+            }
+          },
+          onplay: () => setIsPlaying(true),
+          onpause: () => setIsPlaying(false),
+          onstop: () => setIsPlaying(false),
+          onend: () => setIsPlaying(false)
+        })
+
+        currentTrackRef.current = selectedTrack
       }
     }
-  }, [selectedTrack, load, isMusicPlaying, isPlaying, play])
+  }, [selectedTrack, isMusicPlaying, volume, isPlaying])
 
-  // Update volume - always responsive
+  // Update volume
   useEffect(() => {
-    setVolume(volume / 100)
-  }, [volume, setVolume])
-
-  // Handle play/pause - independent of timer state
-  useEffect(() => {
-    if (!selectedTrack) return
-
-    const shouldPlay = isMusicPlaying
-
-    if (shouldPlay && !isPlaying) {
-      console.log(`Starting playback`)
-      play()
-    } else if (!shouldPlay && isPlaying) {
-      console.log(`Pausing playback`)
-      pause()
+    if (howlRef.current) {
+      howlRef.current.volume(volume / 100)
     }
-  }, [isMusicPlaying, selectedTrack, isPlaying, play, pause])
+  }, [volume])
 
-  // Cleanup - stop audio when component unmounts
+  // Handle play/pause
+  useEffect(() => {
+    if (!howlRef.current || !selectedTrack) return
+
+    if (isMusicPlaying && !isPlaying) {
+      howlRef.current.play()
+    } else if (!isMusicPlaying && isPlaying) {
+      howlRef.current.pause()
+    }
+  }, [isMusicPlaying, isPlaying, selectedTrack])
+
+  // Cleanup
   useEffect(() => {
     return () => {
-      if (isPlaying) {
-        console.log(`Unmounting, stopping audio`)
-        stop()
+      if (howlRef.current) {
+        howlRef.current.stop()
+        howlRef.current.unload()
       }
     }
-  }, [isPlaying, stop])
+  }, [])
 
   const togglePlayPause = () => {
-    if (!selectedTrack) return
-
+    if (!howlRef.current || !selectedTrack) return
     if (isPlaying) {
-      pause()
+      howlRef.current.pause()
     } else {
-      play()
+      howlRef.current.play()
+    }
+  }
+
+  const stop = () => {
+    if (howlRef.current) {
+      howlRef.current.stop()
     }
   }
 

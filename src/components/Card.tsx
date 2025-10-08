@@ -53,8 +53,8 @@ export function Card({
         <div className={cn(
           "absolute inset-0 rounded-3xl blur-2xl transition-all duration-500",
           isSession
-            ? "bg-gradient-to-br from-blue-400/30 via-purple-400/30 to-pink-400/30"
-            : "bg-gradient-to-br from-green-400/30 via-teal-400/30 to-cyan-400/30",
+            ? "bg-gradient-to-br from-blue-400/30 via-purple-400/30 to-pink-400/30 dark:from-blue-600/20 dark:via-purple-600/20 dark:to-pink-600/20"
+            : "bg-gradient-to-br from-green-400/30 via-teal-400/30 to-cyan-400/30 dark:from-green-600/20 dark:via-teal-600/20 dark:to-cyan-600/20",
           card.isActive && "animate-pulse"
         )} />
       )}
@@ -64,7 +64,8 @@ export function Card({
           'relative flex-shrink-0 cursor-pointer flex flex-col transition-all duration-500 transform-gpu',
           // Glass morphism effect
           'backdrop-blur-md bg-white/80 border-white/50',
-          'hover:shadow-2xl hover:bg-white/90',
+          'dark:bg-slate-800/80 dark:border-slate-700/50',
+          'hover:shadow-2xl hover:bg-white/90 dark:hover:bg-slate-800/90',
           // Base size
           'w-96 min-h-[600px] max-h-[800px]',
           // Modern rounded corners
@@ -138,10 +139,10 @@ export function Card({
         <div className={cn(
           "absolute inset-0 bg-gradient-to-r opacity-90",
           isSession
-            ? "from-blue-500 via-purple-500 to-pink-500"
-            : "from-green-500 via-teal-500 to-cyan-500"
+            ? "from-blue-500 via-purple-500 to-pink-500 dark:from-blue-700 dark:via-purple-700 dark:to-pink-700 forest:from-green-600 forest:via-emerald-600 forest:to-teal-600 ocean:from-blue-600 ocean:via-cyan-600 ocean:to-teal-600"
+            : "from-green-500 via-teal-500 to-cyan-500 dark:from-green-700 dark:via-teal-700 dark:to-cyan-700 forest:from-lime-600 forest:via-green-600 forest:to-emerald-600 ocean:from-cyan-600 ocean:via-sky-600 ocean:to-blue-600"
         )} />
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 dark:to-white/5" />
 
         <CardTitle className="relative z-10 text-sm font-medium">
           <div className="flex items-center gap-2 text-white">

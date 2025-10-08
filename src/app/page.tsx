@@ -4,12 +4,12 @@ import React, { useState } from 'react'
 import { UnifiedHeader } from '@/components/UnifiedHeader'
 import { CardContainer } from '@/components/CardContainer'
 import { EditorProvider } from '@/components/EditorManager'
-import { AudioPlayerProvider } from 'react-use-audio-player'
 import { useTimer } from '@/hooks/useTimer'
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useAutoTransfer } from '@/hooks/useAutoTransfer'
 import { useCardAudio } from '@/hooks/useCardAudio'
+import { useTheme } from '@/hooks/useTheme'
 import { Card, AppState } from '@/lib/types'
 
 // Demo data for Step 1 testing
@@ -52,6 +52,9 @@ export default function Home() {
   const [selectedTrack, setSelectedTrack] = useState<string | undefined>(undefined)
   const [volume, setVolume] = useState<number>(50)
   const [isMusicPlaying, setIsMusicPlaying] = useState<boolean>(false)
+
+  // Theme management
+  const { theme, setTheme } = useTheme()
 
   const {
     cards,
@@ -236,6 +239,11 @@ export default function Home() {
 
   // Removed handleFormatCommand - using TipTap editor commands instead
 
+  // Theme control handler
+  const handleThemeChange = (newTheme: 'default' | 'dark' | 'forest' | 'ocean') => {
+    setTheme(newTheme)
+  }
+
   const canEdit = true // Allow editing while timer is running
 
   // Note: Removed automatic localStorage sync to prevent infinite re-render loop
@@ -267,17 +275,16 @@ export default function Home() {
   })
 
   return (
-    <AudioPlayerProvider>
       <EditorProvider>
         <main className="min-h-screen relative overflow-hidden">
         {/* Animated gradient background */}
-        <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50" />
-        <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent" />
+        <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900 forest:from-green-50 forest:via-emerald-50 forest:to-teal-50 ocean:from-cyan-50 ocean:via-blue-50 ocean:to-sky-50" />
+        <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent dark:via-slate-800/30 forest:via-green-100/30 ocean:via-blue-100/30" />
 
         {/* Animated floating orbs for depth */}
-        <div className="fixed top-20 left-20 w-72 h-72 bg-blue-300/30 rounded-full blur-3xl animate-pulse" />
-        <div className="fixed bottom-20 right-20 w-96 h-96 bg-purple-300/30 rounded-full blur-3xl animate-pulse animation-delay-2000" />
-        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300/20 rounded-full blur-3xl animate-pulse animation-delay-4000" />
+        <div className="fixed top-20 left-20 w-72 h-72 bg-blue-300/30 dark:bg-blue-900/20 forest:bg-green-300/30 ocean:bg-cyan-300/30 rounded-full blur-3xl animate-pulse" />
+        <div className="fixed bottom-20 right-20 w-96 h-96 bg-purple-300/30 dark:bg-purple-900/20 forest:bg-emerald-300/30 ocean:bg-blue-300/30 rounded-full blur-3xl animate-pulse animation-delay-2000" />
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300/20 dark:bg-pink-900/10 forest:bg-teal-300/20 ocean:bg-sky-300/20 rounded-full blur-3xl animate-pulse animation-delay-4000" />
 
         <div className="relative z-10">
         <UnifiedHeader
@@ -291,6 +298,8 @@ export default function Home() {
           onTrackSelect={handleTrackSelect}
           onVolumeChange={handleVolumeChange}
           onMusicToggle={handleMusicToggle}
+          theme={theme}
+          onThemeChange={handleThemeChange}
         />
 
       <div className="container mx-auto card-container">
@@ -315,17 +324,17 @@ export default function Home() {
 
 
       {/* Status Bar for Testing */}
-      <div className="fixed bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 text-sm">
-        <div className="text-slate-600">
+      <div className="fixed bottom-4 right-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg shadow-lg p-3 text-sm">
+        <div className="text-slate-600 dark:text-slate-300">
           Status: <span className="font-medium">{isPlaying ? 'Playing' : 'Paused'}</span>
         </div>
-        <div className="text-slate-600">
+        <div className="text-slate-600 dark:text-slate-300">
           Cards: <span className="font-medium">{cards.length}</span>
         </div>
-        <div className="text-slate-600">
+        <div className="text-slate-600 dark:text-slate-300">
           Selected: <span className="font-medium">{selectedCardId || 'None'}</span>
         </div>
-        <div className="text-slate-600">
+        <div className="text-slate-600 dark:text-slate-300">
           Active: <span className="font-medium">{activeCardId || 'None'}</span>
         </div>
         <div className="text-slate-600 text-xs mt-1">
@@ -335,6 +344,5 @@ export default function Home() {
         </div>
       </main>
       </EditorProvider>
-    </AudioPlayerProvider>
   )
 }

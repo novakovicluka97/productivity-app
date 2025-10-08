@@ -3,7 +3,7 @@
 import {
   Plus, Settings,
   Bold, Italic, Underline, List, ListOrdered, CheckSquare,
-  Highlighter, Type, Palette, ChevronDown
+  Highlighter, Type, Palette, ChevronDown, Moon, Sun, Trees, Waves
 } from 'lucide-react'
 import { useState } from 'react'
 import { MusicPlayer } from './MusicPlayer'
@@ -37,6 +37,9 @@ interface UnifiedHeaderProps {
   onTrackSelect: (trackId: string) => void
   onVolumeChange: (volume: number) => void
   onMusicToggle: () => void
+  // Theme props
+  theme: 'default' | 'dark' | 'forest' | 'ocean'
+  onThemeChange: (theme: 'default' | 'dark' | 'forest' | 'ocean') => void
 }
 
 export function UnifiedHeader({
@@ -50,6 +53,8 @@ export function UnifiedHeader({
   onTrackSelect,
   onVolumeChange,
   onMusicToggle,
+  theme,
+  onThemeChange,
 }: UnifiedHeaderProps) {
   const { activeEditor } = useEditorContext()
   const [highlightColor, setHighlightColor] = useState('#FFFF00')
@@ -401,6 +406,47 @@ export function UnifiedHeader({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              {/* Theme Selector */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 rounded-full"
+                    aria-label="Select theme"
+                  >
+                    {theme === 'dark' ? (
+                      <Moon className="h-5 w-5" aria-hidden="true" />
+                    ) : theme === 'forest' ? (
+                      <Trees className="h-5 w-5" aria-hidden="true" />
+                    ) : theme === 'ocean' ? (
+                      <Waves className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <Sun className="h-5 w-5" aria-hidden="true" />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onThemeChange('default')}>
+                    <Sun className="h-4 w-4 mr-2" />
+                    Default
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onThemeChange('dark')}>
+                    <Moon className="h-4 w-4 mr-2" />
+                    Dark
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onThemeChange('forest')}>
+                    <Trees className="h-4 w-4 mr-2" />
+                    Forest
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onThemeChange('ocean')}>
+                    <Waves className="h-4 w-4 mr-2" />
+                    Ocean
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
 
               {/* Settings (future feature) */}
               <Button
