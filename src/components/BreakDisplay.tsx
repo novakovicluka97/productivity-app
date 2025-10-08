@@ -70,7 +70,7 @@ export function BreakDisplay({ isActive, remainingTime, totalTime }: BreakDispla
     <div className="h-full flex flex-col items-center justify-center p-6">
       <div className="text-center max-w-md mx-auto">
         <div className="mb-8">
-          <div className="text-5xl mb-4">☕</div>
+          <div className="mb-4 text-2xl font-semibold text-slate-700 dark:text-slate-200">Break Time</div>
           <h3 className="text-lg font-medium text-slate-600 dark:text-slate-300 mb-2">
             Take a Break
           </h3>
@@ -85,7 +85,7 @@ export function BreakDisplay({ isActive, remainingTime, totalTime }: BreakDispla
               &ldquo;{currentQuote.text}&rdquo;
             </div>
             <cite className="text-sm text-slate-500 dark:text-slate-400 not-italic">
-              — {currentQuote.author}
+              - {currentQuote.author}
             </cite>
           </blockquote>
         </div>

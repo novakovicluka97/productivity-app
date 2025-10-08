@@ -2,12 +2,14 @@
 
 import { useEffect, useCallback } from 'react'
 import { Card } from '@/lib/types'
+import { useToast } from '@/components/ToastProvider'
 
 export function useAutoTransfer(
   cards: Card[],
   setCards: (cards: Card[]) => void,
   activeCardId: string | null
 ) {
+  const { showToast } = useToast()
   // Extract unchecked todos from HTML content
   const extractUncheckedTodos = useCallback((htmlContent: string): string[] => {
     if (!htmlContent) return []
@@ -51,7 +53,7 @@ export function useAutoTransfer(
     ).join('')
     
     return `<div class="unchecked-todos mb-4">
-      <p class="font-semibold mb-2">📋 Carried over from previous session:</p>
+      <p class="font-semibold mb-2">Carried over from previous session:</p>
       ${todoItems}
     </div>
     <hr class="my-3 border-slate-200" />`
@@ -91,24 +93,17 @@ export function useAutoTransfer(
             }
             return card
           })
-          
+
           setCards(updatedCards)
-          
-          // Show notification
-          if (typeof window !== 'undefined') {
-            const notification = document.createElement('div')
-            notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50'
-            notification.style.animation = 'slideIn 0.3s ease-out'
-            notification.textContent = `✓ Transferred ${uncheckedTodos.length} unchecked task${uncheckedTodos.length > 1 ? 's' : ''} to next session`
-            document.body.appendChild(notification)
-            
-            setTimeout(() => {
-              notification.style.animation = 'slideOut 0.3s ease-out'
-              setTimeout(() => notification.remove(), 300)
-            }, 3000)
-          }
+
+          const taskLabel = uncheckedTodos.length === 1 ? 'task' : 'tasks'
+          showToast({
+            title: 'Moved unfinished work',
+            description: `${uncheckedTodos.length} unchecked ${taskLabel} added to the next session.`,
+            type: 'success'
+          })
         }
       }
     }
-  }, [cards, activeCardId, setCards, extractUncheckedTodos, createTodoHTML])
+  }, [cards, activeCardId, setCards, extractUncheckedTodos, createTodoHTML, showToast])
 }

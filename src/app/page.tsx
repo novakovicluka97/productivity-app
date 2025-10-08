@@ -10,6 +10,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useAutoTransfer } from '@/hooks/useAutoTransfer'
 import { useCardAudio } from '@/hooks/useCardAudio'
 import { useTheme } from '@/hooks/useTheme'
+import { ToastProvider } from '@/components/ToastProvider'
 import { Card, AppState } from '@/lib/types'
 
 // Demo data for Step 1 testing
@@ -275,74 +276,74 @@ export default function Home() {
   })
 
   return (
+    <ToastProvider>
       <EditorProvider>
-        <main className="min-h-screen relative overflow-hidden">
-        {/* Animated gradient background */}
-        <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900 forest:from-green-50 forest:via-emerald-50 forest:to-teal-50 ocean:from-cyan-50 ocean:via-blue-50 ocean:to-sky-50" />
-        <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent dark:via-slate-800/30 forest:via-green-100/30 ocean:via-blue-100/30" />
+        <main className="relative min-h-screen overflow-hidden">
+          {/* Animated gradient background */}
+          <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900 forest:from-green-50 forest:via-emerald-50 forest:to-teal-50 ocean:from-cyan-50 ocean:via-blue-50 ocean:to-sky-50" />
+          <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent dark:via-slate-800/30 forest:via-green-100/30 ocean:via-blue-100/30" />
 
-        {/* Animated floating orbs for depth */}
-        <div className="fixed top-20 left-20 w-72 h-72 bg-blue-300/30 dark:bg-blue-900/20 forest:bg-green-300/30 ocean:bg-cyan-300/30 rounded-full blur-3xl animate-pulse" />
-        <div className="fixed bottom-20 right-20 w-96 h-96 bg-purple-300/30 dark:bg-purple-900/20 forest:bg-emerald-300/30 ocean:bg-blue-300/30 rounded-full blur-3xl animate-pulse animation-delay-2000" />
-        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300/20 dark:bg-pink-900/10 forest:bg-teal-300/20 ocean:bg-sky-300/20 rounded-full blur-3xl animate-pulse animation-delay-4000" />
+          {/* Animated floating orbs for depth */}
+          <div className="fixed top-20 left-20 h-72 w-72 animate-pulse rounded-full bg-blue-300/30 blur-3xl dark:bg-blue-900/20 forest:bg-green-300/30 ocean:bg-cyan-300/30" />
+          <div className="animation-delay-2000 fixed bottom-20 right-20 h-96 w-96 animate-pulse rounded-full bg-purple-300/30 blur-3xl dark:bg-purple-900/20 forest:bg-emerald-300/30 ocean:bg-blue-300/30" />
+          <div className="animation-delay-4000 fixed top-1/2 left-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-pink-300/20 blur-3xl dark:bg-pink-900/10 forest:bg-teal-300/20 ocean:bg-sky-300/20" />
 
-        <div className="relative z-10">
-        <UnifiedHeader
-          onAddCard={handleAddCard}
-          canEdit={canEdit}
-          isEditing={!!editingCardId}
-          activeCardId={editingCardId}
-          selectedTrack={selectedTrack}
-          volume={volume}
-          isMusicPlaying={isMusicPlaying}
-          onTrackSelect={handleTrackSelect}
-          onVolumeChange={handleVolumeChange}
-          onMusicToggle={handleMusicToggle}
-          theme={theme}
-          onThemeChange={handleThemeChange}
-        />
+          <div className="relative z-10">
+            <UnifiedHeader
+              onAddCard={handleAddCard}
+              canEdit={canEdit}
+              isEditing={!!editingCardId}
+              activeCardId={editingCardId}
+              selectedTrack={selectedTrack}
+              volume={volume}
+              isMusicPlaying={isMusicPlaying}
+              onTrackSelect={handleTrackSelect}
+              onVolumeChange={handleVolumeChange}
+              onMusicToggle={handleMusicToggle}
+              theme={theme}
+              onThemeChange={handleThemeChange}
+            />
 
-      <div className="container mx-auto card-container">
-        <CardContainer
-          cards={cards}
-          onSelectCard={handleSelectCard}
-          onDeleteCard={handleDeleteCard}
-          onContentChange={handleContentChange}
-          onStartEditing={handleStartEditing}
-          onStopEditing={handleStopEditing}
-          onInsertCard={handleInsertCard}
-          onToggleTimer={handleToggleTimer}
-          onResetCard={handleResetCard}
-          onUpdateTime={handleUpdateTime}
-          onCompleteCard={handleCompleteCard}
-          isPlaying={isPlaying}
-          editingCardId={editingCardId}
-          canEdit={canEdit}
-        />
-      </div>
+            <div className="card-container container mx-auto">
+              <CardContainer
+                cards={cards}
+                onSelectCard={handleSelectCard}
+                onDeleteCard={handleDeleteCard}
+                onContentChange={handleContentChange}
+                onStartEditing={handleStartEditing}
+                onStopEditing={handleStopEditing}
+                onInsertCard={handleInsertCard}
+                onToggleTimer={handleToggleTimer}
+                onResetCard={handleResetCard}
+                onUpdateTime={handleUpdateTime}
+                onCompleteCard={handleCompleteCard}
+                isPlaying={isPlaying}
+                editingCardId={editingCardId}
+                canEdit={canEdit}
+              />
+            </div>
 
-
-
-      {/* Status Bar for Testing */}
-      <div className="fixed bottom-4 right-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg shadow-lg p-3 text-sm">
-        <div className="text-slate-600 dark:text-slate-300">
-          Status: <span className="font-medium">{isPlaying ? 'Playing' : 'Paused'}</span>
-        </div>
-        <div className="text-slate-600 dark:text-slate-300">
-          Cards: <span className="font-medium">{cards.length}</span>
-        </div>
-        <div className="text-slate-600 dark:text-slate-300">
-          Selected: <span className="font-medium">{selectedCardId || 'None'}</span>
-        </div>
-        <div className="text-slate-600 dark:text-slate-300">
-          Active: <span className="font-medium">{activeCardId || 'None'}</span>
-        </div>
-        <div className="text-slate-600 text-xs mt-1">
-          Keyboard: Space/Enter=Play/Pause, ←/→=Navigate, Del=Delete
-        </div>
-      </div>
-        </div>
-      </main>
+            {/* Status Bar for Testing */}
+            <div className="fixed bottom-4 right-4 rounded-lg bg-white/90 p-3 text-sm shadow-lg backdrop-blur-sm dark:bg-slate-800/90">
+              <div className="text-slate-600 dark:text-slate-300">
+                Status: <span className="font-medium">{isPlaying ? 'Playing' : 'Paused'}</span>
+              </div>
+              <div className="text-slate-600 dark:text-slate-300">
+                Cards: <span className="font-medium">{cards.length}</span>
+              </div>
+              <div className="text-slate-600 dark:text-slate-300">
+                Selected: <span className="font-medium">{selectedCardId || 'None'}</span>
+              </div>
+              <div className="text-slate-600 dark:text-slate-300">
+                Active: <span className="font-medium">{activeCardId || 'None'}</span>
+              </div>
+              <div className="mt-1 text-xs text-slate-600">
+                Keyboard: Space/Enter = Play or Pause, Left/Right arrows = Navigate, Delete = Remove card
+              </div>
+            </div>
+          </div>
+        </main>
       </EditorProvider>
+    </ToastProvider>
   )
 }

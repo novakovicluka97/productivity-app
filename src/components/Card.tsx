@@ -214,7 +214,7 @@ export function Card({
       {card.isCompleted && (
         <div className="absolute inset-0 bg-white/60 backdrop-blur-sm rounded-3xl flex items-center justify-center">
           <Badge className="shadow-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 px-4 py-2 text-lg">
-            ✓ Completed
+            Completed
           </Badge>
         </div>
       )}

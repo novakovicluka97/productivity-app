@@ -242,7 +242,7 @@ export function CardContainer({
       {canEdit && cards.length > 1 && (
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <Badge variant="secondary" className="text-xs">
-            Use ← → keys to navigate cards
+            Use the Left and Right arrow keys to navigate cards
           </Badge>
         </div>
       )}
