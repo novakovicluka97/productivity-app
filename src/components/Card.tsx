@@ -47,7 +47,7 @@ export function Card({
 
 
   return (
-    <div className="relative flex-shrink-0 w-full mx-0 md:mx-2">
+    <div className="relative flex-shrink-0 w-full mx-0 md:mx-2 md:w-auto">
       {/* Animated gradient background for active/selected cards */}
       {(card.isActive || card.isSelected) && (
         <div className={cn(
@@ -67,11 +67,11 @@ export function Card({
           'dark:bg-slate-800/80 dark:border-slate-700/50',
           'hover:shadow-2xl hover:bg-white/90 dark:hover:bg-slate-800/90',
           // Base size
-          'w-full max-w-md sm:w-96 sm:max-w-none min-h-[520px] sm:min-h-[600px] max-h-[820px]',
+          'w-full min-h-[520px] max-h-[820px] md:w-96 md:min-h-[600px] md:max-h-[800px]',
           // Modern rounded corners
           'rounded-3xl',
           // Expand when selected - seamless expansion in all directions
-          card.isSelected && 'sm:scale-105 sm:w-[420px] sm:min-h-[650px] sm:max-h-[850px] sm:z-20',
+          card.isSelected && 'md:scale-105 md:w-[420px] md:min-h-[650px] md:max-h-[850px] md:z-20',
           card.isSelected && 'shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)] border-2',
           card.isActive && 'shadow-2xl',
           card.isCompleted && 'opacity-60 grayscale',
