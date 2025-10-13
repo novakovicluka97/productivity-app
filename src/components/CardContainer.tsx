@@ -83,11 +83,31 @@ export function CardContainer({
     if (!container) return
 
     updateScrollButtons()
+    const handleWheel = (event: WheelEvent) => {
+      if (!container) return
+
+      const prefersHorizontalScroll = container.scrollWidth > container.clientWidth
+      if (!prefersHorizontalScroll) return
+
+      const primarilyHorizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY)
+      const delta = primarilyHorizontal ? event.deltaX : event.deltaY
+
+      if (delta === 0) return
+
+      event.preventDefault()
+      container.scrollBy({
+        left: delta,
+        behavior: 'smooth'
+      })
+    }
+
     container.addEventListener('scroll', updateScrollButtons)
+    container.addEventListener('wheel', handleWheel, { passive: false })
     window.addEventListener('resize', updateScrollButtons)
 
     return () => {
       container.removeEventListener('scroll', updateScrollButtons)
+      container.removeEventListener('wheel', handleWheel)
       window.removeEventListener('resize', updateScrollButtons)
     }
   }, [cards])
