@@ -22,4 +22,5 @@ export interface AppState {
   isPlaying: boolean
   activeCardId: string | null
   selectedCardId: string | null
+  lastUpdated: number | null
 }
