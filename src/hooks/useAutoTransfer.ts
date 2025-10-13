@@ -1,15 +1,15 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 import { Card } from '@/lib/types'
 import { useToast } from '@/components/ToastProvider'
 
 export function useAutoTransfer(
   cards: Card[],
-  setCards: (cards: Card[]) => void,
-  activeCardId: string | null
+  setCards: (cards: Card[]) => void
 ) {
   const { showToast } = useToast()
+  const previousCardsRef = useRef<Card[] | null>(null)
   // Extract unchecked todos from HTML content
   const extractUncheckedTodos = useCallback((htmlContent: string): string[] => {
     if (!htmlContent) return []
@@ -61,17 +61,30 @@ export function useAutoTransfer(
 
   // Auto-transfer unchecked todos when a session completes
   useEffect(() => {
-    // Find completed session cards
-    const completedSession = cards.find(
-      card => card.type === 'session' && 
-             card.isCompleted && 
-             card.id === activeCardId &&
-             card.timeRemaining === 0
+    if (!previousCardsRef.current) {
+      previousCardsRef.current = cards
+      return
+    }
+
+    const previouslyCompletedIds = new Set(
+      previousCardsRef.current
+        .filter(card => card.isCompleted)
+        .map(card => card.id)
     )
-    
+
+    // Find the first session card that just transitioned to completed
+    const completedSession = cards.find(card =>
+      card.type === 'session' &&
+      card.isCompleted &&
+      card.timeRemaining === 0 &&
+      !previouslyCompletedIds.has(card.id)
+    )
+
+    previousCardsRef.current = cards
+
     if (completedSession && completedSession.content) {
       const uncheckedTodos = extractUncheckedTodos(completedSession.content)
-      
+
       if (uncheckedTodos.length > 0) {
         // Find the next session card
         const currentIndex = cards.findIndex(card => card.id === completedSession.id)
@@ -105,5 +118,5 @@ export function useAutoTransfer(
         }
       }
     }
-  }, [cards, activeCardId, setCards, extractUncheckedTodos, createTodoHTML, showToast])
+  }, [cards, setCards, extractUncheckedTodos, createTodoHTML, showToast])
 }

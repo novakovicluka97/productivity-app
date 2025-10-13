@@ -29,12 +29,36 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const lastTickRef = useRef<number | null>(null)
   const { playCompletionSound } = useSoundNotification()
+  const previousInitialCardsRef = useRef<string | null>(null)
 
-  // Only sync initialCards on mount, not on every change (prevents infinite loops)
+  // Sync with incoming initial cards (including values restored from persistence)
   useEffect(() => {
-    setCardsState(initialCards)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    const serializedInitial = JSON.stringify(initialCards)
+
+    if (previousInitialCardsRef.current === serializedInitial) {
+      return
+    }
+
+    previousInitialCardsRef.current = serializedInitial
+
+    setCardsState(prevCards => {
+      const prevSerialized = JSON.stringify(prevCards)
+      if (prevSerialized !== serializedInitial) {
+        return initialCards
+      }
+      return prevCards
+    })
+
+    const savedSelected = initialCards.find(card => card.isSelected)?.id ?? null
+    if (savedSelected !== selectedCardId) {
+      setSelectedCardId(savedSelected)
+    }
+
+    const savedActive = initialCards.find(card => card.isActive)?.id ?? null
+    if (savedActive !== activeCardId) {
+      setActiveCardId(savedActive)
+    }
+  }, [initialCards, selectedCardId, activeCardId])
 
   // Timer logic - updates while playing, accounting for real elapsed time to prevent drift
   useEffect(() => {
@@ -55,14 +79,25 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
         lastTickRef.current = lastTick + elapsedSeconds * 1000
 
         let completedCardType: Card['type'] | null = null
+        let hasCompletedCard = false
+        let nextCardToActivate: string | null = null
 
         setCardsState(prevCards =>
-          prevCards.map(card => {
+          prevCards.map((card, index) => {
             if (card.id === activeCardId && card.timeRemaining > 0) {
               const updatedTime = Math.max(card.timeRemaining - elapsedSeconds, 0)
 
               if (updatedTime === 0) {
                 completedCardType = card.type
+                hasCompletedCard = true
+
+                const nextCard = prevCards.slice(index + 1).find(next =>
+                  next.timeRemaining > 0 && !next.isCompleted
+                )
+
+                if (nextCard) {
+                  nextCardToActivate = nextCard.id
+                }
                 return {
                   ...card,
                   timeRemaining: 0,
@@ -80,13 +115,21 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
           })
         )
 
-        if (completedCardType) {
-          if (completedCardType === 'session') {
-            playCompletionSound()
+        if (completedCardType === 'session') {
+          playCompletionSound()
+        }
+
+        if (hasCompletedCard) {
+          if (nextCardToActivate) {
+            setSelectedCardId(nextCardToActivate)
+            setActiveCardId(nextCardToActivate)
+            setIsPlaying(true)
+            lastTickRef.current = Date.now()
+          } else {
+            setIsPlaying(false)
+            setActiveCardId(null)
+            lastTickRef.current = null
           }
-          setIsPlaying(false)
-          setActiveCardId(null)
-          lastTickRef.current = null
         }
       }, 250)
     } else {
