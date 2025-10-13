@@ -302,7 +302,7 @@ export default function Home() {
               onThemeChange={handleThemeChange}
             />
 
-            <div className="card-container container mx-auto">
+            <div className="card-container container mx-auto px-0 md:px-4">
               <CardContainer
                 cards={cards}
                 onSelectCard={handleSelectCard}
@@ -322,7 +322,7 @@ export default function Home() {
             </div>
 
             {/* Status Bar for Testing */}
-            <div className="fixed bottom-4 right-4 rounded-lg bg-white/90 p-3 text-sm shadow-lg backdrop-blur-sm dark:bg-slate-800/90">
+            <div className="hidden md:block fixed bottom-4 right-4 rounded-lg bg-white/90 p-3 text-sm shadow-lg backdrop-blur-sm dark:bg-slate-800/90">
               <div className="text-slate-600 dark:text-slate-300">
                 Status: <span className="font-medium">{isPlaying ? 'Playing' : 'Paused'}</span>
               </div>
