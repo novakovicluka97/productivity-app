@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Card } from '@/lib/types'
 import { useSoundNotification } from './useSoundNotification'
 
@@ -18,23 +18,101 @@ interface UseTimerReturn {
   resetCard: (cardId: string) => void
 }
 
+type LooseCard = Partial<Omit<Card, 'id'>> & { id?: string | number }
+
+function coerceNumber(value: unknown, fallback: number) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number.parseInt(value, 10)
+    if (Number.isFinite(parsed)) {
+      return parsed
+    }
+  }
+
+  return fallback
+}
+
+function normalizeCards(cards: Card[]): Card[] {
+  return cards.map((card, index) => {
+    const looseCard = card as LooseCard
+    const rawId = looseCard.id ?? index + 1
+    const id = typeof rawId === 'string' ? rawId : String(rawId)
+
+    const rawDuration = coerceNumber(looseCard.duration, 0)
+    const duration = Math.max(0, Math.floor(rawDuration))
+
+    const rawTimeRemaining = coerceNumber(looseCard.timeRemaining, duration)
+    const clampedTimeRemaining = Math.max(
+      0,
+      Math.min(Math.floor(rawTimeRemaining), duration || Number.MAX_SAFE_INTEGER)
+    )
+
+    const timeRemaining = duration === 0 ? 0 : clampedTimeRemaining
+    const isCompleted = Boolean(looseCard.isCompleted) || timeRemaining === 0
+    const isActive = !isCompleted && Boolean(looseCard.isActive)
+
+    return {
+      ...card,
+      id,
+      duration,
+      timeRemaining,
+      isActive,
+      isCompleted,
+      isSelected: Boolean(looseCard.isSelected)
+    }
+  })
+}
+
 export function useTimer(initialCards: Card[] = []): UseTimerReturn {
-  const [cards, setCardsState] = useState<Card[]>(initialCards)
+  const normalizedInitialCards = useMemo(() => normalizeCards(initialCards), [initialCards])
+
+  const [cards, setCardsState] = useState<Card[]>(normalizedInitialCards)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [activeCardId, setActiveCardId] = useState<string | null>(null)
+  const [activeCardId, setActiveCardId] = useState<string | null>(
+    normalizedInitialCards.find(
+      card => card.isActive && !card.isCompleted && card.timeRemaining > 0
+    )?.id || null
+  )
   const [selectedCardId, setSelectedCardId] = useState<string | null>(
-    initialCards.find(card => card.isSelected)?.id || null
+    normalizedInitialCards.find(card => card.isSelected)?.id || null
   )
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const lastTickRef = useRef<number | null>(null)
   const { playCompletionSound } = useSoundNotification()
+  const previousInitialCardsRef = useRef<string | null>(null)
 
-  // Only sync initialCards on mount, not on every change (prevents infinite loops)
+  // Sync with incoming initial cards (including values restored from persistence)
   useEffect(() => {
-    setCardsState(initialCards)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    const serializedInitial = JSON.stringify(normalizedInitialCards)
+
+    if (previousInitialCardsRef.current === serializedInitial) {
+      return
+    }
+
+    previousInitialCardsRef.current = serializedInitial
+
+    setCardsState(prevCards => {
+      const prevSerialized = JSON.stringify(prevCards)
+      if (prevSerialized !== serializedInitial) {
+        return normalizedInitialCards
+      }
+      return prevCards
+    })
+
+    const savedSelected = normalizedInitialCards.find(card => card.isSelected)?.id ?? null
+    setSelectedCardId(prevSelected => (prevSelected === savedSelected ? prevSelected : savedSelected))
+
+    const savedActive =
+      normalizedInitialCards.find(
+        card => card.isActive && !card.isCompleted && card.timeRemaining > 0
+      )?.id ?? null
+
+    setActiveCardId(prevActive => (prevActive === savedActive ? prevActive : savedActive))
+  }, [normalizedInitialCards])
 
   // Timer logic - updates while playing, accounting for real elapsed time to prevent drift
   useEffect(() => {
@@ -55,14 +133,25 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
         lastTickRef.current = lastTick + elapsedSeconds * 1000
 
         let completedCardType: Card['type'] | null = null
+        let hasCompletedCard = false
+        let nextCardToActivate: string | null = null
 
         setCardsState(prevCards =>
-          prevCards.map(card => {
+          prevCards.map((card, index) => {
             if (card.id === activeCardId && card.timeRemaining > 0) {
               const updatedTime = Math.max(card.timeRemaining - elapsedSeconds, 0)
 
               if (updatedTime === 0) {
                 completedCardType = card.type
+                hasCompletedCard = true
+
+                const nextCard = prevCards.slice(index + 1).find(next =>
+                  next.timeRemaining > 0 && !next.isCompleted
+                )
+
+                if (nextCard) {
+                  nextCardToActivate = nextCard.id
+                }
                 return {
                   ...card,
                   timeRemaining: 0,
@@ -80,13 +169,21 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
           })
         )
 
-        if (completedCardType) {
-          if (completedCardType === 'session') {
-            playCompletionSound()
+        if (completedCardType === 'session') {
+          playCompletionSound()
+        }
+
+        if (hasCompletedCard) {
+          if (nextCardToActivate) {
+            setSelectedCardId(nextCardToActivate)
+            setActiveCardId(nextCardToActivate)
+            setIsPlaying(true)
+            lastTickRef.current = Date.now()
+          } else {
+            setIsPlaying(false)
+            setActiveCardId(null)
+            lastTickRef.current = null
           }
-          setIsPlaying(false)
-          setActiveCardId(null)
-          lastTickRef.current = null
         }
       }, 250)
     } else {
@@ -107,22 +204,46 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
 
   // Update cards when active card changes
   useEffect(() => {
-    setCardsState(prevCards => 
-      prevCards.map(card => ({
-        ...card,
-        isActive: card.id === activeCardId
-      }))
-    )
+    setCardsState(prevCards => {
+      let didChange = false
+
+      const updatedCards = prevCards.map(card => {
+        const shouldBeActive = card.id === activeCardId
+        if (card.isActive === shouldBeActive) {
+          return card
+        }
+
+        didChange = true
+        return {
+          ...card,
+          isActive: shouldBeActive
+        }
+      })
+
+      return didChange ? updatedCards : prevCards
+    })
   }, [activeCardId])
 
   // Update cards when selected card changes
   useEffect(() => {
-    setCardsState(prevCards => 
-      prevCards.map(card => ({
-        ...card,
-        isSelected: card.id === selectedCardId
-      }))
-    )
+    setCardsState(prevCards => {
+      let didChange = false
+
+      const updatedCards = prevCards.map(card => {
+        const shouldBeSelected = card.id === selectedCardId
+        if (card.isSelected === shouldBeSelected) {
+          return card
+        }
+
+        didChange = true
+        return {
+          ...card,
+          isSelected: shouldBeSelected
+        }
+      })
+
+      return didChange ? updatedCards : prevCards
+    })
   }, [selectedCardId])
 
   const startTimer = useCallback((cardIdToStart?: string) => {
@@ -169,16 +290,17 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
   }, [isPlaying, startTimer, pauseTimer])
 
   const setCards = useCallback((newCards: Card[]) => {
-    setCardsState(newCards)
-    
+    const normalizedCards = normalizeCards(newCards)
+    setCardsState(normalizedCards)
+
     // Update selected card if current selection no longer exists
-    if (selectedCardId && !newCards.find(card => card.id === selectedCardId)) {
-      const firstCard = newCards[0]
+    if (selectedCardId && !normalizedCards.find(card => card.id === selectedCardId)) {
+      const firstCard = normalizedCards[0]
       setSelectedCardId(firstCard?.id || null)
     }
-    
+
     // Update active card if current active card no longer exists
-    if (activeCardId && !newCards.find(card => card.id === activeCardId)) {
+    if (activeCardId && !normalizedCards.find(card => card.id === activeCardId)) {
       setActiveCardId(null)
       setIsPlaying(false)
     }
@@ -192,14 +314,17 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
   }, [cards])
 
   const updateCardTime = useCallback((cardId: string, newTime: number) => {
-    setCardsState(prevCards => 
-      prevCards.map(card => 
-        card.id === cardId 
-          ? { 
-              ...card, 
-              timeRemaining: newTime,
-              duration: Math.max(card.duration, newTime), // Update duration if time is extended
-              isCompleted: newTime === 0
+    const clampedTime = Math.max(0, Math.floor(newTime))
+
+    setCardsState(prevCards =>
+      prevCards.map(card =>
+        card.id === cardId
+          ? {
+              ...card,
+              timeRemaining: clampedTime,
+              duration: Math.max(card.duration, clampedTime), // Update duration if time is extended
+              isCompleted: clampedTime === 0,
+              isActive: clampedTime === 0 ? false : card.isActive
             }
           : card
       )

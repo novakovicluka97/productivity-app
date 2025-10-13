@@ -80,7 +80,22 @@ export default function Home() {
     volume: volume,
     isMusicPlaying: isMusicPlaying
   })
-  useAutoTransfer(cards, setCards, activeCardId)
+  useAutoTransfer(cards, setCards)
+
+  React.useEffect(() => {
+    if (savedCards.length === 0) {
+      return
+    }
+
+    const maxExistingId = savedCards.reduce((max, card) => {
+      const numericId = Number(card.id)
+      return Number.isFinite(numericId) ? Math.max(max, numericId) : max
+    }, 0)
+
+    if (maxExistingId >= nextCardId) {
+      setNextCardId(maxExistingId + 1)
+    }
+  }, [savedCards, nextCardId])
 
   const handlePlayPause = () => {
     toggleTimer()
