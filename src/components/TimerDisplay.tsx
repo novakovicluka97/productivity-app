@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 
 interface TimerDisplayProps {
   time: number // time in seconds
@@ -28,91 +28,18 @@ export function TimerDisplay({ time, totalTime, className, showSevenSegment = tr
     }
   }, [seconds, isActive])
 
-  // Modern card-flip style timer
+  // Seven-segment inspired timer
   if (showSevenSegment) {
-    const progress = totalTime ? ((totalTime - time) / totalTime) * 100 : 0
-
     return (
-      <div className={cn("relative inline-block", className)}>
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-pink-400/20 blur-2xl animate-pulse" />
-
-        {/* Progress ring */}
-        <svg
-          className="absolute inset-0 w-full h-full -rotate-90"
-          viewBox="0 0 200 200"
-        >
-          {/* Background ring */}
-          <circle
-            cx="100"
-            cy="100"
-            r="95"
-            stroke="currentColor"
-            strokeWidth="2"
-            fill="none"
-            className="text-gray-200/50"
-          />
-          {/* Progress ring */}
-          {totalTime && (
-            <circle
-              cx="100"
-              cy="100"
-              r="95"
-              stroke="url(#timer-gradient)"
-              strokeWidth="3"
-              fill="none"
-              strokeLinecap="round"
-              strokeDasharray={`${2 * Math.PI * 95}`}
-              strokeDashoffset={`${2 * Math.PI * 95 * (1 - progress / 100)}`}
-              className="transition-all duration-1000 ease-linear drop-shadow-lg"
-            />
-          )}
-          <defs>
-            <linearGradient id="timer-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="50%" stopColor="#8b5cf6" />
-              <stop offset="100%" stopColor="#ec4899" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        <div className="flex flex-col items-center justify-center p-8">
-          {/* Modern Timer Display */}
-          <div className={cn(
-            "flex items-center justify-center font-mono transition-all duration-200",
-            pulseAnimation && "scale-105"
-          )}>
-            {hours > 0 && (
-              <>
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl blur-md" />
-                  <div className="relative bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-xl border border-white/50">
-                    <span className="text-5xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent tabular-nums">
-                      {formatSegment(hours)}
-                    </span>
-                  </div>
-                </div>
-                <span className="text-4xl font-light text-gray-400 mx-2 animate-pulse">:</span>
-              </>
-            )}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl blur-md" />
-              <div className="relative bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-xl border border-white/50">
-                <span className="text-5xl font-bold bg-gradient-to-br from-purple-600 to-pink-600 bg-clip-text text-transparent tabular-nums">
-                  {formatSegment(minutes)}
-                </span>
-              </div>
-            </div>
-            <span className="text-4xl font-light text-gray-400 mx-2 animate-pulse">:</span>
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-red-500/20 rounded-xl blur-md" />
-              <div className="relative bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-xl border border-white/50">
-                <span className="text-5xl font-bold bg-gradient-to-br from-pink-600 to-red-600 bg-clip-text text-transparent tabular-nums">
-                  {formatSegment(seconds)}
-                </span>
-              </div>
-            </div>
-          </div>
+      <div
+        className={cn(
+          'inline-flex items-center justify-center rounded-xl bg-white/70 px-6 py-4 shadow-sm transition-transform duration-200',
+          pulseAnimation && 'scale-[1.01]',
+          className
+        )}
+      >
+        <div className="flex items-center justify-center text-gray-500">
+          {renderSevenSegmentDigits({ hours, minutes, seconds })}
         </div>
       </div>
     )
@@ -200,5 +127,94 @@ export function TimerDisplay({ time, totalTime, className, showSevenSegment = tr
         <div className="absolute bottom-2 w-1 h-3 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full" />
       </div>
     </div>
+  )
+}
+
+type TimeParts = {
+  hours: number
+  minutes: number
+  seconds: number
+}
+
+const segmentStyles: Record<SegmentKey, CSSProperties> = {
+  a: { top: 0, left: '18%', right: '18%', height: '14%' },
+  b: { top: '12%', right: 0, width: '22%', height: '36%' },
+  c: { bottom: '12%', right: 0, width: '22%', height: '36%' },
+  d: { bottom: 0, left: '18%', right: '18%', height: '14%' },
+  e: { bottom: '12%', left: 0, width: '22%', height: '36%' },
+  f: { top: '12%', left: 0, width: '22%', height: '36%' },
+  g: { top: '43%', left: '18%', right: '18%', height: '14%' },
+}
+
+type SegmentKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g'
+
+const digitSegments: Record<string, SegmentKey[]> = {
+  '0': ['a', 'b', 'c', 'd', 'e', 'f'],
+  '1': ['b', 'c'],
+  '2': ['a', 'b', 'g', 'e', 'd'],
+  '3': ['a', 'b', 'c', 'd', 'g'],
+  '4': ['f', 'g', 'b', 'c'],
+  '5': ['a', 'f', 'g', 'c', 'd'],
+  '6': ['a', 'f', 'g', 'e', 'c', 'd'],
+  '7': ['a', 'b', 'c'],
+  '8': ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+  '9': ['a', 'b', 'c', 'd', 'f', 'g'],
+}
+
+function renderSevenSegmentDigits({ hours, minutes, seconds }: TimeParts) {
+  const groups: string[] = []
+
+  if (hours > 0) {
+    groups.push(hours.toString().padStart(2, '0'))
+  }
+
+  groups.push(minutes.toString().padStart(2, '0'))
+  groups.push(seconds.toString().padStart(2, '0'))
+
+  return groups.map((group, groupIndex) => {
+    const digits = group.split('')
+
+    return (
+      <span className="flex items-center" key={`group-${groupIndex}`}>
+        {digits.map((digit, digitIndex) => (
+          <SevenSegmentDigit key={`digit-${groupIndex}-${digitIndex}`} value={digit} />
+        ))}
+        {groupIndex < groups.length - 1 && <SevenSegmentColon key={`colon-${groupIndex}`} />}
+      </span>
+    )
+  })
+}
+
+interface SevenSegmentDigitProps {
+  value: string
+}
+
+function SevenSegmentDigit({ value }: SevenSegmentDigitProps) {
+  const activeSegments = digitSegments[value] ?? []
+
+  return (
+    <span className="relative mx-0.5 flex h-20 w-12 items-center justify-center">
+      {Object.entries(segmentStyles).map(([segment, style]) => (
+        <span
+          key={segment}
+          className={cn(
+            'absolute block rounded-full transition-opacity duration-200',
+            activeSegments.includes(segment as SegmentKey)
+              ? 'bg-gray-500'
+              : 'opacity-0'
+          )}
+          style={style}
+        />
+      ))}
+    </span>
+  )
+}
+
+function SevenSegmentColon() {
+  return (
+    <span className="mx-1 flex h-20 w-4 flex-col items-center justify-between py-4">
+      <span className="h-2.5 w-2.5 rounded-full bg-gray-500" />
+      <span className="h-2.5 w-2.5 rounded-full bg-gray-500" />
+    </span>
   )
 }
