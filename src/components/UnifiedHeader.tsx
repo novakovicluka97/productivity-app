@@ -18,7 +18,8 @@ import {
   Trees,
   Waves
 } from 'lucide-react'
-import { useState, type React } from 'react'
+import { useState } from 'react'
+import type { MouseEvent } from 'react'
 import { MusicPlayer } from './MusicPlayer'
 import { Button } from './ui/button'
 import {
@@ -99,7 +100,7 @@ export function UnifiedHeader({
     }
   }
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = (e: MouseEvent) => {
     e.preventDefault()
   }
 
