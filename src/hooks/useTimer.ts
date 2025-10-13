@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { Card } from '@/lib/types'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { Card, AppState } from '@/lib/types'
 import { useSoundNotification } from './useSoundNotification'
 
 interface UseTimerReturn {
@@ -18,23 +18,126 @@ interface UseTimerReturn {
   resetCard: (cardId: string) => void
 }
 
-export function useTimer(initialCards: Card[] = []): UseTimerReturn {
-  const [cards, setCardsState] = useState<Card[]>(initialCards)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [activeCardId, setActiveCardId] = useState<string | null>(null)
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(
-    initialCards.find(card => card.isSelected)?.id || null
-  )
+interface UseTimerOptions {
+  onStateChange?: (state: AppState) => void
+}
+
+interface HydratedTimerState {
+  cards: Card[]
+  isPlaying: boolean
+  activeCardId: string | null
+  selectedCardId: string | null
+}
+
+const EMPTY_TIMER_STATE: HydratedTimerState = {
+  cards: [],
+  isPlaying: false,
+  activeCardId: null,
+  selectedCardId: null
+}
+
+function normalizeCards(cards: Card[], activeCardId: string | null, selectedCardId: string | null): Card[] {
+  return cards.map(card => ({
+    ...card,
+    isActive: card.id === activeCardId,
+    isSelected: card.id === selectedCardId
+  }))
+}
+
+function cardsAreEqual(a: Card[], b: Card[]): boolean {
+  if (a === b) return true
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) {
+      return false
+    }
+  }
+  return true
+}
+
+function hydrateInitialState(initialState?: AppState): HydratedTimerState {
+  if (!initialState) {
+    return EMPTY_TIMER_STATE
+  }
+
+  let cards = initialState.cards.map(card => ({ ...card }))
+  let isPlaying = initialState.isPlaying
+  let activeCardId = initialState.activeCardId
+  const selectedCardId =
+    initialState.selectedCardId ??
+    cards.find(card => card.isSelected)?.id ??
+    cards[0]?.id ??
+    null
+
+  if (isPlaying && activeCardId) {
+    const activeIndex = cards.findIndex(card => card.id === activeCardId)
+
+    if (activeIndex === -1) {
+      isPlaying = false
+      activeCardId = null
+    } else if (initialState.lastUpdated) {
+      const elapsedSeconds = Math.max(
+        0,
+        Math.floor((Date.now() - initialState.lastUpdated) / 1000)
+      )
+
+      if (elapsedSeconds > 0) {
+        const activeCard = cards[activeIndex]
+        const remaining = Math.max(activeCard.timeRemaining - elapsedSeconds, 0)
+
+        cards[activeIndex] = {
+          ...activeCard,
+          timeRemaining: remaining,
+          isCompleted: remaining === 0,
+          isActive: remaining > 0
+        }
+
+        if (remaining === 0) {
+          isPlaying = false
+          activeCardId = null
+        }
+      }
+    }
+  }
+
+  cards = normalizeCards(cards, activeCardId, selectedCardId)
+
+  return {
+    cards,
+    isPlaying,
+    activeCardId,
+    selectedCardId
+  }
+}
+
+export function useTimer(initialState?: AppState, options: UseTimerOptions = {}): UseTimerReturn {
+  const hydratedInitialState = useMemo(() => hydrateInitialState(initialState), [initialState])
+
+  const [cards, setCardsState] = useState<Card[]>(hydratedInitialState.cards)
+  const [isPlaying, setIsPlaying] = useState(hydratedInitialState.isPlaying)
+  const [activeCardId, setActiveCardId] = useState<string | null>(hydratedInitialState.activeCardId)
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(hydratedInitialState.selectedCardId)
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const lastTickRef = useRef<number | null>(null)
   const { playCompletionSound } = useSoundNotification()
 
-  // Only sync initialCards on mount, not on every change (prevents infinite loops)
+  // Hydrate timer state whenever the persisted state changes
   useEffect(() => {
-    setCardsState(initialCards)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (!initialState) {
+      return
+    }
+
+    const nextState = hydrateInitialState(initialState)
+
+    setCardsState(prevCards => (cardsAreEqual(prevCards, nextState.cards) ? prevCards : nextState.cards))
+
+    setIsPlaying(prev => (prev === nextState.isPlaying ? prev : nextState.isPlaying))
+
+    setActiveCardId(prev => (prev === nextState.activeCardId ? prev : nextState.activeCardId))
+
+    setSelectedCardId(prev => (prev === nextState.selectedCardId ? prev : nextState.selectedCardId))
+  }, [initialState])
 
   // Timer logic - updates while playing, accounting for real elapsed time to prevent drift
   useEffect(() => {
@@ -170,7 +273,7 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
 
   const setCards = useCallback((newCards: Card[]) => {
     setCardsState(newCards)
-    
+
     // Update selected card if current selection no longer exists
     if (selectedCardId && !newCards.find(card => card.id === selectedCardId)) {
       const firstCard = newCards[0]
@@ -192,7 +295,7 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
   }, [cards])
 
   const updateCardTime = useCallback((cardId: string, newTime: number) => {
-    setCardsState(prevCards => 
+    setCardsState(prevCards =>
       prevCards.map(card => 
         card.id === cardId 
           ? { 
@@ -227,6 +330,31 @@ export function useTimer(initialCards: Card[] = []): UseTimerReturn {
       lastTickRef.current = null
     }
   }, [activeCardId])
+
+  const { onStateChange } = options
+  const lastPersistedStateRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (!onStateChange) {
+      return
+    }
+
+    const stateSnapshot = JSON.stringify({ cards, isPlaying, activeCardId, selectedCardId })
+
+    if (lastPersistedStateRef.current === stateSnapshot) {
+      return
+    }
+
+    lastPersistedStateRef.current = stateSnapshot
+
+    onStateChange({
+      cards,
+      isPlaying,
+      activeCardId,
+      selectedCardId,
+      lastUpdated: Date.now()
+    })
+  }, [cards, isPlaying, activeCardId, selectedCardId, onStateChange])
 
   return {
     cards,

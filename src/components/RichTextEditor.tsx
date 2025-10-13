@@ -5,7 +5,6 @@ import StarterKit from '@tiptap/starter-kit'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import Placeholder from '@tiptap/extension-placeholder'
-import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
@@ -55,7 +54,6 @@ export function RichTextEditor({
       FontFamily.configure({
         types: ['textStyle'],
       }),
-      Underline,
       TaskList,
       TaskItem.configure({
         nested: true,

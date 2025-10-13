@@ -45,16 +45,95 @@ const initialCards: Card[] = [
   }
 ]
 
+const getNextCardId = (cards: Card[]) => {
+  const numericIds = cards
+    .map(card => Number.parseInt(card.id, 10))
+    .filter(id => !Number.isNaN(id))
+
+  if (numericIds.length === 0) {
+    return 1
+  }
+
+  return Math.max(...numericIds) + 1
+}
+
 export default function Home() {
-  const [savedCards, setSavedCards] = useLocalStorage<Card[]>('productivity-cards', initialCards)
+  const defaultAppState = React.useMemo<AppState>(() => ({
+    cards: initialCards.map(card => ({ ...card })),
+    isPlaying: false,
+    activeCardId: null,
+    selectedCardId: initialCards.find(card => card.isSelected)?.id ?? initialCards[0]?.id ?? null,
+    lastUpdated: Date.now()
+  }), [])
+
+  const [appState, setAppState] = useLocalStorage<AppState>('productivity-app-state', defaultAppState)
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
-  const [nextCardId, setNextCardId] = useState(4) // Start from 4 since we have cards 1,2,3
-  const [selectedTrack, setSelectedTrack] = useState<string | undefined>(undefined)
-  const [volume, setVolume] = useState<number>(50)
-  const [isMusicPlaying, setIsMusicPlaying] = useState<boolean>(false)
+  const [nextCardId, setNextCardId] = useState(() => getNextCardId(appState.cards))
+  const [selectedTrack, setSelectedTrack] = useLocalStorage<string | null>('productivity-selected-track', null)
+  const [volume, setVolume] = useLocalStorage<number>('productivity-volume', 50)
+  const [isMusicPlaying, setIsMusicPlaying] = useLocalStorage<boolean>('productivity-music-playing', false)
 
   // Theme management
   const { theme, setTheme } = useTheme()
+
+  const handlePersistedStateChange = React.useCallback(
+    (state: AppState) => {
+      setAppState(state)
+    },
+    [setAppState]
+  )
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const legacyCardsRaw = window.localStorage.getItem('productivity-cards')
+    if (!legacyCardsRaw) {
+      return
+    }
+
+    try {
+      const legacyCards = JSON.parse(legacyCardsRaw) as Card[]
+      if (!Array.isArray(legacyCards) || legacyCards.length === 0) {
+        return
+      }
+
+      const existingStateRaw = window.localStorage.getItem('productivity-app-state')
+      if (existingStateRaw) {
+        try {
+          const existingState = JSON.parse(existingStateRaw) as AppState
+          if (existingState && Array.isArray(existingState.cards)) {
+            const existingCardsString = JSON.stringify(existingState.cards)
+            const defaultCardsString = JSON.stringify(defaultAppState.cards)
+            if (existingCardsString !== defaultCardsString) {
+              return
+            }
+          }
+        } catch (error) {
+          console.warn('Error parsing existing productivity app state:', error)
+        }
+      }
+
+      const normalizedCards = legacyCards.map(card => ({ ...card }))
+      const migratedState: AppState = {
+        cards: normalizedCards,
+        isPlaying: false,
+        activeCardId: normalizedCards.find(card => card.isActive)?.id ?? null,
+        selectedCardId:
+          normalizedCards.find(card => card.isSelected)?.id ??
+          normalizedCards[0]?.id ??
+          null,
+        lastUpdated: Date.now()
+      }
+
+      setAppState(migratedState)
+    } catch (error) {
+      console.warn('Error migrating legacy productivity cards:', error)
+    } finally {
+      window.localStorage.removeItem('productivity-cards')
+    }
+  }, [defaultAppState, setAppState])
 
   const {
     cards,
@@ -68,15 +147,22 @@ export default function Home() {
     resetCard,
     startTimer,
     pauseTimer
-  } = useTimer(savedCards)
+  } = useTimer(appState, { onStateChange: handlePersistedStateChange })
 
   // Auto-transfer unchecked todos
   // Get active card for document title
   const activeCard = cards.find(card => card.id === activeCardId)
 
+  React.useEffect(() => {
+    setNextCardId(prev => {
+      const calculatedNext = getNextCardId(cards)
+      return prev === calculatedNext ? prev : calculatedNext
+    })
+  }, [cards])
+
   // Single audio player instance - fully global (independent of card/timer state)
   useCardAudio({
-    selectedTrack: selectedTrack,
+    selectedTrack: selectedTrack ?? undefined,
     volume: volume,
     isMusicPlaying: isMusicPlaying
   })
@@ -104,7 +190,6 @@ export default function Home() {
         : card
     )
     setCards(newCards)
-    setSavedCards(newCards)
 
     // If this was the active card, stop the timer
     if (cardId === activeCardId) {
@@ -117,25 +202,8 @@ export default function Home() {
     resetCard(cardId)
   }
 
-  // Sync cards to localStorage whenever they change (but only for user actions)
-  React.useEffect(() => {
-    // Only sync if cards have actually changed
-    const cardsString = JSON.stringify(cards)
-    const savedString = JSON.stringify(savedCards)
-    if (cardsString !== savedString) {
-      setSavedCards(cards)
-    }
-  }, [cards, savedCards, setSavedCards])
-
   const handleUpdateTime = (cardId: string, newTime: number) => {
     updateCardTime(cardId, newTime)
-    // Sync to localStorage after time update
-    const updatedCards = cards.map(card =>
-      card.id === cardId
-        ? { ...card, timeRemaining: newTime, duration: Math.max(card.duration, newTime), isCompleted: newTime === 0 }
-        : card
-    )
-    setSavedCards(updatedCards)
   }
 
   const handleAddCard = (type: 'session' | 'break') => {
@@ -162,7 +230,6 @@ export default function Home() {
       ...cards.slice(insertPosition)
     ]
     setCards(newCards)
-    setSavedCards(newCards)
     selectCard(newCard.id)
   }
 
@@ -182,7 +249,6 @@ export default function Home() {
 
     const newCards = [...cards.slice(0, position), newCard, ...cards.slice(position)]
     setCards(newCards)
-    setSavedCards(newCards)
     selectCard(newCard.id)
   }
 
@@ -199,7 +265,6 @@ export default function Home() {
     // Direct deletion without confirmation
     const newCards = cards.filter(card => card.id !== cardId)
     setCards(newCards)
-    setSavedCards(newCards)
 
     // Select first remaining card if deleted card was selected
     if (selectedCardId === cardId && newCards.length > 0) {
@@ -213,7 +278,6 @@ export default function Home() {
       card.id === cardId ? { ...card, content } : card
     )
     setCards(newCards)
-    setSavedCards(newCards)
   }
 
   const handleStartEditing = (cardId: string) => {
@@ -234,7 +298,7 @@ export default function Home() {
   }
 
   const handleMusicToggle = () => {
-    setIsMusicPlaying(!isMusicPlaying)
+    setIsMusicPlaying(prev => !prev)
   }
 
   // Removed handleFormatCommand - using TipTap editor commands instead
@@ -246,8 +310,7 @@ export default function Home() {
 
   const canEdit = true // Allow editing while timer is running
 
-  // Note: Removed automatic localStorage sync to prevent infinite re-render loop
-  // Cards are now saved to localStorage only on explicit user actions
+  // Card, timer, and selection state automatically persist via localStorage synchronization
 
   // Update document title with timer and card type
   React.useEffect(() => {
@@ -292,7 +355,7 @@ export default function Home() {
               canEdit={canEdit}
               isEditing={!!editingCardId}
               activeCardId={editingCardId}
-              selectedTrack={selectedTrack}
+              selectedTrack={selectedTrack ?? undefined}
               volume={volume}
               isMusicPlaying={isMusicPlaying}
               onTrackSelect={handleTrackSelect}
