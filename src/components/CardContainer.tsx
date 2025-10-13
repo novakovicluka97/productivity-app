@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card } from './Card'
 import { CardInsertButton } from './CardInsertButton'
 import { Card as CardType } from '@/lib/types'
-import { ScrollArea, ScrollBar } from './ui/scroll-area'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { cn } from '@/lib/utils'
@@ -52,68 +51,69 @@ export function CardContainer({
       const { scrollLeft, scrollWidth, clientWidth } = containerRef.current
       setCanScrollLeft(scrollLeft > 0)
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1)
+    } else {
+      setCanScrollLeft(false)
+      setCanScrollRight(false)
     }
   }
 
   // Function to center a card in view
   const centerCard = (cardId: string) => {
     requestAnimationFrame(() => {
-      // Get the actual scrollable viewport from ScrollArea component
-      const viewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
-      if (viewport) {
-        const cardElement = viewport.querySelector(`[data-card-id="${cardId}"]`) as HTMLElement
-        if (cardElement) {
-          const cardLeft = cardElement.offsetLeft
-          const cardWidth = cardElement.offsetWidth
-          const viewportWidth = viewport.clientWidth
-          const scrollPosition = cardLeft - (viewportWidth / 2) + (cardWidth / 2)
+      const container = containerRef.current
+      if (!container) return
 
-          viewport.scrollTo({
-            left: scrollPosition,
-            behavior: 'smooth'
-          })
-        }
-      }
+      const cardElement = container.querySelector(`[data-card-id="${cardId}"]`) as HTMLElement | null
+      if (!cardElement) return
+
+      const cardLeft = cardElement.offsetLeft
+      const cardWidth = cardElement.offsetWidth
+      const containerWidth = container.clientWidth
+      const scrollPosition = cardLeft - (containerWidth / 2) + (cardWidth / 2)
+
+      container.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      })
     })
   }
 
   useEffect(() => {
-    updateScrollButtons()
     const container = containerRef.current
-    if (container) {
-      container.addEventListener('scroll', updateScrollButtons)
-      window.addEventListener('resize', updateScrollButtons)
+    if (!container) return
 
-      return () => {
-        container.removeEventListener('scroll', updateScrollButtons)
-        window.removeEventListener('resize', updateScrollButtons)
-      }
+    updateScrollButtons()
+    container.addEventListener('scroll', updateScrollButtons)
+    window.addEventListener('resize', updateScrollButtons)
+
+    return () => {
+      container.removeEventListener('scroll', updateScrollButtons)
+      window.removeEventListener('resize', updateScrollButtons)
     }
   }, [cards])
 
   // Auto-center the selected card whenever selection changes
   useEffect(() => {
     const selectedCard = cards.find(card => card.isSelected)
-    if (selectedCard) {
-      // Use setTimeout to ensure DOM has updated after state change
-      const timeoutId = setTimeout(() => {
-        centerCard(selectedCard.id)
-      }, 0)
+    if (!selectedCard) return
 
-      return () => clearTimeout(timeoutId)
-    }
+    const timeoutId = window.setTimeout(() => {
+      centerCard(selectedCard.id)
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
   }, [cards])
 
   const scroll = (direction: 'left' | 'right') => {
-    if (containerRef.current) {
-      const scrollAmount = 320 // Card width + margin
-      const newScrollLeft = containerRef.current.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount)
+    if (!containerRef.current) return
 
-      containerRef.current.scrollTo({
-        left: newScrollLeft,
-        behavior: 'smooth'
-      })
-    }
+    const scrollAmount = Math.max(containerRef.current.clientWidth * 0.6, 320)
+    const newScrollLeft = containerRef.current.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount)
+
+    containerRef.current.scrollTo({
+      left: newScrollLeft,
+      behavior: 'smooth'
+    })
   }
 
   // Handle keyboard navigation
@@ -165,82 +165,120 @@ export function CardContainer({
   return (
     <div className="relative flex-1">
       {/* Left Scroll Indicator */}
-      {canScrollLeft && (
-        <Button
-          onClick={() => scroll('left')}
-          size="icon"
-          variant="secondary"
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg"
-          aria-label="Scroll left"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-      )}
+      <div className="hidden md:block">
+        {canScrollLeft && (
+          <Button
+            onClick={() => scroll('left')}
+            size="icon"
+            variant="secondary"
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        )}
 
-      {/* Right Scroll Indicator */}
-      {canScrollRight && (
-        <Button
-          onClick={() => scroll('right')}
-          size="icon"
-          variant="secondary"
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg"
-          aria-label="Scroll right"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
-      )}
+        {/* Right Scroll Indicator */}
+        {canScrollRight && (
+          <Button
+            onClick={() => scroll('right')}
+            size="icon"
+            variant="secondary"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+        )}
 
-      {/* Cards Container */}
-      <ScrollArea className="w-full">
-        <div
-          ref={containerRef}
-          className={cn(
-            "flex items-start py-8 px-6",
-            cards.length === 1 && "justify-center"
-          )}
-        >
-        {/* Insert button at the beginning */}
-        <CardInsertButton
-          onInsert={onInsertCard}
-          position={0}
-          canEdit={canEdit}
-        />
-
-        {cards.map((card, index) => (
-          <React.Fragment key={card.id}>
-            <Card
-              card={card}
-              onSelect={(cardId) => {
-                onSelectCard(cardId)
-              }}
-              onDelete={onDeleteCard}
-              onContentChange={onContentChange}
-              onStartEditing={onStartEditing}
-              onStopEditing={onStopEditing}
-              onToggleTimer={onToggleTimer}
-              onResetCard={onResetCard}
-              onUpdateTime={onUpdateTime}
-              onCompleteCard={onCompleteCard}
-              isPlaying={isPlaying}
-              isEditing={editingCardId === card.id}
-              canEdit={canEdit}
-            />
-
-            {/* Insert button after each card */}
+        {/* Cards Container - Desktop */}
+        <div className="overflow-hidden">
+          <div
+            ref={containerRef}
+            className={cn(
+              'flex items-start gap-4 py-8 px-6 overflow-x-auto scroll-smooth',
+              cards.length === 1 && 'justify-center'
+            )}
+            role="list"
+            aria-label="Productivity cards"
+          >
             <CardInsertButton
               onInsert={onInsertCard}
-              position={index + 1}
+              position={0}
               canEdit={canEdit}
             />
-          </React.Fragment>
-        ))}
+
+            {cards.map((card, index) => (
+              <React.Fragment key={card.id}>
+                <Card
+                  card={card}
+                  onSelect={(cardId) => {
+                    onSelectCard(cardId)
+                  }}
+                  onDelete={onDeleteCard}
+                  onContentChange={onContentChange}
+                  onStartEditing={onStartEditing}
+                  onStopEditing={onStopEditing}
+                  onToggleTimer={onToggleTimer}
+                  onResetCard={onResetCard}
+                  onUpdateTime={onUpdateTime}
+                  onCompleteCard={onCompleteCard}
+                  isPlaying={isPlaying}
+                  isEditing={editingCardId === card.id}
+                  canEdit={canEdit}
+                />
+
+                <CardInsertButton
+                  onInsert={onInsertCard}
+                  position={index + 1}
+                  canEdit={canEdit}
+                />
+              </React.Fragment>
+            ))}
+          </div>
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
+
+      {/* Cards Container - Mobile */}
+      <div className="md:hidden px-4 py-6">
+        <div className="flex flex-col gap-4" role="list" aria-label="Productivity cards">
+          <CardInsertButton
+            onInsert={onInsertCard}
+            position={0}
+            canEdit={canEdit}
+          />
+
+          {cards.map((card, index) => (
+            <React.Fragment key={card.id}>
+              <Card
+                card={card}
+                onSelect={onSelectCard}
+                onDelete={onDeleteCard}
+                onContentChange={onContentChange}
+                onStartEditing={onStartEditing}
+                onStopEditing={onStopEditing}
+                onToggleTimer={onToggleTimer}
+                onResetCard={onResetCard}
+                onUpdateTime={onUpdateTime}
+                onCompleteCard={onCompleteCard}
+                isPlaying={isPlaying}
+                isEditing={editingCardId === card.id}
+                canEdit={canEdit}
+              />
+
+              <CardInsertButton
+                onInsert={onInsertCard}
+                position={index + 1}
+                canEdit={canEdit}
+              />
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
 
       {/* Keyboard Navigation Hint */}
       {canEdit && cards.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+        <div className="hidden md:block absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <Badge variant="secondary" className="text-xs">
             Use the Left and Right arrow keys to navigate cards
           </Badge>

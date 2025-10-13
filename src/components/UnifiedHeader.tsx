@@ -59,7 +59,7 @@ export function UnifiedHeader({
   const { activeEditor } = useEditorContext()
   const [highlightColor, setHighlightColor] = useState('#FFFF00')
   const [textColor, setTextColor] = useState('#000000')
-  const [fontFamily, setFontFamily] = useState('Inter')
+  const [, setFontFamily] = useState('Inter')
 
   const handleCommand = (command: string) => {
     if (!activeEditor) return
@@ -93,18 +93,18 @@ export function UnifiedHeader({
   return (
     <TooltipProvider>
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center gap-4">
-            {/* Logo/Title - Far Left */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                <div className="w-3 h-3 bg-primary-foreground rounded-sm" />
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                  <div className="w-3 h-3 bg-primary-foreground rounded-sm" />
+                </div>
+                <h1 className="text-lg sm:text-xl font-semibold truncate">
+                  Session-Break
+                </h1>
               </div>
-              <h1 className="text-xl font-semibold">
-                Session-Break
-              </h1>
-            {/* Music Player - Always visible in header */}
-              <div className="mx-4">
+              <div className="order-3 basis-full md:order-2 md:basis-auto md:flex-1 md:min-w-[280px]">
                 <MusicPlayer
                   selectedTrack={selectedTrack}
                   volume={volume}
@@ -112,16 +112,92 @@ export function UnifiedHeader({
                   onTrackSelect={onTrackSelect}
                   onVolumeChange={onVolumeChange}
                   onPlayToggle={onMusicToggle}
-                  className="min-w-[320px]"
+                  className="w-full md:w-auto md:min-w-[320px]"
                 />
               </div>
+              <div className="order-2 md:order-3 flex items-center gap-2 ml-auto">
+                {/* Add Card Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 rounded-full"
+                      aria-label="Add new card"
+                    >
+                      <Plus className="h-5 w-5" aria-hidden="true" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onAddCard('session')}>
+                      Add Session
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onAddCard('break')}>
+                      Add Break
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
+                {/* Theme Selector */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 rounded-full"
+                      aria-label="Select theme"
+                    >
+                      {theme === 'dark' ? (
+                        <Moon className="h-5 w-5" aria-hidden="true" />
+                      ) : theme === 'forest' ? (
+                        <Trees className="h-5 w-5" aria-hidden="true" />
+                      ) : theme === 'ocean' ? (
+                        <Waves className="h-5 w-5" aria-hidden="true" />
+                      ) : (
+                        <Sun className="h-5 w-5" aria-hidden="true" />
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onThemeChange('default')}>
+                      <Sun className="h-4 w-4 mr-2" />
+                      Default
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onThemeChange('dark')}>
+                      <Moon className="h-4 w-4 mr-2" />
+                      Dark
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onThemeChange('forest')}>
+                      <Trees className="h-4 w-4 mr-2" />
+                      Forest
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onThemeChange('ocean')}>
+                      <Waves className="h-4 w-4 mr-2" />
+                      Ocean
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Settings (future feature) */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 rounded-full"
+                  disabled
+                  aria-label="Settings (coming soon)"
+                >
+                  <Settings className="h-5 w-5" aria-hidden="true" />
+                </Button>
+              </div>
             </div>
 
-            <Separator orientation="vertical" className="h-8" />
-
-            {/* Formatting Tools - Center Left */}
-            <div className="flex items-center gap-1 flex-1">
+            <div className="flex flex-col gap-2">
+              <div
+                className="flex items-center gap-1 overflow-x-auto pb-2 -mx-2 px-2 sm:-mx-3 sm:px-3 md:mx-0 md:px-0"
+                role="toolbar"
+                aria-label="Text formatting options"
+              >
+                <div className="flex items-center gap-1 min-w-max">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div>
@@ -182,7 +258,7 @@ export function UnifiedHeader({
                 </TooltipContent>
               </Tooltip>
 
-              <Separator orientation="vertical" className="h-6 mx-2" />
+              <Separator orientation="vertical" className="hidden sm:block h-6 mx-2" />
 
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -244,7 +320,7 @@ export function UnifiedHeader({
                 </TooltipContent>
               </Tooltip>
 
-              <Separator orientation="vertical" className="h-6 mx-2" />
+              <Separator orientation="vertical" className="hidden sm:block h-6 mx-2" />
 
               {/* Highlighter with color picker */}
               <DropdownMenu>
@@ -375,91 +451,16 @@ export function UnifiedHeader({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              {isEditing && activeCardId && (
-                <Badge variant="outline" className="ml-auto">
-                  Editing: {activeCardId}
-                </Badge>
-              )}
-            </div>
-
-            {/* Main Controls - Right */}
-            <div className="flex items-center gap-2">
-              {/* Add Card Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-10 w-10 rounded-full"
-                    aria-label="Add new card"
-                  >
-                    <Plus className="h-5 w-5" aria-hidden="true" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onAddCard('session')}>
-                    Add Session
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onAddCard('break')}>
-                    Add Break
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Theme Selector */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 rounded-full"
-                    aria-label="Select theme"
-                  >
-                    {theme === 'dark' ? (
-                      <Moon className="h-5 w-5" aria-hidden="true" />
-                    ) : theme === 'forest' ? (
-                      <Trees className="h-5 w-5" aria-hidden="true" />
-                    ) : theme === 'ocean' ? (
-                      <Waves className="h-5 w-5" aria-hidden="true" />
-                    ) : (
-                      <Sun className="h-5 w-5" aria-hidden="true" />
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onThemeChange('default')}>
-                    <Sun className="h-4 w-4 mr-2" />
-                    Default
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onThemeChange('dark')}>
-                    <Moon className="h-4 w-4 mr-2" />
-                    Dark
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onThemeChange('forest')}>
-                    <Trees className="h-4 w-4 mr-2" />
-                    Forest
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onThemeChange('ocean')}>
-                    <Waves className="h-4 w-4 mr-2" />
-                    Ocean
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-
-              {/* Settings (future feature) */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-full"
-                disabled
-                aria-label="Settings (coming soon)"
-              >
-                <Settings className="h-5 w-5" aria-hidden="true" />
-              </Button>
             </div>
           </div>
+
+          {isEditing && activeCardId && (
+            <Badge variant="outline" className="self-start md:self-end">
+              Editing: {activeCardId}
+            </Badge>
+          )}
+          </div>
+        </div>
         </div>
       </header>
     </TooltipProvider>
