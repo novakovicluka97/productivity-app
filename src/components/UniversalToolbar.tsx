@@ -8,6 +8,7 @@ import {
   ListOrdered,
   CheckSquare
 } from 'lucide-react'
+import type { MouseEvent } from 'react'
 import { Toggle } from './ui/toggle'
 import { Separator } from './ui/separator'
 import { Badge } from './ui/badge'
@@ -52,8 +53,8 @@ export function UniversalToolbar({ isEditing, activeCardId }: UniversalToolbarPr
     }
   }
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault()
+  const handleMouseDown = (event: MouseEvent) => {
+    event.preventDefault()
   }
 
   return (

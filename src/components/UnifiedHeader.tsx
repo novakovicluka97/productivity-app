@@ -18,8 +18,7 @@ import {
   Trees,
   Waves
 } from 'lucide-react'
-import { useState } from 'react'
-import type { MouseEvent } from 'react'
+import { useState, type MouseEvent } from 'react'
 import { MusicPlayer } from './MusicPlayer'
 import { Button } from './ui/button'
 import {
@@ -73,7 +72,7 @@ export function UnifiedHeader({
   const { activeEditor } = useEditorContext()
   const [highlightColor, setHighlightColor] = useState('#FFFF00')
   const [textColor, setTextColor] = useState('#000000')
-  const [fontFamily, setFontFamily] = useState('Inter')
+  const [, setFontFamily] = useState('Inter')
 
   const handleCommand = (command: string) => {
     if (!activeEditor) return
