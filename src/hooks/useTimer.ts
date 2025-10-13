@@ -132,18 +132,12 @@ export function useTimer(initialState?: AppState, options: UseTimerOptions = {})
 
     setCardsState(prevCards => (cardsAreEqual(prevCards, nextState.cards) ? prevCards : nextState.cards))
 
-    if (isPlaying !== nextState.isPlaying) {
-      setIsPlaying(nextState.isPlaying)
-    }
+    setIsPlaying(prev => (prev === nextState.isPlaying ? prev : nextState.isPlaying))
 
-    if (activeCardId !== nextState.activeCardId) {
-      setActiveCardId(nextState.activeCardId)
-    }
+    setActiveCardId(prev => (prev === nextState.activeCardId ? prev : nextState.activeCardId))
 
-    if (selectedCardId !== nextState.selectedCardId) {
-      setSelectedCardId(nextState.selectedCardId)
-    }
-  }, [initialState, isPlaying, activeCardId, selectedCardId])
+    setSelectedCardId(prev => (prev === nextState.selectedCardId ? prev : nextState.selectedCardId))
+  }, [initialState])
 
   // Timer logic - updates while playing, accounting for real elapsed time to prevent drift
   useEffect(() => {
@@ -338,11 +332,20 @@ export function useTimer(initialState?: AppState, options: UseTimerOptions = {})
   }, [activeCardId])
 
   const { onStateChange } = options
+  const lastPersistedStateRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!onStateChange) {
       return
     }
+
+    const stateSnapshot = JSON.stringify({ cards, isPlaying, activeCardId, selectedCardId })
+
+    if (lastPersistedStateRef.current === stateSnapshot) {
+      return
+    }
+
+    lastPersistedStateRef.current = stateSnapshot
 
     onStateChange({
       cards,
