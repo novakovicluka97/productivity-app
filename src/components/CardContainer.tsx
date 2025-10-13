@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card } from './Card'
 import { CardInsertButton } from './CardInsertButton'
 import { Card as CardType } from '@/lib/types'
+import { ScrollArea, ScrollBar } from './ui/scroll-area'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { cn } from '@/lib/utils'
@@ -43,35 +44,40 @@ export function CardContainer({
   canEdit
 }: CardContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const viewportRef = useRef<HTMLDivElement | null>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
 
-  const updateScrollButtons = () => {
-    if (containerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = containerRef.current
-      setCanScrollLeft(scrollLeft > 0)
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1)
-    } else {
+  const updateScrollButtons = useCallback(() => {
+    const viewport = viewportRef.current
+
+    if (!viewport) {
       setCanScrollLeft(false)
       setCanScrollRight(false)
+      return
     }
-  }
+
+    const { scrollLeft, scrollWidth, clientWidth } = viewport
+    setCanScrollLeft(scrollLeft > 0)
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1)
+  }, [])
 
   // Function to center a card in view
   const centerCard = (cardId: string) => {
     requestAnimationFrame(() => {
+      const viewport = viewportRef.current
       const container = containerRef.current
-      if (!container) return
+      if (!viewport || !container) return
 
       const cardElement = container.querySelector(`[data-card-id="${cardId}"]`) as HTMLElement | null
       if (!cardElement) return
 
       const cardLeft = cardElement.offsetLeft
       const cardWidth = cardElement.offsetWidth
-      const containerWidth = container.clientWidth
-      const scrollPosition = cardLeft - (containerWidth / 2) + (cardWidth / 2)
+      const viewportWidth = viewport.clientWidth
+      const scrollPosition = cardLeft - viewportWidth / 2 + cardWidth / 2
 
-      container.scrollTo({
+      viewport.scrollTo({
         left: scrollPosition,
         behavior: 'smooth'
       })
@@ -79,18 +85,23 @@ export function CardContainer({
   }
 
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+    const viewport = containerRef.current?.closest('[data-radix-scroll-area-viewport]') as HTMLDivElement | null
+    viewportRef.current = viewport
 
     updateScrollButtons()
-    container.addEventListener('scroll', updateScrollButtons)
+
+    if (!viewport) {
+      return
+    }
+
+    viewport.addEventListener('scroll', updateScrollButtons)
     window.addEventListener('resize', updateScrollButtons)
 
     return () => {
-      container.removeEventListener('scroll', updateScrollButtons)
+      viewport.removeEventListener('scroll', updateScrollButtons)
       window.removeEventListener('resize', updateScrollButtons)
     }
-  }, [cards])
+  }, [cards, updateScrollButtons])
 
   // Auto-center the selected card whenever selection changes
   useEffect(() => {
@@ -105,12 +116,13 @@ export function CardContainer({
   }, [cards])
 
   const scroll = (direction: 'left' | 'right') => {
-    if (!containerRef.current) return
+    const viewport = viewportRef.current
+    if (!viewport) return
 
-    const scrollAmount = Math.max(containerRef.current.clientWidth * 0.6, 320)
-    const newScrollLeft = containerRef.current.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount)
+    const scrollAmount = Math.max(viewport.clientWidth * 0.6, 320)
+    const newScrollLeft = viewport.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount)
 
-    containerRef.current.scrollTo({
+    viewport.scrollTo({
       left: newScrollLeft,
       behavior: 'smooth'
     })
@@ -164,39 +176,37 @@ export function CardContainer({
 
   return (
     <div className="relative flex-1">
-      {/* Left Scroll Indicator */}
-      <div className="hidden md:block">
+      {/* Desktop layout */}
+      <div className="relative hidden md:block">
         {canScrollLeft && (
           <Button
             onClick={() => scroll('left')}
             size="icon"
             variant="secondary"
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg"
             aria-label="Scroll left"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
         )}
 
-        {/* Right Scroll Indicator */}
         {canScrollRight && (
           <Button
             onClick={() => scroll('right')}
             size="icon"
             variant="secondary"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg"
             aria-label="Scroll right"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
         )}
 
-        {/* Cards Container - Desktop */}
-        <div className="overflow-hidden">
+        <ScrollArea className="w-full">
           <div
             ref={containerRef}
             className={cn(
-              'flex items-start gap-4 py-8 px-6 overflow-x-auto scroll-smooth',
+              'flex items-start gap-4 py-8 px-6',
               cards.length === 1 && 'justify-center'
             )}
             role="list"
@@ -236,10 +246,11 @@ export function CardContainer({
               </React.Fragment>
             ))}
           </div>
-        </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
 
-      {/* Cards Container - Mobile */}
+      {/* Mobile layout */}
       <div className="md:hidden px-4 py-6">
         <div className="flex flex-col gap-4" role="list" aria-label="Productivity cards">
           <CardInsertButton
@@ -276,9 +287,8 @@ export function CardContainer({
         </div>
       </div>
 
-      {/* Keyboard Navigation Hint */}
       {canEdit && cards.length > 1 && (
-        <div className="hidden md:block absolute bottom-4 left-1/2 transform -translate-x-1/2">
+        <div className="hidden md:block absolute bottom-4 left-1/2 -translate-x-1/2">
           <Badge variant="secondary" className="text-xs">
             Use the Left and Right arrow keys to navigate cards
           </Badge>
