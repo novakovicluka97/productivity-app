@@ -52,5 +52,5 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [key, isHydrated])
 
-  return [storedValue, setValue] as const
+  return [storedValue, setValue, isHydrated] as const
 }

@@ -66,7 +66,7 @@ export default function Home() {
     lastUpdated: Date.now()
   }), [])
 
-  const [appState, setAppState] = useLocalStorage<AppState>('productivity-app-state', defaultAppState)
+  const [appState, setAppState, appStateHydrated] = useLocalStorage<AppState>('productivity-app-state', defaultAppState)
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
   const [nextCardId, setNextCardId] = useState(() => getNextCardId(appState.cards))
   const [selectedTrack, setSelectedTrack] = useLocalStorage<string | null>('productivity-selected-track', null)
@@ -78,9 +78,12 @@ export default function Home() {
 
   const handlePersistedStateChange = React.useCallback(
     (state: AppState) => {
-      setAppState(state)
+      // Only persist to localStorage after hydration to prevent overwriting stored data
+      if (appStateHydrated) {
+        setAppState(state)
+      }
     },
-    [setAppState]
+    [setAppState, appStateHydrated]
   )
 
   React.useEffect(() => {
