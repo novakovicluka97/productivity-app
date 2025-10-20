@@ -1,8 +1,12 @@
 'use client'
 
+import React, { useState, type MouseEvent } from 'react'
+import Link from 'next/link'
 import {
-  Plus,
-  Settings,
+  Moon,
+  Sun,
+  Trees,
+  Waves,
   Bold,
   Italic,
   Underline,
@@ -14,56 +18,74 @@ import {
   Palette,
   ChevronDown
 } from 'lucide-react'
-import { useState, type MouseEvent } from 'react'
-import { MusicPlayer } from './MusicPlayer'
-import { Button } from './ui/button'
+import { useTheme } from '@/hooks/useTheme'
+import { useEditorContext } from '@/components/EditorManager'
+import { MusicPlayer } from '@/components/MusicPlayer'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu'
-import { Toggle } from './ui/toggle'
-import { Separator } from './ui/separator'
-import { Badge } from './ui/badge'
-import { useEditorContext } from './EditorManager'
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { Toggle } from '@/components/ui/toggle'
+import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from './ui/tooltip'
+} from '@/components/ui/tooltip'
 
-interface UnifiedHeaderProps {
-  onAddCard: (type: 'session' | 'break') => void
-  canEdit: boolean
-  isEditing: boolean
-  activeCardId: string | null
+/**
+ * TopHeader Component
+ *
+ * Single unified header for protected routes with:
+ * - App branding/logo
+ * - Music player (session builder route)
+ * - Text formatting controls (for session cards)
+ * - Theme switcher
+ *
+ * This is the ONLY header in protected routes
+ */
+
+interface TopHeaderProps {
+  // Only show editing controls on /app route
+  showEditingControls?: boolean
+  canEdit?: boolean
+  isEditing?: boolean
+  activeCardId?: string | null
   // Music props
   selectedTrack?: string
-  volume: number
-  isMusicPlaying: boolean
-  onTrackSelect: (trackId: string) => void
-  onVolumeChange: (volume: number) => void
-  onMusicToggle: () => void
+  volume?: number
+  isMusicPlaying?: boolean
+  onTrackSelect?: (trackId: string) => void
+  onVolumeChange?: (volume: number) => void
+  onMusicToggle?: () => void
 }
 
-export function UnifiedHeader({
-  onAddCard,
-  canEdit,
-  isEditing,
-  activeCardId,
+export function TopHeader({
+  showEditingControls = false,
+  canEdit = true,
+  isEditing = false,
+  activeCardId = null,
   selectedTrack,
-  volume,
-  isMusicPlaying,
+  volume = 50,
+  isMusicPlaying = false,
   onTrackSelect,
   onVolumeChange,
   onMusicToggle,
-}: UnifiedHeaderProps) {
+}: TopHeaderProps) {
+  const { theme, setTheme } = useTheme()
   const { activeEditor } = useEditorContext()
   const [highlightColor, setHighlightColor] = useState('#FFFF00')
   const [textColor, setTextColor] = useState('#000000')
   const [, setFontFamily] = useState('Inter')
+
+  const handleThemeChange = (newTheme: typeof theme) => {
+    setTheme(newTheme)
+  }
 
   const handleCommand = (command: string) => {
     if (!activeEditor) return
@@ -366,126 +388,176 @@ export function UnifiedHeader({
     </div>
   )
 
-
   return (
     <TooltipProvider>
-      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-slate-200/50 bg-white/80 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/80">
         <div className="container mx-auto px-4 sm:px-6 py-3">
-          <div className="flex flex-col gap-3">
-            {/* Desktop Layout */}
-            <div className="hidden md:flex items-center gap-4">
-              {/* Music Player */}
-              <div className="min-w-[320px]">
-                <MusicPlayer
-                  selectedTrack={selectedTrack}
-                  volume={volume}
-                  isMusicPlaying={isMusicPlaying}
-                  onTrackSelect={onTrackSelect}
-                  onVolumeChange={onVolumeChange}
-                  onPlayToggle={onMusicToggle}
-                  className="min-w-[320px]"
-                />
+          {/* Desktop Layout */}
+          <div className="hidden md:flex items-center gap-4">
+            {/* Logo and Title */}
+            <Link href="/app" className="flex items-center gap-2 shrink-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 font-bold text-white shadow-lg">
+                SB
               </div>
+              <span className="text-xl font-bold text-slate-900 dark:text-white">
+                Session-Break
+              </span>
+            </Link>
 
-              <Separator orientation="vertical" className="h-8" />
+            {/* Music Player - Only on /app route */}
+            {showEditingControls && onMusicToggle && (
+              <>
+                <Separator orientation="vertical" className="h-8" />
+                <div className="min-w-[280px]">
+                  <MusicPlayer
+                    selectedTrack={selectedTrack}
+                    volume={volume}
+                    isMusicPlaying={isMusicPlaying}
+                    onTrackSelect={onTrackSelect!}
+                    onVolumeChange={onVolumeChange!}
+                    onPlayToggle={onMusicToggle}
+                    className="min-w-[280px]"
+                  />
+                </div>
+              </>
+            )}
 
-              {/* Formatting Controls */}
-              {renderFormattingControls({
-                className: 'flex items-center gap-1 flex-1',
-                badgeClassName: 'ml-auto',
-              })}
+            {/* Text Formatting Controls - Only on /app route */}
+            {showEditingControls && (
+              <>
+                <Separator orientation="vertical" className="h-8" />
+                {renderFormattingControls({
+                  className: 'flex items-center gap-1 flex-1',
+                  badgeClassName: 'ml-auto',
+                })}
+              </>
+            )}
 
-              {/* Add Card Button (removed theme, it's now in TopHeader) */}
+            {/* Right Side Controls */}
+            <div className="ml-auto flex items-center gap-2">
+              {/* Theme Selector */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-10 w-10 rounded-full"
-                    aria-label="Add new card"
-                  >
-                    <Plus className="h-5 w-5" aria-hidden="true" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onAddCard('session')}>
-                    Add Session
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onAddCard('break')}>
-                    Add Break
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-full"
-                disabled
-                aria-label="Settings (coming soon)"
-              >
-                <Settings className="h-5 w-5" aria-hidden="true" />
-              </Button>
-            </div>
-
-            {/* Mobile Layout */}
-            <div className="flex flex-col gap-3 md:hidden">
-              <div className="flex items-center justify-between gap-3">
-                <MusicPlayer
-                  selectedTrack={selectedTrack}
-                  volume={volume}
-                  isMusicPlaying={isMusicPlaying}
-                  onTrackSelect={onTrackSelect}
-                  onVolumeChange={onVolumeChange}
-                  onPlayToggle={onMusicToggle}
-                  className="flex-1"
-                />
-
-                {/* Add Card and Settings Buttons */}
-                <div className="flex items-center gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-10 w-10 rounded-full"
-                        aria-label="Add new card"
-                      >
-                        <Plus className="h-5 w-5" aria-hidden="true" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onAddCard('session')}>
-                        Add Session
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onAddCard('break')}>
-                        Add Break
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-10 w-10 rounded-full"
-                    disabled
-                    aria-label="Settings (coming soon)"
+                    aria-label="Select theme"
                   >
-                    <Settings className="h-5 w-5" aria-hidden="true" />
+                    {theme === 'dark' ? (
+                      <Moon className="h-5 w-5" aria-hidden="true" />
+                    ) : theme === 'forest' ? (
+                      <Trees className="h-5 w-5" aria-hidden="true" />
+                    ) : theme === 'ocean' ? (
+                      <Waves className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <Sun className="h-5 w-5" aria-hidden="true" />
+                    )}
                   </Button>
-                </div>
-              </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleThemeChange('default')}>
+                    <Sun className="mr-2 h-4 w-4" />
+                    Default
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleThemeChange('dark')}>
+                    <Moon className="mr-2 h-4 w-4" />
+                    Dark
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleThemeChange('forest')}>
+                    <Trees className="mr-2 h-4 w-4" />
+                    Forest
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleThemeChange('ocean')}>
+                    <Waves className="mr-2 h-4 w-4" />
+                    Ocean
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
 
-              {/* Formatting Controls */}
-              {renderFormattingControls({
+          {/* Mobile Layout */}
+          <div className="flex flex-col gap-3 md:hidden">
+            {/* Top Row: Logo + Controls */}
+            <div className="flex items-center justify-between gap-3">
+              {/* Logo and Title */}
+              <Link href="/app" className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 font-bold text-white shadow-lg text-sm">
+                  SB
+                </div>
+                <span className="text-lg font-bold text-slate-900 dark:text-white">
+                  Session-Break
+                </span>
+              </Link>
+
+            {/* Right Controls */}
+            <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 rounded-full"
+                      aria-label="Select theme"
+                    >
+                      {theme === 'dark' ? (
+                        <Moon className="h-4 w-4" aria-hidden="true" />
+                      ) : theme === 'forest' ? (
+                        <Trees className="h-4 w-4" aria-hidden="true" />
+                      ) : theme === 'ocean' ? (
+                        <Waves className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <Sun className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleThemeChange('default')}>
+                      <Sun className="mr-2 h-4 w-4" />
+                      Default
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleThemeChange('dark')}>
+                      <Moon className="mr-2 h-4 w-4" />
+                      Dark
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleThemeChange('forest')}>
+                      <Trees className="mr-2 h-4 w-4" />
+                      Forest
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleThemeChange('ocean')}>
+                      <Waves className="mr-2 h-4 w-4" />
+                      Ocean
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            {/* Music Player Row - Only on /app route */}
+            {showEditingControls && onMusicToggle && (
+              <MusicPlayer
+                selectedTrack={selectedTrack}
+                volume={volume}
+                isMusicPlaying={isMusicPlaying}
+                onTrackSelect={onTrackSelect!}
+                onVolumeChange={onVolumeChange!}
+                onPlayToggle={onMusicToggle}
+                className="w-full"
+              />
+            )}
+
+            {/* Formatting Controls Row - Only on /app route */}
+            {showEditingControls && (
+              renderFormattingControls({
                 className: 'flex flex-wrap items-center gap-2',
                 showDividers: false,
                 badgeClassName: 'w-full mt-2 flex justify-center text-center'
-              })}
-            </div>
+              })
+            )}
           </div>
         </div>
-      </div>
+      </header>
     </TooltipProvider>
   )
 }
