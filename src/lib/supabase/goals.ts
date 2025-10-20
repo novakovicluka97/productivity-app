@@ -170,6 +170,7 @@ export async function createGoal(goal: GoalInsert): Promise<Goal> {
 
   const { data, error } = await supabase
     .from('goals')
+    // @ts-ignore - Supabase type inference issue with goals table
     .insert(newGoal)
     .select()
     .single()
@@ -201,6 +202,7 @@ export async function updateGoal(goalId: string, updates: GoalUpdate): Promise<G
 
   const { data, error } = await supabase
     .from('goals')
+    // @ts-ignore - Supabase type inference issue with goals table
     .update(updateData)
     .eq('id', goalId)
     .eq('user_id', user.id)
@@ -340,6 +342,7 @@ export async function archiveCompletedGoals(): Promise<number> {
 
   const { data, error } = await supabase
     .from('goals')
+    // @ts-ignore - Supabase type inference issue with goals table
     .update({ is_active: false })
     .eq('user_id', user.id)
     .eq('is_completed', true)

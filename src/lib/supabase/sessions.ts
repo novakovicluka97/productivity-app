@@ -116,10 +116,11 @@ export async function getSessionById(id: string): Promise<SessionRow> {
 export async function updateSession(id: string, updates: SessionUpdate): Promise<SessionRow> {
   const { data, error } = await supabase
     .from('sessions')
+    // @ts-ignore - Supabase type inference issue with sessions table
     .update({
       ...updates,
       updated_at: new Date().toISOString(),
-    } as any)
+    })
     .eq('id', id)
     .select()
     .single()
@@ -205,13 +206,16 @@ export async function getSessionStats(startDate: string, endDate: string) {
     throw error
   }
 
+  // Type assertion for stats data
+  const sessions = data as Array<{ type: string; duration: number; time_spent: number; is_completed: boolean; session_date: string }>
+
   // Calculate statistics
-  const totalSessions = data.length
-  const completedSessions = data.filter(s => s.is_completed).length
-  const totalTimeSpent = data.reduce((sum, s) => sum + (s.time_spent || 0), 0)
+  const totalSessions = sessions.length
+  const completedSessions = sessions.filter(s => s.is_completed).length
+  const totalTimeSpent = sessions.reduce((sum, s) => sum + (s.time_spent || 0), 0)
   const sessionsByType = {
-    session: data.filter(s => s.type === 'session').length,
-    break: data.filter(s => s.type === 'break').length,
+    session: sessions.filter(s => s.type === 'session').length,
+    break: sessions.filter(s => s.type === 'break').length,
   }
 
   return {

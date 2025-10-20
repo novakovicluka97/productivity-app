@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase/client'
 import { ACHIEVEMENTS, checkAchievementCriteria, type Achievement } from '@/components/achievements/achievements'
 import { useSessionNotifications } from './useNotifications'
+import type { Database } from '@/types/supabase'
 
 /**
  * Achievements Management Hook
@@ -9,13 +10,7 @@ import { useSessionNotifications } from './useNotifications'
  * Handles checking, unlocking, and querying user achievements.
  */
 
-export interface UserAchievement {
-  id: string
-  user_id: string
-  achievement_id: string
-  unlocked_at: string
-  created_at: string
-}
+type UserAchievement = Database['public']['Tables']['user_achievements']['Row']
 
 /**
  * Get user's unlocked achievements
@@ -33,7 +28,7 @@ export function useUserAchievements() {
         .from('user_achievements')
         .select('*')
         .eq('user_id', user.id)
-        .order('unlocked_at', { ascending: false })
+        .order('earned_at', { ascending: false })
 
       if (error) throw error
       return data as UserAchievement[]
@@ -72,6 +67,7 @@ export function useUnlockAchievement() {
       // Unlock achievement
       const { data, error } = await supabase
         .from('user_achievements')
+        // @ts-ignore - Supabase type inference issue with user_achievements table
         .insert({
           user_id: user.id,
           achievement_id: achievementId,
@@ -120,6 +116,7 @@ export function useCheckAchievements() {
       .select('achievement_id')
       .eq('user_id', user.id)
 
+    // @ts-ignore - Supabase type inference issue with user_achievements table
     const unlockedIds = new Set(unlocked?.map((a) => a.achievement_id) || [])
 
     // Check each achievement

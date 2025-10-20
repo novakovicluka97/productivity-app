@@ -74,11 +74,13 @@ export async function getTemplate(templateId: string) {
     throw error
   }
 
-  if (data.user_id !== user.id && !data.is_public) {
+  const template = data as SessionTemplate
+
+  if (template.user_id !== user.id && !template.is_public) {
     throw new Error('Access denied to this template')
   }
 
-  return data as SessionTemplate
+  return template
 }
 
 /**
@@ -98,6 +100,7 @@ export async function createTemplate(template: TemplateInsert) {
 
   const { data, error } = await supabase
     .from('session_templates')
+    // @ts-ignore - Supabase type inference issue with session_templates table
     .insert({
       ...template,
       user_id: user.id,
@@ -130,6 +133,7 @@ export async function updateTemplate(templateId: string, updates: TemplateUpdate
 
   const { data, error } = await supabase
     .from('session_templates')
+    // @ts-ignore - Supabase type inference issue with session_templates table
     .update(updates)
     .eq('id', templateId)
     .eq('user_id', user.id)
@@ -177,7 +181,7 @@ export async function deleteTemplate(templateId: string) {
 export async function incrementTemplateUsage(templateId: string) {
   
 
-  const { data: template, error: fetchError } = await supabase
+  const { data: templateData, error: fetchError } = await supabase
     .from('session_templates')
     .select('usage_count')
     .eq('id', templateId)
@@ -187,8 +191,11 @@ export async function incrementTemplateUsage(templateId: string) {
     throw fetchError
   }
 
+  const template = templateData as { usage_count: number }
+
   const { data, error } = await supabase
     .from('session_templates')
+    // @ts-ignore - Supabase type inference issue with session_templates table
     .update({ usage_count: (template.usage_count || 0) + 1 })
     .eq('id', templateId)
     .select()
@@ -220,6 +227,7 @@ export async function duplicateTemplate(templateId: string) {
 
   const { data, error } = await supabase
     .from('session_templates')
+    // @ts-ignore - Supabase type inference issue with session_templates table
     .insert({
       user_id: user.id,
       name: `${original.name} (Copy)`,

@@ -1,5 +1,8 @@
 import { format } from 'date-fns';
-import type { Session } from '@/lib/supabase/types';
+import type { Database } from '@/types/supabase';
+
+type Session = Database['public']['Tables']['sessions']['Row'];
+type Task = { id: string; text: string; completed: boolean; created_at: string };
 
 interface DateRange {
   from: Date | undefined;
@@ -10,6 +13,11 @@ interface DateRange {
  * Format session data for export
  */
 export function formatSessionData(session: Session) {
+  // Type-safe task handling (tasks is stored as Json in Supabase)
+  const tasksArray = Array.isArray(session.tasks)
+    ? (session.tasks as Task[])
+    : [];
+
   return {
     date: format(new Date(session.session_date), 'MMM dd, yyyy'),
     type: session.type.charAt(0).toUpperCase() + session.type.slice(1),
@@ -18,9 +26,9 @@ export function formatSessionData(session: Session) {
     timeSpentSeconds: session.time_spent,
     completed: session.is_completed ? 'Yes' : 'No',
     content: session.content?.replace(/<[^>]*>/g, '') || '', // Strip HTML tags
-    tasks: session.tasks?.map(t => `${t.completed ? '[✓]' : '[ ]'} ${t.text}`).join('; ') || '',
-    taskCount: session.tasks?.length || 0,
-    completedTasks: session.tasks?.filter(t => t.completed).length || 0,
+    tasks: tasksArray.map(t => `${t.completed ? '[✓]' : '[ ]'} ${t.text}`).join('; '),
+    taskCount: tasksArray.length,
+    completedTasks: tasksArray.filter(t => t.completed).length,
   };
 }
 
@@ -269,6 +277,10 @@ export function exportToPDF(sessions: Session[], dateRange?: DateRange) {
   <h2>Session Details</h2>
   ${sessions.map(session => {
     const data = formatSessionData(session);
+    // Type-safe task handling
+    const tasksArray = Array.isArray(session.tasks)
+      ? (session.tasks as Task[])
+      : [];
     return `
     <div class="${session.type}">
       <div class="session-header">
@@ -284,10 +296,10 @@ export function exportToPDF(sessions: Session[], dateRange?: DateRange) {
         ${data.content}
       </div>
       ` : ''}
-      ${session.tasks && session.tasks.length > 0 ? `
+      ${tasksArray.length > 0 ? `
       <div class="tasks">
         <strong>Tasks (${data.completedTasks}/${data.taskCount}):</strong>
-        ${session.tasks.map(task => `
+        ${tasksArray.map(task => `
         <div class="task">${task.completed ? '✓' : '○'} ${task.text}</div>
         `).join('')}
       </div>

@@ -94,61 +94,68 @@ export function WeekView({ currentDate, sessions, onSessionClick }: WeekViewProp
                       No sessions
                     </div>
                   ) : (
-                    daySessions.map((session) => (
-                      <button
-                        key={session.id}
-                        onClick={() => onSessionClick(session)}
-                        className={`group w-full rounded-lg border p-3 text-left transition-all hover:shadow-md ${
-                          session.type === 'session'
-                            ? 'border-blue-200 bg-blue-50 hover:bg-blue-100 dark:border-blue-900/30 dark:bg-blue-900/20 dark:hover:bg-blue-900/30'
-                            : 'border-green-200 bg-green-50 hover:bg-green-100 dark:border-green-900/30 dark:bg-green-900/20 dark:hover:bg-green-900/30'
-                        }`}
-                      >
-                        {/* Session Type Badge */}
-                        <div className="mb-2 flex items-center justify-between">
-                          <span
-                            className={`text-xs font-semibold uppercase ${
-                              session.type === 'session'
-                                ? 'text-blue-600 dark:text-blue-400'
-                                : 'text-green-600 dark:text-green-400'
-                            }`}
-                          >
-                            {session.type}
-                          </span>
-                          {session.is_completed ? (
-                            <CheckCircle2
-                              className={`h-4 w-4 ${
+                    daySessions.map((session) => {
+                      // Type-safe task handling (tasks is stored as Json in Supabase)
+                      const tasksArray = Array.isArray(session.tasks)
+                        ? (session.tasks as Array<{ id: string; text: string; completed: boolean; created_at: string }>)
+                        : []
+
+                      return (
+                        <button
+                          key={session.id}
+                          onClick={() => onSessionClick(session)}
+                          className={`group w-full rounded-lg border p-3 text-left transition-all hover:shadow-md ${
+                            session.type === 'session'
+                              ? 'border-blue-200 bg-blue-50 hover:bg-blue-100 dark:border-blue-900/30 dark:bg-blue-900/20 dark:hover:bg-blue-900/30'
+                              : 'border-green-200 bg-green-50 hover:bg-green-100 dark:border-green-900/30 dark:bg-green-900/20 dark:hover:bg-green-900/30'
+                          }`}
+                        >
+                          {/* Session Type Badge */}
+                          <div className="mb-2 flex items-center justify-between">
+                            <span
+                              className={`text-xs font-semibold uppercase ${
                                 session.type === 'session'
                                   ? 'text-blue-600 dark:text-blue-400'
                                   : 'text-green-600 dark:text-green-400'
                               }`}
-                            />
-                          ) : (
-                            <Circle
-                              className={`h-4 w-4 ${
-                                session.type === 'session'
-                                  ? 'text-blue-300 dark:text-blue-700'
-                                  : 'text-green-300 dark:text-green-700'
-                              }`}
-                            />
-                          )}
-                        </div>
-
-                        {/* Duration */}
-                        <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
-                          <Clock className="h-3 w-3" />
-                          <span>{formatDuration(session.duration)}</span>
-                        </div>
-
-                        {/* Task Count (if has tasks) */}
-                        {session.tasks && session.tasks.length > 0 && (
-                          <div className="mt-2 text-xs text-slate-500 dark:text-slate-500">
-                            {session.tasks.filter((t) => t.completed).length}/{session.tasks.length}{' '}
-                            tasks
+                            >
+                              {session.type}
+                            </span>
+                            {session.is_completed ? (
+                              <CheckCircle2
+                                className={`h-4 w-4 ${
+                                  session.type === 'session'
+                                    ? 'text-blue-600 dark:text-blue-400'
+                                    : 'text-green-600 dark:text-green-400'
+                                }`}
+                              />
+                            ) : (
+                              <Circle
+                                className={`h-4 w-4 ${
+                                  session.type === 'session'
+                                    ? 'text-blue-300 dark:text-blue-700'
+                                    : 'text-green-300 dark:text-green-700'
+                                }`}
+                              />
+                            )}
                           </div>
-                        )}
-                      </button>
-                    ))
+
+                          {/* Duration */}
+                          <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
+                            <Clock className="h-3 w-3" />
+                            <span>{formatDuration(session.duration)}</span>
+                          </div>
+
+                          {/* Task Count (if has tasks) */}
+                          {tasksArray.length > 0 && (
+                            <div className="mt-2 text-xs text-slate-500 dark:text-slate-500">
+                              {tasksArray.filter((t) => t.completed).length}/{tasksArray.length}{' '}
+                              tasks
+                            </div>
+                          )}
+                        </button>
+                      )
+                    })
                   )}
                 </div>
               </div>

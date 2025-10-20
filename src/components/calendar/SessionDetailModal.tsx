@@ -67,8 +67,12 @@ export function SessionDetailModal({ session, isOpen, onClose, onEdit }: Session
     return `${secs}s`
   }
 
-  const completedTasks = session.tasks?.filter((t) => t.completed).length || 0
-  const totalTasks = session.tasks?.length || 0
+  // Type-safe task handling (tasks is stored as Json in Supabase)
+  const tasksArray = Array.isArray(session.tasks)
+    ? (session.tasks as Array<{ id: string; text: string; completed: boolean; created_at: string }>)
+    : []
+  const completedTasks = tasksArray.filter((t) => t.completed).length
+  const totalTasks = tasksArray.length
   const completionPercentage = session.time_spent / (session.duration * 60)
 
   return (
@@ -190,7 +194,7 @@ export function SessionDetailModal({ session, isOpen, onClose, onEdit }: Session
             )}
 
             {/* Tasks */}
-            {session.tasks && session.tasks.length > 0 && (
+            {tasksArray.length > 0 && (
               <div>
                 <h3 className="mb-3 flex items-center justify-between text-sm font-semibold uppercase text-slate-600 dark:text-slate-400">
                   <span>Tasks</span>
@@ -199,7 +203,7 @@ export function SessionDetailModal({ session, isOpen, onClose, onEdit }: Session
                   </span>
                 </h3>
                 <div className="space-y-2 rounded-lg bg-slate-50 p-4 dark:bg-slate-900">
-                  {session.tasks.map((task) => (
+                  {tasksArray.map((task) => (
                     <div key={task.id} className="flex items-start gap-3">
                       {task.completed ? (
                         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />

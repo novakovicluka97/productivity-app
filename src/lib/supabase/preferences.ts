@@ -91,6 +91,7 @@ export async function createDefaultPreferences(): Promise<UserPreferences> {
 
   const { data, error } = await supabase
     .from('user_preferences')
+    // @ts-ignore - Supabase type inference issue with user_preferences table
     .insert(defaultPrefs)
     .select()
     .single()
@@ -140,6 +141,7 @@ export async function updateUserPreferences(
 
   const { data, error } = await supabase
     .from('user_preferences')
+    // @ts-ignore - Supabase type inference issue with user_preferences table
     .update(dbUpdates)
     .eq('user_id', user.id)
     .select()
