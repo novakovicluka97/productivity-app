@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Suspense } from "react"
 import Link from "next/link"
 import { LoginForm } from "@/components/auth/LoginForm"
 
@@ -23,7 +23,9 @@ export default function LoginPage() {
 
         {/* Auth Card */}
         <div className="rounded-lg bg-white/80 p-8 shadow-xl backdrop-blur-sm dark:bg-slate-800/80">
-          <LoginForm />
+          <Suspense fallback={<div className="text-center">Loading...</div>}>
+            <LoginForm />
+          </Suspense>
         </div>
 
         {/* Footer */}
