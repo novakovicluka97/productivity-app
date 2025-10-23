@@ -1,6 +1,6 @@
-import React from 'react'
-import { SignupForm } from '@/components/auth/SignupForm'
-import { OAuthButtons } from '@/components/auth/OAuthButtons'
+import React from "react"
+import Link from "next/link"
+import { SignupForm } from "@/components/auth/SignupForm"
 
 export const metadata = {
   title: 'Sign up | Session-Break',
@@ -24,15 +24,22 @@ export default function SignupPage() {
         {/* Auth Card */}
         <div className="rounded-lg bg-white/80 p-8 shadow-xl backdrop-blur-sm dark:bg-slate-800/80">
           <SignupForm />
-          <div className="mt-6">
-            <OAuthButtons />
-          </div>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-slate-500 dark:text-slate-400">
-          By signing up, you agree to our Terms of Service and Privacy Policy
-        </p>
+        <div className="space-y-3">
+          <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+            By signing up, you agree to our Terms of Service and Privacy Policy
+          </p>
+          <div className="text-center text-sm">
+            <Link
+              href="/app"
+              className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white/60 px-4 py-2 font-medium text-slate-700 transition-colors hover:bg-white dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              Continue without signing up
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   )

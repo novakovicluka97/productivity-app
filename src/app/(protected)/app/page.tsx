@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { TopHeader } from '@/components/layout/TopHeader'
 import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 import { CardContainer } from '@/components/CardContainer'
@@ -10,6 +10,10 @@ import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useAutoTransfer } from '@/hooks/useAutoTransfer'
 import { useCardAudio } from '@/hooks/useCardAudio'
+import { useCreateSession } from '@/hooks/useSessions'
+import { useQueryClient } from '@tanstack/react-query'
+import { updateGoalsForSession } from '@/lib/utils/goalHelpers'
+import { format } from 'date-fns'
 import { Card, AppState } from '@/lib/types'
 
 // Demo data for Step 1 testing
@@ -72,6 +76,55 @@ export default function Home() {
   const [selectedTrack, setSelectedTrack] = useLocalStorage<string | null>('productivity-selected-track', null)
   const [volume, setVolume] = useLocalStorage<number>('productivity-volume', 50)
   const [isMusicPlaying, setIsMusicPlaying] = useLocalStorage<boolean>('productivity-music-playing', false)
+
+  // Session sync and query invalidation
+  const createSessionMutation = useCreateSession()
+  const queryClient = useQueryClient()
+  const savedCardIdsRef = React.useRef<Set<string>>(new Set())
+
+  // Save completed card to Supabase and update goals
+  const saveCompletedCardToSupabase = useCallback(async (card: Card) => {
+    try {
+      const sessionDate = format(new Date(), 'yyyy-MM-dd')
+
+      // Create session record
+      const session = await createSessionMutation.mutateAsync({
+        user_id: undefined as any, // Will be set by RLS
+        session_date: sessionDate,
+        type: card.type,
+        duration: card.duration,
+        time_spent: card.duration - card.timeRemaining,
+        is_completed: card.isCompleted,
+        content: card.content || null,
+        tasks: card.todos ? card.todos.map(todo => ({
+          id: todo.id,
+          text: todo.text,
+          completed: todo.completed,
+          createdAt: todo.createdAt.toISOString(),
+        })) : null,
+      })
+
+      console.log('Session saved to Supabase:', session)
+
+      // Update goals based on session completion
+      await updateGoalsForSession({
+        type: card.type,
+        duration: card.duration,
+        timeSpent: card.duration - card.timeRemaining,
+        isCompleted: card.isCompleted,
+        sessionDate,
+      })
+
+      // Invalidate queries to update analytics and tracker
+      queryClient.invalidateQueries({ queryKey: ['sessions'] })
+      queryClient.invalidateQueries({ queryKey: ['goals'] })
+
+      console.log('Goals updated and queries invalidated')
+    } catch (error) {
+      console.error('Error saving session to Supabase:', error)
+      // Don't throw - session saving should not block UI
+    }
+  }, [createSessionMutation, queryClient])
 
   const handlePersistedStateChange = React.useCallback(
     (state: AppState) => {
@@ -168,6 +221,20 @@ export default function Home() {
   })
   useAutoTransfer(cards, setCards, activeCardId)
 
+  // Auto-save completed sessions to Supabase
+  React.useEffect(() => {
+    const completedCards = cards.filter(card => card.isCompleted)
+
+    completedCards.forEach(card => {
+      // Only save each card once
+      if (!savedCardIdsRef.current.has(card.id)) {
+        savedCardIdsRef.current.add(card.id)
+        console.log('Auto-saving completed card:', card.id)
+        saveCompletedCardToSupabase(card)
+      }
+    })
+  }, [cards, saveCompletedCardToSupabase])
+
   const handlePlayPause = () => {
     toggleTimer()
   }
@@ -183,7 +250,9 @@ export default function Home() {
     }
   }
 
-  const handleCompleteCard = (cardId: string) => {
+  const handleCompleteCard = useCallback((cardId: string) => {
+    const completedCard = cards.find(card => card.id === cardId)
+
     const newCards = cards.map(card =>
       card.id === cardId
         ? { ...card, isCompleted: true, isActive: false, timeRemaining: 0 }
@@ -195,7 +264,13 @@ export default function Home() {
     if (cardId === activeCardId) {
       pauseTimer()
     }
-  }
+
+    // Save to Supabase and update goals
+    if (completedCard) {
+      const cardToSave = { ...completedCard, isCompleted: true, timeRemaining: 0 }
+      saveCompletedCardToSupabase(cardToSave)
+    }
+  }, [cards, activeCardId, pauseTimer, setCards, saveCompletedCardToSupabase])
 
   const handleResetCard = (cardId: string) => {
     // Call the hook's resetCard function which updates the cards state

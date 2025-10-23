@@ -10,7 +10,7 @@ import { updateSession } from '@/lib/supabase/middleware'
  * 3. Redirects logged-in users away from auth pages
  * 4. Redirects root path to appropriate destination
  *
- * Protected routes: /app/*
+ * Protected routes: /tracker, /templates, /analytics, /goals, /settings (and their sub-paths)
  * Auth routes: /auth/login, /auth/signup
  * Public routes: /auth/verify-email, /auth/reset-password, /auth/callback
  */

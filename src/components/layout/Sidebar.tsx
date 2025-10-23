@@ -7,6 +7,7 @@ import { X } from 'lucide-react'
 import { NAVIGATION_ITEMS } from '@/lib/constants/routes'
 import { UserMenu } from './UserMenu'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/hooks/useAuth'
 import {
   Tooltip,
   TooltipContent,
@@ -45,6 +46,9 @@ export function Sidebar({
   onToggleCollapse,
 }: SidebarProps) {
   const pathname = usePathname()
+  const { user } = useAuth()
+  const isGuest = !user
+  const authRequiredPaths = new Set(['/tracker', '/templates', '/analytics', '/goals', '/settings'])
 
   const sidebarClasses = isMobile
     ? `fixed inset-y-0 left-0 z-50 w-full transform transition-transform duration-300 ${
@@ -101,6 +105,9 @@ export function Sidebar({
                         pathname.startsWith(item.path + '/')
                       const Icon = item.icon
 
+                      const requiresAuth = authRequiredPaths.has(item.path)
+                      const showLoginBadge = isGuest && requiresAuth
+
                       const linkContent = (
                         <Link
                           href={item.path}
@@ -130,7 +137,12 @@ export function Sidebar({
                             <>
                               <span>{item.label}</span>
                               {/* Badge */}
-                              {item.badge && (
+                              {showLoginBadge && (
+                                <span className="ml-auto rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-600 dark:bg-orange-900/30 dark:text-orange-300">
+                                  Login
+                                </span>
+                              )}
+                              {!showLoginBadge && item.badge && (
                                 <span className="ml-auto rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                                   {item.badge}
                                 </span>
@@ -149,9 +161,9 @@ export function Sidebar({
                               </TooltipTrigger>
                               <TooltipContent side="right">
                                 <p>{item.label}</p>
-                                {item.badge && (
+                                {(showLoginBadge || item.badge) && (
                                   <p className="text-xs text-slate-500">
-                                    {item.badge}
+                                    {showLoginBadge ? 'Sign in to access' : item.badge}
                                   </p>
                                 )}
                               </TooltipContent>

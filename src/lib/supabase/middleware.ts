@@ -58,38 +58,38 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-    // Protected routes - require authentication
-    const protectedPaths = ['/app']
-    const isProtectedPath = protectedPaths.some(path =>
-      request.nextUrl.pathname.startsWith(path)
-    )
-  
-    // Auth routes - redirect to /app if already logged in
-    const authPaths = ['/auth/login', '/auth/signup']
-    const isAuthPath = authPaths.some(path =>
-      request.nextUrl.pathname.startsWith(path)
-    )
-  
-    // Redirect logic
-    if (!user && isProtectedPath) {
-      // Not logged in, trying to access protected route → redirect to login
-      const url = request.nextUrl.clone()
-      url.pathname = '/auth/login'
-      url.searchParams.set('redirectedFrom', request.nextUrl.pathname)
-      return NextResponse.redirect(url)
-    }
-  
-    if (user && isAuthPath) {
-      // Logged in, trying to access auth page → redirect to app
-      const url = request.nextUrl.clone()
-      url.pathname = '/app'
-      return NextResponse.redirect(url)
-    }
+  // Protected routes - require authentication
+  const protectedPrefixes = ['/tracker', '/templates', '/analytics', '/goals']
+  const isProtectedPath = protectedPrefixes.some((path) => {
+    if (request.nextUrl.pathname === path) return true
+    return request.nextUrl.pathname.startsWith(`${path}/`)
+  })
 
-  // Redirect root to appropriate page
+  // Auth routes - redirect to /app if already logged in
+  const authPaths = ['/auth/login', '/auth/signup']
+  const isAuthPath = authPaths.some(path =>
+    request.nextUrl.pathname.startsWith(path)
+  )
+
+  // Redirect logic for protected pages
+  if (!user && isProtectedPath) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/login'
+    const redirectTarget = request.nextUrl.pathname + request.nextUrl.search
+    url.searchParams.set('redirectedFrom', redirectTarget || '/app')
+    return NextResponse.redirect(url)
+  }
+
+  if (user && isAuthPath) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/app'
+    return NextResponse.redirect(url)
+  }
+
+  // Redirect root to home dashboard (public)
   if (request.nextUrl.pathname === '/') {
     const url = request.nextUrl.clone()
-    url.pathname = user ? '/app' : '/auth/login'
+    url.pathname = '/app'
     return NextResponse.redirect(url)
   }
 

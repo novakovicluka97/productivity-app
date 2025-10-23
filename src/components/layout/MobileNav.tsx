@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu } from 'lucide-react'
 import { NAVIGATION_ITEMS } from '@/lib/constants/routes'
+import { useAuth } from '@/hooks/useAuth'
 
 /**
  * Mobile Navigation Component
@@ -25,6 +26,9 @@ interface MobileNavProps {
 
 export function MobileNav({ onMenuClick }: MobileNavProps) {
   const pathname = usePathname()
+  const { user } = useAuth()
+  const isGuest = !user
+  const authRequiredPaths = new Set(['/tracker', '/templates', '/analytics', '/goals', '/settings'])
 
   // Filter to show only primary navigation items (first 4 items)
   const primaryItems = NAVIGATION_ITEMS.slice(0, 4)
@@ -49,6 +53,8 @@ export function MobileNav({ onMenuClick }: MobileNavProps) {
             {primaryItems.map((item) => {
               const isActive = pathname === item.path || pathname.startsWith(item.path + '/')
               const Icon = item.icon
+              const requiresAuth = authRequiredPaths.has(item.path)
+              const showLoginBadge = isGuest && requiresAuth
 
               return (
                 <Link
@@ -79,7 +85,12 @@ export function MobileNav({ onMenuClick }: MobileNavProps) {
                   )}
 
                   {/* Badge */}
-                  {item.badge && (
+                  {showLoginBadge && (
+                    <span className="absolute right-1 top-1 flex h-4 items-center justify-center rounded-full bg-orange-100 px-1 text-[10px] font-semibold text-orange-600 dark:bg-orange-900/30 dark:text-orange-300">
+                      Login
+                    </span>
+                  )}
+                  {!showLoginBadge && item.badge && (
                     <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-100 text-[10px] font-semibold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                       !
                     </span>

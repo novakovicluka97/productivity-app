@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import type {
@@ -21,6 +21,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   const router = useRouter()
+
+  const resolveRedirectDestination = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return '/app'
+    }
+
+    const stored = window.sessionStorage.getItem('redirectAfterLogin')
+    if (stored) {
+      window.sessionStorage.removeItem('redirectAfterLogin')
+      return stored
+    }
+
+    const params = new URLSearchParams(window.location.search)
+    return params.get('redirectedFrom') ?? '/app'
+  }, [])
 
   useEffect(() => {
     // Get initial session
@@ -44,10 +59,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
+
+        if (event === 'SIGNED_IN') {
+          const destination = resolveRedirectDestination()
+          router.push(destination)
+        }
 
         // Refresh the router to update Server Components
         router.refresh()
@@ -57,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe()
     }
-  }, [router])
+  }, [router, resolveRedirectDestination])
 
   const signUp = async ({ email, password }: SignUpData) => {
     try {
@@ -96,9 +116,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (error) throw error
-
-      // Session will be set by onAuthStateChange listener
-      router.push('/app')
     } catch (err) {
       console.error('Error signing in:', err)
       setError(err as Error)
@@ -118,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error
 
       // Session will be cleared by onAuthStateChange listener
-      router.push('/auth/login')
+      router.push('/app')
     } catch (err) {
       console.error('Error signing out:', err)
       setError(err as Error)

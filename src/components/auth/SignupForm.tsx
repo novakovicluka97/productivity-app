@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,6 +17,18 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false)
 
   const { signUp } = useAuth()
+  const searchParams = useSearchParams()
+  const redirectedFrom = searchParams.get('redirectedFrom')
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    if (redirectedFrom) {
+      window.sessionStorage.setItem('redirectAfterLogin', redirectedFrom)
+    }
+  }, [redirectedFrom])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

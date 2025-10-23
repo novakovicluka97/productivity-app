@@ -2,8 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { LogOut, Settings, User } from 'lucide-react'
+import { LogOut, LogIn, Settings, User } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { ROUTES } from '@/lib/constants/routes'
 import { cn } from '@/lib/utils'
@@ -32,20 +31,29 @@ interface UserMenuProps {
 
 export function UserMenu({ isCollapsed = false }: UserMenuProps) {
   const { user, signOut } = useAuth()
-  const router = useRouter()
   const [isOpen, setIsOpen] = React.useState(false)
 
   const handleLogout = async () => {
     try {
       await signOut()
-      router.push(ROUTES.LOGIN)
     } catch (error) {
       console.error('Error signing out:', error)
     }
   }
 
   if (!user) {
-    return null
+    return (
+      <Link
+        href={ROUTES.LOGIN}
+        className={cn(
+          'flex items-center gap-3 rounded-lg text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/50',
+          isCollapsed ? 'justify-center p-3' : 'px-3 py-2'
+        )}
+      >
+        <LogIn className="h-5 w-5" />
+        {!isCollapsed && <span>Sign in to unlock more</span>}
+      </Link>
+    )
   }
 
   // Get first letter of email for avatar
