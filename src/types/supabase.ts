@@ -25,6 +25,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string
+          card_id: string | null
           session_date: string
           type: 'session' | 'break'
           duration: number
@@ -38,6 +39,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
+          card_id?: string | null
           session_date: string
           type: 'session' | 'break'
           duration: number
@@ -51,6 +53,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
+          card_id?: string | null
           session_date?: string
           type?: 'session' | 'break'
           duration?: number

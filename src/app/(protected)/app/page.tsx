@@ -80,7 +80,6 @@ export default function Home() {
   // Session sync and query invalidation
   const createSessionMutation = useCreateSession()
   const queryClient = useQueryClient()
-  const savedCardIdsRef = React.useRef<Set<string>>(new Set())
 
   // Save completed card to Supabase and update goals
   const saveCompletedCardToSupabase = useCallback(async (card: Card) => {
@@ -90,6 +89,7 @@ export default function Home() {
       // Create session record
       const session = await createSessionMutation.mutateAsync({
         user_id: undefined as any, // Will be set by RLS
+        card_id: card.id, // Store card ID to prevent duplicates at DB level
         session_date: sessionDate,
         type: card.type,
         duration: card.duration,
@@ -223,17 +223,28 @@ export default function Home() {
 
   // Auto-save completed sessions to Supabase
   React.useEffect(() => {
-    const completedCards = cards.filter(card => card.isCompleted)
+    // Only save cards that are completed but not yet synced
+    const completedUnsyncedCards = cards.filter(
+      card => card.isCompleted && !card.syncedToSupabase
+    )
 
-    completedCards.forEach(card => {
-      // Only save each card once
-      if (!savedCardIdsRef.current.has(card.id)) {
-        savedCardIdsRef.current.add(card.id)
+    completedUnsyncedCards.forEach(async (card) => {
+      try {
         console.log('Auto-saving completed card:', card.id)
-        saveCompletedCardToSupabase(card)
+        await saveCompletedCardToSupabase(card)
+
+        // Mark card as synced in state
+        const updatedCards = cards.map(c =>
+          c.id === card.id
+            ? { ...c, syncedToSupabase: true }
+            : c
+        )
+        setCards(updatedCards)
+      } catch (error) {
+        console.error('Failed to sync card:', card.id, error)
       }
     })
-  }, [cards, saveCompletedCardToSupabase])
+  }, [cards, saveCompletedCardToSupabase, setCards])
 
   const handlePlayPause = () => {
     toggleTimer()

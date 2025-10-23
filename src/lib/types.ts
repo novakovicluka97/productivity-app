@@ -8,6 +8,7 @@ export interface Card {
   isSelected: boolean
   content?: string // Rich text content with embedded checkboxes
   todos?: TodoItem[] // Keep for backward compatibility during transition
+  syncedToSupabase?: boolean // Track if this card has been saved to Supabase to prevent duplicates
 }
 
 export interface TodoItem {
