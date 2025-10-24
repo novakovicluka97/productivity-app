@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Settings, Bell, Moon, Clock, Database, Volume2 } from 'lucide-react'
+import { Settings, Bell, Moon, Clock, Database, Volume2, Check } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/hooks/useTheme'
 import { useNotifications } from '@/hooks/useNotifications'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { toggleNotifications } from '@/lib/supabase/preferences'
+import { toggleNotifications, updateDefaultDurations, getUserPreferences } from '@/lib/supabase/preferences'
 import { TopHeader } from '@/components/layout/TopHeader'
 import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 
@@ -28,6 +28,25 @@ export default function SettingsPage() {
   const { permission, isSupported, isEnabled, requestPermission, showNotification } = useNotifications()
   const [notificationsEnabled, setNotificationsEnabled] = useState(isEnabled)
   const [soundEnabled, setSoundEnabled] = useState(true)
+  const [sessionDuration, setSessionDuration] = useState(45)
+  const [breakDuration, setBreakDuration] = useState(15)
+  const [isSaving, setIsSaving] = useState(false)
+  const [showSavedNotification, setShowSavedNotification] = useState(false)
+
+  // Load user preferences on mount
+  useEffect(() => {
+    const loadPreferences = async () => {
+      try {
+        const prefs = await getUserPreferences()
+        // Convert seconds to minutes
+        setSessionDuration(Math.round(prefs.defaultSessionDuration / 60))
+        setBreakDuration(Math.round(prefs.defaultBreakDuration / 60))
+      } catch (error) {
+        console.error('Error loading preferences:', error)
+      }
+    }
+    loadPreferences()
+  }, [])
 
   const themes = [
     { value: 'default', label: 'Default', gradient: 'from-blue-500 to-purple-600' },
@@ -59,6 +78,29 @@ export default function SettingsPage() {
       title: 'Test Notification',
       body: 'Notifications are working correctly!',
     })
+  }
+
+  const handleSavePreferences = async () => {
+    setIsSaving(true)
+    try {
+      // Convert minutes to seconds
+      await updateDefaultDurations(sessionDuration * 60, breakDuration * 60)
+
+      // Show success notification
+      setShowSavedNotification(true)
+
+      // Auto-hide notification after 1 second
+      setTimeout(() => {
+        setShowSavedNotification(false)
+      }, 1000)
+    } catch (error) {
+      console.error('Error saving preferences:', error)
+    } finally {
+      // Keep button animation for a moment
+      setTimeout(() => {
+        setIsSaving(false)
+      }, 300)
+    }
   }
 
   return (
@@ -155,7 +197,8 @@ export default function SettingsPage() {
                 </label>
                 <input
                   type="number"
-                  defaultValue={45}
+                  value={sessionDuration}
+                  onChange={(e) => setSessionDuration(Number(e.target.value))}
                   className="mt-1 w-full theme-input focus:outline-none"
                   min={1}
                   max={180}
@@ -167,15 +210,30 @@ export default function SettingsPage() {
                 </label>
                 <input
                   type="number"
-                  defaultValue={15}
+                  value={breakDuration}
+                  onChange={(e) => setBreakDuration(Number(e.target.value))}
                   className="mt-1 w-full theme-input focus:outline-none"
                   min={1}
                   max={60}
                 />
               </div>
-              <button className="theme-btn-primary">
-                Save Preferences
-              </button>
+              <div className="relative">
+                <button
+                  onClick={handleSavePreferences}
+                  disabled={isSaving}
+                  className={`theme-btn-primary transition-transform ${
+                    isSaving ? 'scale-95' : 'scale-100'
+                  }`}
+                >
+                  {isSaving ? 'Saving...' : 'Save Preferences'}
+                </button>
+                {showSavedNotification && (
+                  <div className="absolute left-full top-1/2 ml-3 flex -translate-y-1/2 items-center gap-2 whitespace-nowrap rounded-lg bg-green-500 px-3 py-2 text-sm font-medium text-white shadow-lg animate-in fade-in slide-in-from-left-2">
+                    <Check className="h-4 w-4" />
+                    Preferences saved!
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

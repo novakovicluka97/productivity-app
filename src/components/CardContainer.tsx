@@ -113,7 +113,7 @@ export function CardContainer({
     }, 0)
 
     return () => window.clearTimeout(timeoutId)
-  }, [cards])
+  }, [cards.find(card => card.isSelected)?.id])
 
   const scroll = (direction: 'left' | 'right') => {
     const viewport = viewportRef.current

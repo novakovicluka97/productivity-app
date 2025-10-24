@@ -8,8 +8,11 @@ export function useTheme() {
   const [theme, setTheme] = useState<Theme>('default')
   const [mounted, setMounted] = useState(false)
 
-  // Load theme from localStorage on mount
+  // Load theme from localStorage on mount (client-side only)
   useEffect(() => {
+    // Guard against SSR
+    if (typeof window === 'undefined') return
+
     const savedTheme = localStorage.getItem('app-theme') as Theme | null
     if (savedTheme === 'dark' || savedTheme === 'default' || savedTheme === 'forest' || savedTheme === 'ocean') {
       setTheme(savedTheme)
@@ -19,7 +22,8 @@ export function useTheme() {
 
   // Apply theme to document root
   useEffect(() => {
-    if (!mounted) return
+    // Guard against SSR and pre-mount
+    if (typeof window === 'undefined' || !mounted) return
 
     const root = document.documentElement
 

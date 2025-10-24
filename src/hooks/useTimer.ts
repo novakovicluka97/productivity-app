@@ -20,6 +20,7 @@ interface UseTimerReturn {
 
 interface UseTimerOptions {
   onStateChange?: (state: AppState) => void
+  onTimerComplete?: (completedCardId: string) => void
 }
 
 interface HydratedTimerState {
@@ -121,6 +122,7 @@ export function useTimer(initialState?: AppState, options: UseTimerOptions = {})
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const lastTickRef = useRef<number | null>(null)
   const { playCompletionSound } = useSoundNotification()
+  const { onTimerComplete } = options
 
   // Hydrate timer state whenever the persisted state changes
   useEffect(() => {
@@ -158,6 +160,7 @@ export function useTimer(initialState?: AppState, options: UseTimerOptions = {})
         lastTickRef.current = lastTick + elapsedSeconds * 1000
 
         let completedCardType: Card['type'] | null = null
+        let completedCardIdValue: string | null = null
 
         setCardsState(prevCards =>
           prevCards.map(card => {
@@ -166,6 +169,7 @@ export function useTimer(initialState?: AppState, options: UseTimerOptions = {})
 
               if (updatedTime === 0) {
                 completedCardType = card.type
+                completedCardIdValue = card.id
                 return {
                   ...card,
                   timeRemaining: 0,
@@ -183,13 +187,18 @@ export function useTimer(initialState?: AppState, options: UseTimerOptions = {})
           })
         )
 
-        if (completedCardType) {
+        if (completedCardType && completedCardIdValue) {
           if (completedCardType === 'session') {
             playCompletionSound()
           }
           setIsPlaying(false)
           setActiveCardId(null)
           lastTickRef.current = null
+
+          // Call onTimerComplete callback if provided
+          if (onTimerComplete) {
+            onTimerComplete(completedCardIdValue)
+          }
         }
       }, 250)
     } else {
@@ -206,7 +215,7 @@ export function useTimer(initialState?: AppState, options: UseTimerOptions = {})
         intervalRef.current = null
       }
     }
-  }, [isPlaying, activeCardId, playCompletionSound])
+  }, [isPlaying, activeCardId, playCompletionSound, onTimerComplete])
 
   // Update cards when active card changes
   useEffect(() => {

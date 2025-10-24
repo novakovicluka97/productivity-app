@@ -5,7 +5,6 @@ import { TopHeader } from '@/components/layout/TopHeader'
 import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 import { CardContainer } from '@/components/CardContainer'
 import { EditorProvider } from '@/components/EditorManager'
-import { TemplateDropdown } from '@/components/TemplateDropdown'
 import { useTimer } from '@/hooks/useTimer'
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
@@ -137,6 +136,9 @@ export default function Home() {
     [setAppState, appStateHydrated]
   )
 
+  // Ref to hold timer completion handler that will be set after we get timer functions
+  const timerCompleteHandlerRef = React.useRef<((completedCardId: string) => void) | null>(null)
+
   React.useEffect(() => {
     if (typeof window === 'undefined') {
       return
@@ -201,7 +203,38 @@ export default function Home() {
     resetCard,
     startTimer,
     pauseTimer
-  } = useTimer(appState, { onStateChange: handlePersistedStateChange })
+  } = useTimer(appState, {
+    onStateChange: handlePersistedStateChange,
+    onTimerComplete: (completedCardId) => {
+      // Call the handler from ref if it exists
+      if (timerCompleteHandlerRef.current) {
+        timerCompleteHandlerRef.current(completedCardId)
+      }
+    }
+  })
+
+  // Set up the timer complete handler now that we have the timer functions
+  React.useEffect(() => {
+    timerCompleteHandlerRef.current = (completedCardId: string) => {
+      // Find the index of the completed card
+      const completedIndex = cards.findIndex(card => card.id === completedCardId)
+      if (completedIndex === -1) return
+
+      // Find the next incomplete card after the completed one
+      const nextIncompleteCard = cards
+        .slice(completedIndex + 1)
+        .find(card => !card.isCompleted && card.timeRemaining > 0)
+
+      // If found, auto-start it
+      if (nextIncompleteCard) {
+        // Use setTimeout to ensure state has updated before starting next card
+        setTimeout(() => {
+          selectCard(nextIncompleteCard.id)
+          startTimer(nextIncompleteCard.id)
+        }, 100)
+      }
+    }
+  }, [cards, selectCard, startTimer])
 
   // Auto-transfer unchecked todos
   // Get active card for document title
@@ -264,6 +297,7 @@ export default function Home() {
 
   const handleCompleteCard = useCallback((cardId: string) => {
     const completedCard = cards.find(card => card.id === cardId)
+    const wasTimerActive = cardId === activeCardId && isPlaying
 
     const newCards = cards.map(card =>
       card.id === cardId
@@ -282,7 +316,27 @@ export default function Home() {
       const cardToSave = { ...completedCard, isCompleted: true, timeRemaining: 0 }
       saveCompletedCardToSupabase(cardToSave)
     }
-  }, [cards, activeCardId, pauseTimer, setCards, saveCompletedCardToSupabase])
+
+    // If timer was active, auto-start next card
+    if (wasTimerActive) {
+      // Find the index of the completed card
+      const completedIndex = cards.findIndex(card => card.id === cardId)
+      if (completedIndex !== -1) {
+        // Find the next incomplete card
+        const nextIncompleteCard = newCards
+          .slice(completedIndex + 1)
+          .find(card => !card.isCompleted && card.timeRemaining > 0)
+
+        if (nextIncompleteCard) {
+          // Use setTimeout to ensure state has updated before starting next card
+          setTimeout(() => {
+            selectCard(nextIncompleteCard.id)
+            startTimer(nextIncompleteCard.id)
+          }, 100)
+        }
+      }
+    }
+  }, [cards, activeCardId, isPlaying, pauseTimer, setCards, saveCompletedCardToSupabase, selectCard, startTimer])
 
   const handleResetCard = (cardId: string) => {
     // Call the hook's resetCard function which updates the cards state
@@ -411,11 +465,23 @@ export default function Home() {
     onDeleteSelected: selectedCardId ? (() => handleDeleteCard(selectedCardId)) : undefined
   })
 
+  // Show loading state during hydration to prevent flash of incorrect content
+  if (!appStateHydrated) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
+        <div className="text-center">
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent"></div>
+          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <EditorProvider>
       <ProtectedHeaderPortal>
         <TopHeader
-          showEditingControls={true}
+          showMusicAndTemplate={true}
           canEdit={canEdit}
           isEditing={!!editingCardId}
           activeCardId={editingCardId}
@@ -425,6 +491,7 @@ export default function Home() {
           onTrackSelect={handleTrackSelect}
           onVolumeChange={handleVolumeChange}
           onMusicToggle={handleMusicToggle}
+          onApplyTemplate={handleApplyTemplate}
         />
       </ProtectedHeaderPortal>
       <div className="relative flex min-h-full flex-col overflow-hidden">
@@ -441,11 +508,6 @@ export default function Home() {
 
           <div className="relative z-10">
             <div className="card-container container mx-auto px-0 md:px-4">
-              {/* Template Dropdown - Top left corner */}
-              <div className="mb-4 flex justify-start px-4 md:px-0">
-                <TemplateDropdown onApplyTemplate={handleApplyTemplate} />
-              </div>
-
               <CardContainer
                 cards={cards}
                 onSelectCard={handleSelectCard}
@@ -463,26 +525,7 @@ export default function Home() {
                 canEdit={canEdit}
               />
             </div>
-
-          {/* Status Bar for Testing */}
-          <div className="hidden md:block fixed bottom-4 right-4 rounded-lg bg-white/90 p-3 text-sm shadow-lg backdrop-blur-sm dark:bg-slate-800/90">
-            <div className="text-slate-600 dark:text-slate-300">
-              Status: <span className="font-medium">{isPlaying ? 'Playing' : 'Paused'}</span>
-            </div>
-            <div className="text-slate-600 dark:text-slate-300">
-              Cards: <span className="font-medium">{cards.length}</span>
-            </div>
-            <div className="text-slate-600 dark:text-slate-300">
-              Selected: <span className="font-medium">{selectedCardId || 'None'}</span>
-            </div>
-            <div className="text-slate-600 dark:text-slate-300">
-              Active: <span className="font-medium">{activeCardId || 'None'}</span>
-            </div>
-            <div className="mt-1 text-xs text-slate-600">
-              Keyboard: Space/Enter = Play or Pause, Left/Right arrows = Navigate, Delete = Remove card
-            </div>
           </div>
-        </div>
         </main>
       </div>
     </EditorProvider>

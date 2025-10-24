@@ -14,15 +14,17 @@ interface ProtectedHeaderPortalProps {
  */
 export function ProtectedHeaderPortal({ children }: ProtectedHeaderPortalProps) {
   const { headerContainerRef } = useProtectedLayoutPortals()
-  const [target, setTarget] = React.useState<HTMLDivElement | null>(null)
+  const [mounted, setMounted] = React.useState(false)
 
+  // Only attempt portal after client-side mount to avoid hydration mismatch
   React.useEffect(() => {
-    setTarget(headerContainerRef.current)
-  }, [headerContainerRef])
+    setMounted(true)
+  }, [])
 
-  if (!target) {
+  // Don't render anything during SSR or before mount
+  if (!mounted || !headerContainerRef.current) {
     return null
   }
 
-  return createPortal(children, target)
+  return createPortal(children, headerContainerRef.current)
 }

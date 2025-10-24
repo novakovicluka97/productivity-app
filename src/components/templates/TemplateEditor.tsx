@@ -71,7 +71,7 @@ export function TemplateEditor({
   const handleAddCard = (type: 'session' | 'break') => {
     const newCard: CardConfiguration = {
       type,
-      duration: type === 'session' ? 25 : 5,
+      duration: type === 'session' ? 50 : 5,
     }
     setConfiguration([...configuration, newCard])
   }

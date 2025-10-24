@@ -21,6 +21,8 @@ import {
 import { useTheme } from '@/hooks/useTheme'
 import { useEditorContext } from '@/components/EditorManager'
 import { MusicPlayer } from '@/components/MusicPlayer'
+import { TemplateDropdown } from '@/components/TemplateDropdown'
+import type { Card } from '@/lib/types'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,8 +53,8 @@ import {
  */
 
 interface TopHeaderProps {
-  // Only show editing controls on /app route
-  showEditingControls?: boolean
+  // Show music player and template dropdown on /app route
+  showMusicAndTemplate?: boolean
   canEdit?: boolean
   isEditing?: boolean
   activeCardId?: string | null
@@ -63,10 +65,12 @@ interface TopHeaderProps {
   onTrackSelect?: (trackId: string) => void
   onVolumeChange?: (volume: number) => void
   onMusicToggle?: () => void
+  // Template props
+  onApplyTemplate?: (cards: Card[]) => void
 }
 
 export function TopHeader({
-  showEditingControls = false,
+  showMusicAndTemplate = false,
   canEdit = true,
   isEditing = false,
   activeCardId = null,
@@ -76,6 +80,7 @@ export function TopHeader({
   onTrackSelect,
   onVolumeChange,
   onMusicToggle,
+  onApplyTemplate,
 }: TopHeaderProps) {
   const { theme, setTheme } = useTheme()
   const { activeEditor } = useEditorContext()
@@ -404,8 +409,8 @@ export function TopHeader({
               </span>
             </Link>
 
-            {/* Music Player - Only on /app route */}
-            {showEditingControls && onMusicToggle && (
+            {/* Music Player - Always visible on /app route */}
+            {showMusicAndTemplate && onMusicToggle && (
               <>
                 <Separator orientation="vertical" className="h-8" />
                 <div className="min-w-[280px]">
@@ -422,8 +427,16 @@ export function TopHeader({
               </>
             )}
 
-            {/* Text Formatting Controls - Only on /app route */}
-            {showEditingControls && (
+            {/* Template Dropdown - Always visible on /app route */}
+            {showMusicAndTemplate && onApplyTemplate && (
+              <>
+                <Separator orientation="vertical" className="h-8" />
+                <TemplateDropdown onApplyTemplate={onApplyTemplate} />
+              </>
+            )}
+
+            {/* Text Formatting Controls - Only visible when editing */}
+            {isEditing && (
               <>
                 <Separator orientation="vertical" className="h-8" />
                 {renderFormattingControls({
@@ -534,8 +547,8 @@ export function TopHeader({
               </div>
             </div>
 
-            {/* Music Player Row - Only on /app route */}
-            {showEditingControls && onMusicToggle && (
+            {/* Music Player Row - Always visible on /app route */}
+            {showMusicAndTemplate && onMusicToggle && (
               <MusicPlayer
                 selectedTrack={selectedTrack}
                 volume={volume}
@@ -547,8 +560,8 @@ export function TopHeader({
               />
             )}
 
-            {/* Formatting Controls Row - Only on /app route */}
-            {showEditingControls && (
+            {/* Formatting Controls Row - Only visible when editing */}
+            {isEditing && (
               renderFormattingControls({
                 className: 'flex flex-wrap items-center gap-2',
                 showDividers: false,
