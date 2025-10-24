@@ -1,8 +1,7 @@
 'use client'
 
 import React from 'react'
-import { format } from 'date-fns'
-import { Calendar, LayoutGrid, Rows3, Clock, Flame } from 'lucide-react'
+import { LayoutGrid, Rows3, Clock, Flame } from 'lucide-react'
 import { DateNavigator } from './DateNavigator'
 
 /**
@@ -45,25 +44,10 @@ export function CalendarLayout({
   ]
 
   return (
-    <div className="flex h-full flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
+    <div className="flex h-full flex-col theme-page-bg">
       {/* Header */}
-      <div className="border-b border-slate-200/50 bg-white/80 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/80">
+      <div className="border-b border-slate-200/50 bg-white/80 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/80 forest:border-green-200/50 forest:bg-green-50/80 ocean:border-cyan-200/50 ocean:bg-cyan-50/80">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          {/* Title Row */}
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-              <Calendar className="h-7 w-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-                Session Tracker
-              </h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                {format(currentDate, 'MMMM yyyy')}
-              </p>
-            </div>
-          </div>
-
           {/* Controls Row */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {/* Date Navigation */}

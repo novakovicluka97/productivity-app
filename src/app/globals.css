@@ -453,3 +453,199 @@ body::before {
     @apply bg-background text-foreground;
   }
 }
+
+/* ============================================
+   COMPREHENSIVE THEME SYSTEM
+   ============================================ */
+
+/* Theme-specific border radius */
+.theme-radius {
+  @apply rounded-xl;
+}
+
+.dark .theme-radius {
+  @apply rounded-lg;
+}
+
+.forest .theme-radius {
+  @apply rounded-3xl;
+}
+
+.ocean .theme-radius {
+  @apply rounded-2xl;
+}
+
+/* Theme-specific card styling */
+.theme-card {
+  @apply theme-radius;
+  @apply border border-slate-200/50 bg-white/80 shadow-lg backdrop-blur-xl;
+  @apply dark:border-slate-700/50 dark:bg-slate-800/80;
+  @apply forest:border-green-200/50 forest:bg-gradient-to-br forest:from-green-50/90 forest:via-emerald-50/90 forest:to-teal-50/90;
+  @apply ocean:border-cyan-200/50 ocean:bg-gradient-to-br ocean:from-cyan-50/90 ocean:via-blue-50/90 ocean:to-indigo-50/90;
+  transition: all 0.3s ease;
+}
+
+.theme-card:hover {
+  @apply shadow-xl;
+  @apply dark:shadow-blue-500/20;
+  @apply forest:shadow-green-500/20;
+  @apply ocean:shadow-cyan-500/20;
+}
+
+/* Theme-specific button styling */
+.theme-btn-primary {
+  @apply theme-radius px-4 py-2 font-semibold text-white shadow-lg transition-all;
+  @apply bg-gradient-to-r from-blue-500 to-purple-600;
+  @apply hover:from-blue-600 hover:to-purple-700 hover:scale-105;
+  @apply dark:from-blue-600 dark:to-purple-700;
+  @apply forest:from-green-600 forest:to-emerald-700;
+  @apply ocean:from-cyan-600 ocean:to-blue-700;
+}
+
+.theme-btn-secondary {
+  @apply theme-radius px-4 py-2 font-medium shadow transition-all;
+  @apply bg-white text-slate-700 border border-slate-200;
+  @apply hover:bg-slate-50 hover:scale-105;
+  @apply dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700;
+  @apply forest:bg-green-50 forest:text-green-900 forest:border-green-200;
+  @apply ocean:bg-cyan-50 ocean:text-cyan-900 ocean:border-cyan-200;
+}
+
+/* Theme-specific header gradients */
+.theme-header-bg {
+  @apply bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500;
+  @apply dark:from-slate-700 dark:via-slate-800 dark:to-slate-900;
+  @apply forest:from-green-600 forest:via-emerald-600 forest:to-teal-600;
+  @apply ocean:from-cyan-600 ocean:via-blue-600 ocean:to-indigo-600;
+}
+
+/* Theme-specific page backgrounds */
+.theme-page-bg {
+  @apply bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50;
+  @apply dark:from-slate-900 dark:via-gray-900 dark:to-slate-900;
+  @apply forest:from-green-50 forest:via-emerald-50 forest:to-teal-50;
+  @apply ocean:from-cyan-50 ocean:via-blue-50 ocean:to-indigo-50;
+}
+
+/* Theme-specific text colors for headings */
+.theme-heading {
+  @apply text-slate-900;
+  @apply dark:text-white;
+  @apply forest:text-green-900;
+  @apply ocean:text-cyan-900;
+}
+
+/* Theme-specific text colors for body */
+.theme-text {
+  @apply text-slate-600;
+  @apply dark:text-slate-400;
+  @apply forest:text-green-700;
+  @apply ocean:text-cyan-700;
+}
+
+/* Theme-specific input styling */
+.theme-input {
+  @apply theme-radius px-4 py-2 border transition-colors;
+  @apply bg-white border-slate-300 text-slate-900;
+  @apply focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20;
+  @apply dark:bg-slate-900/50 dark:border-slate-600 dark:text-white;
+  @apply dark:focus:border-blue-400 dark:focus:ring-blue-400/20;
+  @apply forest:bg-green-50/50 forest:border-green-300 forest:text-green-900;
+  @apply forest:focus:border-green-500 forest:focus:ring-green-500/20;
+  @apply ocean:bg-cyan-50/50 ocean:border-cyan-300 ocean:text-cyan-900;
+  @apply ocean:focus:border-cyan-500 ocean:focus:ring-cyan-500/20;
+}
+
+/* Theme-specific badge styling */
+.theme-badge {
+  @apply theme-radius px-2 py-1 text-xs font-semibold;
+  @apply bg-blue-100 text-blue-700 border border-blue-200;
+  @apply dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700;
+  @apply forest:bg-green-100 forest:text-green-700 forest:border-green-200;
+  @apply ocean:bg-cyan-100 ocean:text-cyan-700 ocean:border-cyan-200;
+}
+
+/* Theme-specific icon container */
+.theme-icon-container {
+  @apply flex items-center justify-center theme-radius shadow-lg;
+  @apply bg-gradient-to-br from-blue-500 to-purple-600;
+  @apply dark:from-blue-700 dark:to-purple-800;
+  @apply forest:from-green-600 forest:to-emerald-700;
+  @apply ocean:from-cyan-600 ocean:to-blue-700;
+}
+
+/* Theme-specific shadows */
+.theme-shadow {
+  @apply shadow-lg;
+  @apply dark:shadow-blue-500/10;
+  @apply forest:shadow-green-500/10;
+  @apply ocean:shadow-cyan-500/10;
+}
+
+/* Theme-specific glow effect for active elements */
+.theme-glow {
+  @apply shadow-2xl;
+  box-shadow:
+    0 0 60px rgba(102, 126, 234, 0.6),
+    0 30px 40px -5px rgba(102, 126, 234, 0.3);
+}
+
+.dark .theme-glow {
+  box-shadow:
+    0 0 60px rgba(59, 130, 246, 0.4),
+    0 30px 40px -5px rgba(59, 130, 246, 0.2);
+}
+
+.forest .theme-glow {
+  box-shadow:
+    0 0 60px rgba(34, 197, 94, 0.6),
+    0 30px 40px -5px rgba(34, 197, 94, 0.3);
+}
+
+.ocean .theme-glow {
+  box-shadow:
+    0 0 60px rgba(6, 182, 212, 0.6),
+    0 30px 40px -5px rgba(6, 182, 212, 0.3);
+}
+
+/* Forest theme specific - wood texture effect */
+.forest .theme-texture {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 10px,
+      rgba(34, 197, 94, 0.02) 10px,
+      rgba(34, 197, 94, 0.02) 20px
+    );
+}
+
+/* Ocean theme specific - wave effect */
+.ocean .theme-wave {
+  position: relative;
+}
+
+.ocean .theme-wave::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg,
+    rgba(6, 182, 212, 0.3) 0%,
+    rgba(59, 130, 246, 0.3) 50%,
+    rgba(6, 182, 212, 0.3) 100%
+  );
+  background-size: 200% 100%;
+  animation: wave 3s linear infinite;
+}
+
+@keyframes wave {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}

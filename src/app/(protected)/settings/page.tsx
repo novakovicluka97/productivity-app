@@ -66,17 +66,17 @@ export default function SettingsPage() {
       <ProtectedHeaderPortal>
         <TopHeader />
       </ProtectedHeaderPortal>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
+      <div className="min-h-screen theme-page-bg p-6">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-8">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+            <div className="theme-icon-container h-12 w-12">
               <Settings className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Settings</h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <h1 className="text-3xl font-bold theme-heading">Settings</h1>
+              <p className="text-sm theme-text">
                 Manage your preferences and account
               </p>
             </div>
@@ -86,25 +86,25 @@ export default function SettingsPage() {
         {/* Settings Sections */}
         <div className="space-y-6">
           {/* Account Information */}
-          <div className="rounded-lg border border-slate-200/50 bg-white/80 p-6 shadow-lg backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-800/80">
-            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
+          <div className="theme-card p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold theme-heading">
               <Settings className="h-5 w-5" />
               Account Information
             </h2>
             <div className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label className="text-sm font-medium theme-text">
                   Email
                 </label>
-                <div className="mt-1 rounded-lg bg-slate-50 px-4 py-2 text-slate-900 dark:bg-slate-900/50 dark:text-slate-100">
+                <div className="mt-1 theme-input">
                   {user?.email || 'Not logged in'}
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label className="text-sm font-medium theme-text">
                   User ID
                 </label>
-                <div className="mt-1 rounded-lg bg-slate-50 px-4 py-2 font-mono text-xs text-slate-600 dark:bg-slate-900/50 dark:text-slate-400">
+                <div className="mt-1 theme-input font-mono text-xs">
                   {user?.id || 'N/A'}
                 </div>
               </div>
@@ -112,8 +112,8 @@ export default function SettingsPage() {
           </div>
 
           {/* Theme Settings */}
-          <div className="rounded-lg border border-slate-200/50 bg-white/80 p-6 shadow-lg backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-800/80">
-            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
+          <div className="theme-card p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold theme-heading">
               <Moon className="h-5 w-5" />
               Theme
             </h2>
@@ -143,45 +143,45 @@ export default function SettingsPage() {
           </div>
 
           {/* Default Durations */}
-          <div className="rounded-lg border border-slate-200/50 bg-white/80 p-6 shadow-lg backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-800/80">
-            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
+          <div className="theme-card p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold theme-heading">
               <Clock className="h-5 w-5" />
               Default Durations
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label className="text-sm font-medium theme-text">
                   Session Duration (minutes)
                 </label>
                 <input
                   type="number"
                   defaultValue={45}
-                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-600 dark:bg-slate-900/50 dark:text-white"
+                  className="mt-1 w-full theme-input focus:outline-none"
                   min={1}
                   max={180}
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label className="text-sm font-medium theme-text">
                   Break Duration (minutes)
                 </label>
                 <input
                   type="number"
                   defaultValue={15}
-                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-600 dark:bg-slate-900/50 dark:text-white"
+                  className="mt-1 w-full theme-input focus:outline-none"
                   min={1}
                   max={60}
                 />
               </div>
-              <button className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-transform hover:scale-105">
+              <button className="theme-btn-primary">
                 Save Preferences
               </button>
             </div>
           </div>
 
           {/* Notifications */}
-          <div className="rounded-lg border border-slate-200/50 bg-white/80 p-6 shadow-lg backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-800/80">
-            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
+          <div className="theme-card p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold theme-heading">
               <Bell className="h-5 w-5" />
               Notifications
             </h2>
@@ -261,20 +261,20 @@ export default function SettingsPage() {
           </div>
 
           {/* Data Management */}
-          <div className="rounded-lg border border-slate-200/50 bg-white/80 p-6 shadow-lg backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-800/80">
-            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
+          <div className="theme-card p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold theme-heading">
               <Database className="h-5 w-5" />
               Data Management
             </h2>
             <div className="space-y-3">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm theme-text">
                 Export your data or clear local cache. Your data in Supabase will remain intact.
               </p>
               <div className="flex gap-3">
-                <button className="rounded-lg border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20">
+                <button className="theme-btn-secondary">
                   Export Data
                 </button>
-                <button className="rounded-lg border border-red-500 px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
+                <button className="theme-btn-secondary border-red-300 text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20">
                   Clear Cache
                 </button>
               </div>

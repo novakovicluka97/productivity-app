@@ -5,6 +5,7 @@ import { TopHeader } from '@/components/layout/TopHeader'
 import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 import { CardContainer } from '@/components/CardContainer'
 import { EditorProvider } from '@/components/EditorManager'
+import { TemplateDropdown } from '@/components/TemplateDropdown'
 import { useTimer } from '@/hooks/useTimer'
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
@@ -360,6 +361,25 @@ export default function Home() {
     setIsMusicPlaying(prev => !prev)
   }
 
+  // Template application handler
+  const handleApplyTemplate = useCallback((templateCards: Card[]) => {
+    // Replace all existing cards with template cards
+    setCards(templateCards)
+
+    // Select the first card
+    if (templateCards.length > 0) {
+      selectCard(templateCards[0].id)
+    }
+
+    // Update next card ID
+    setNextCardId(getNextCardId(templateCards))
+
+    // Pause timer if playing
+    if (isPlaying) {
+      pauseTimer()
+    }
+  }, [setCards, selectCard, setNextCardId, isPlaying, pauseTimer])
+
   // Removed handleFormatCommand - using TipTap editor commands instead
 
   const canEdit = true // Allow editing while timer is running
@@ -421,6 +441,11 @@ export default function Home() {
 
           <div className="relative z-10">
             <div className="card-container container mx-auto px-0 md:px-4">
+              {/* Template Dropdown - Top left corner */}
+              <div className="mb-4 flex justify-start px-4 md:px-0">
+                <TemplateDropdown onApplyTemplate={handleApplyTemplate} />
+              </div>
+
               <CardContainer
                 cards={cards}
                 onSelectCard={handleSelectCard}
