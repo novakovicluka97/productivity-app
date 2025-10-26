@@ -13,6 +13,7 @@ import { useCardAudio } from '@/hooks/useCardAudio'
 import { useCreateSession } from '@/hooks/useSessions'
 import { useQueryClient } from '@tanstack/react-query'
 import { updateGoalsForSession } from '@/lib/utils/goalHelpers'
+import { getUserPreferences, type UserPreferences } from '@/lib/supabase/preferences'
 import { format } from 'date-fns'
 import { Card, AppState } from '@/lib/types'
 
@@ -76,6 +77,7 @@ export default function Home() {
   const [selectedTrack, setSelectedTrack] = useLocalStorage<string | null>('productivity-selected-track', null)
   const [volume, setVolume] = useLocalStorage<number>('productivity-volume', 50)
   const [isMusicPlaying, setIsMusicPlaying] = useLocalStorage<boolean>('productivity-music-playing', false)
+  const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null)
 
   // Session sync and query invalidation
   const createSessionMutation = useCreateSession()
@@ -138,6 +140,21 @@ export default function Home() {
 
   // Ref to hold timer completion handler that will be set after we get timer functions
   const timerCompleteHandlerRef = React.useRef<((completedCardId: string) => void) | null>(null)
+
+  // Load user preferences from Supabase on mount
+  React.useEffect(() => {
+    const loadUserPreferences = async () => {
+      try {
+        const prefs = await getUserPreferences()
+        setUserPreferences(prefs)
+        console.log('Loaded user preferences from Supabase:', prefs)
+      } catch (error) {
+        console.log('Could not load user preferences (using defaults):', error)
+        // Silently fail - use hardcoded defaults if not authenticated or error occurs
+      }
+    }
+    loadUserPreferences()
+  }, [])
 
   React.useEffect(() => {
     if (typeof window === 'undefined') {
@@ -255,30 +272,8 @@ export default function Home() {
   })
   useAutoTransfer(cards, setCards, activeCardId)
 
-  // Auto-save completed sessions to Supabase
-  React.useEffect(() => {
-    // Only save cards that are completed but not yet synced
-    const completedUnsyncedCards = cards.filter(
-      card => card.isCompleted && !card.syncedToSupabase
-    )
-
-    completedUnsyncedCards.forEach(async (card) => {
-      try {
-        console.log('Auto-saving completed card:', card.id)
-        await saveCompletedCardToSupabase(card)
-
-        // Mark card as synced in state
-        const updatedCards = cards.map(c =>
-          c.id === card.id
-            ? { ...c, syncedToSupabase: true }
-            : c
-        )
-        setCards(updatedCards)
-      } catch (error) {
-        console.error('Failed to sync card:', card.id, error)
-      }
-    })
-  }, [cards, saveCompletedCardToSupabase, setCards])
+  // Note: Session saving is handled directly in handleCompleteCard and useTimer's onTimerComplete
+  // No need for auto-save effect here to avoid infinite render loops
 
   const handlePlayPause = () => {
     toggleTimer()
@@ -348,7 +343,11 @@ export default function Home() {
   }
 
   const handleInsertCard = (type: 'session' | 'break', position: number) => {
-    const defaultDuration = type === 'session' ? 45 * 60 : 15 * 60 // 45 min session, 15 min break
+    // Use Supabase preferences if available, otherwise fallback to hardcoded defaults
+    const defaultDuration = type === 'session'
+      ? (userPreferences?.defaultSessionDuration ?? 45 * 60) // Supabase value or 45 min
+      : (userPreferences?.defaultBreakDuration ?? 15 * 60)    // Supabase value or 15 min
+
     const newCard: Card = {
       id: nextCardId.toString(),
       type,
