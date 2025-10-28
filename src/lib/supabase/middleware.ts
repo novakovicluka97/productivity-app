@@ -59,7 +59,8 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Protected routes - require authentication
-  const protectedPrefixes = ['/app', '/tracker', '/templates', '/analytics', '/goals']
+  // Note: /app allows guest access for testing
+  const protectedPrefixes = ['/tracker', '/templates', '/analytics', '/goals', '/settings']
   const isProtectedPath = protectedPrefixes.some((path) => {
     if (request.nextUrl.pathname === path) return true
     return request.nextUrl.pathname.startsWith(`${path}/`)

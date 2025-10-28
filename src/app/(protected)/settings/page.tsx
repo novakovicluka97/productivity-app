@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react'
 import { Settings, Bell, Moon, Clock, Database, Volume2, Check } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useTheme } from '@/hooks/useTheme'
+import { useThemeWithStore } from '@/hooks/useTheme.zustand'
 import { useNotifications } from '@/hooks/useNotifications'
+import { useSettingsStore } from '@/stores/settingsStore'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { toggleNotifications, updateDefaultDurations, getUserPreferences } from '@/lib/supabase/preferences'
@@ -24,12 +25,19 @@ import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal
 
 export default function SettingsPage() {
   const { user } = useAuth()
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useThemeWithStore()
   const { permission, isSupported, isEnabled, requestPermission, showNotification } = useNotifications()
+
+  // Get initial durations from Zustand store
+  const storeDurations = useSettingsStore((state) => ({
+    sessionDuration: Math.round(state.defaultSessionDuration / 60),
+    breakDuration: Math.round(state.defaultBreakDuration / 60)
+  }))
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(isEnabled)
   const [soundEnabled, setSoundEnabled] = useState(true)
-  const [sessionDuration, setSessionDuration] = useState(45)
-  const [breakDuration, setBreakDuration] = useState(15)
+  const [sessionDuration, setSessionDuration] = useState(storeDurations.sessionDuration)
+  const [breakDuration, setBreakDuration] = useState(storeDurations.breakDuration)
   const [isSaving, setIsSaving] = useState(false)
   const [showSavedNotification, setShowSavedNotification] = useState(false)
 
@@ -41,6 +49,12 @@ export default function SettingsPage() {
         // Convert seconds to minutes
         setSessionDuration(Math.round(prefs.defaultSessionDuration / 60))
         setBreakDuration(Math.round(prefs.defaultBreakDuration / 60))
+
+        // Update Zustand store
+        useSettingsStore.getState().updatePreferences({
+          defaultSessionDuration: prefs.defaultSessionDuration,
+          defaultBreakDuration: prefs.defaultBreakDuration
+        })
       } catch (error) {
         console.error('Error loading preferences:', error)
       }
@@ -84,7 +98,16 @@ export default function SettingsPage() {
     setIsSaving(true)
     try {
       // Convert minutes to seconds
-      await updateDefaultDurations(sessionDuration * 60, breakDuration * 60)
+      const sessionSeconds = sessionDuration * 60
+      const breakSeconds = breakDuration * 60
+
+      await updateDefaultDurations(sessionSeconds, breakSeconds)
+
+      // Update Zustand store
+      useSettingsStore.getState().updatePreferences({
+        defaultSessionDuration: sessionSeconds,
+        defaultBreakDuration: breakSeconds
+      })
 
       // Show success notification
       setShowSavedNotification(true)
