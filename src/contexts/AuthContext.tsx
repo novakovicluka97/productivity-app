@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase/client'
+import { tryGetSupabaseBrowserClient } from '@/lib/supabase/client'
 import type {
   AuthContextType,
   AuthUser,
@@ -20,7 +20,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [supabase] = useState(() => tryGetSupabaseBrowserClient())
   const router = useRouter()
+  const missingSupabaseMessage =
+    'Supabase client is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
 
   const resolveRedirectDestination = useCallback(() => {
     if (typeof window === 'undefined') {
@@ -41,6 +44,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     const initializeAuth = async () => {
       try {
+        if (!supabase) {
+          throw new Error(missingSupabaseMessage)
+        }
+
         const { data: { session }, error } = await supabase.auth.getSession()
 
         if (error) throw error
@@ -56,6 +63,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     initializeAuth()
+
+    if (!supabase) {
+      return
+    }
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -77,12 +88,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe()
     }
-  }, [router, resolveRedirectDestination])
+  }, [router, resolveRedirectDestination, supabase, missingSupabaseMessage])
 
   const signUp = async ({ email, password }: SignUpData) => {
     try {
       setError(null)
       setLoading(true)
+
+      if (!supabase) {
+        throw new Error(missingSupabaseMessage)
+      }
 
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -110,6 +125,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null)
       setLoading(true)
 
+      if (!supabase) {
+        throw new Error(missingSupabaseMessage)
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -129,6 +148,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setError(null)
       setLoading(true)
+
+      if (!supabase) {
+        throw new Error(missingSupabaseMessage)
+      }
 
       const { error } = await supabase.auth.signOut()
 
@@ -150,6 +173,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null)
       setLoading(true)
 
+      if (!supabase) {
+        throw new Error(missingSupabaseMessage)
+      }
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       })
@@ -168,6 +195,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setError(null)
       setLoading(true)
+
+      if (!supabase) {
+        throw new Error(missingSupabaseMessage)
+      }
 
       const { error } = await supabase.auth.updateUser({
         password,
@@ -190,6 +221,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null)
       setLoading(true)
 
+      if (!supabase) {
+        throw new Error(missingSupabaseMessage)
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -211,6 +246,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setError(null)
       setLoading(true)
+
+      if (!supabase) {
+        throw new Error(missingSupabaseMessage)
+      }
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',

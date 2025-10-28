@@ -1,4 +1,8 @@
-import { supabase } from './client'
+import { getSupabaseBrowserClient } from './client'
+
+function getSupabase() {
+  return getSupabaseBrowserClient()
+}
 
 /**
  * User Goals CRUD Operations
@@ -59,7 +63,7 @@ export interface GoalUpdate {
  * Get all goals for the current user
  */
 export async function getUserGoals(includeCompleted = false): Promise<Goal[]> {
-  
+  const supabase = getSupabase()
 
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -91,7 +95,7 @@ export async function getUserGoals(includeCompleted = false): Promise<Goal[]> {
  * Get active goals for the current user
  */
 export async function getActiveGoals(): Promise<Goal[]> {
-  
+  const supabase = getSupabase()
 
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -119,7 +123,7 @@ export async function getActiveGoals(): Promise<Goal[]> {
  * Get a single goal by ID
  */
 export async function getGoalById(goalId: string): Promise<Goal | null> {
-  
+  const supabase = getSupabase()
 
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -149,7 +153,7 @@ export async function getGoalById(goalId: string): Promise<Goal | null> {
  * Create a new goal
  */
 export async function createGoal(goal: GoalInsert): Promise<Goal> {
-  
+  const supabase = getSupabase()
 
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -187,7 +191,7 @@ export async function createGoal(goal: GoalInsert): Promise<Goal> {
  * Update an existing goal
  */
 export async function updateGoal(goalId: string, updates: GoalUpdate): Promise<Goal> {
-  
+  const supabase = getSupabase()
 
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -255,7 +259,7 @@ export async function incrementGoalProgress(goalId: string, increment = 1): Prom
  * Delete a goal
  */
 export async function deleteGoal(goalId: string): Promise<void> {
-  
+  const supabase = getSupabase()
 
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -304,7 +308,7 @@ export async function checkGoalProgress(goalId: string): Promise<{
  * Get goals by type
  */
 export async function getGoalsByType(type: GoalType): Promise<Goal[]> {
-  
+  const supabase = getSupabase()
 
   const { data: { user } } = await supabase.auth.getUser()
 
