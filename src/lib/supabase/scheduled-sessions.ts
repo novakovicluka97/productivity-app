@@ -1,6 +1,10 @@
-import { supabase } from './client'
+import { getSupabaseBrowserClient } from './client'
 import type { Database } from '@/types/supabase'
 import type { Card } from '@/lib/types'
+
+function getSupabase() {
+  return getSupabaseBrowserClient()
+}
 
 type ScheduledSessionRow = Database['public']['Tables']['scheduled_sessions']['Row']
 type ScheduledSessionInsert = Database['public']['Tables']['scheduled_sessions']['Insert']
@@ -20,7 +24,7 @@ export async function createScheduledSession(
   scheduledDate: string,
   cards: Card[]
 ) {
-  
+  const supabase = getSupabase()
 
   const configuration = {
     cards: cards.map(card => ({
@@ -61,7 +65,7 @@ export async function getScheduledSessions(options?: {
   includeLoaded?: boolean
   limit?: number
 }) {
-  
+  const supabase = getSupabase()
 
   let query = supabase
     .from('scheduled_sessions')
@@ -96,7 +100,7 @@ export async function getScheduledSessions(options?: {
  * Get scheduled session for a specific date
  */
 export async function getScheduledSessionByDate(date: string) {
-  
+  const supabase = getSupabase()
 
   const { data, error } = await supabase
     .from('scheduled_sessions')
@@ -123,7 +127,7 @@ export async function updateScheduledSession(
   id: string,
   updates: Partial<ScheduledSessionUpdate>
 ) {
-  
+  const supabase = getSupabase()
 
   const { data, error } = await supabase
     .from('scheduled_sessions')
@@ -155,7 +159,7 @@ export async function markScheduledSessionAsLoaded(id: string) {
  * Delete a scheduled session
  */
 export async function deleteScheduledSession(id: string) {
-  
+  const supabase = getSupabase()
 
   const { error } = await supabase
     .from('scheduled_sessions')
