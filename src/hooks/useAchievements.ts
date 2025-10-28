@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/lib/supabase/client'
+import { getSupabaseClient } from '@/lib/supabase/client'
 import { ACHIEVEMENTS, checkAchievementCriteria, type Achievement } from '@/components/achievements/achievements'
 import { useSessionNotifications } from './useNotifications'
 import type { Database } from '@/types/supabase'
@@ -19,7 +19,8 @@ export function useUserAchievements() {
   const { data: achievements = [], isLoading, error } = useQuery({
     queryKey: ['achievements'],
     queryFn: async () => {
-      
+      const supabase = getSupabaseClient()
+
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) throw new Error('Not authenticated')
@@ -47,7 +48,8 @@ export function useUnlockAchievement() {
 
   const mutation = useMutation({
     mutationFn: async (achievementId: string) => {
-      
+      const supabase = getSupabaseClient()
+
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) throw new Error('Not authenticated')
@@ -105,7 +107,8 @@ export function useCheckAchievements() {
     completionRate: number
     totalTimeSpent: number
   }) => {
-    
+    const supabase = getSupabaseClient()
+
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return
