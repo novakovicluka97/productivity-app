@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  useRef,
 } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -31,7 +32,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<Error | null>(null)
   const [supabaseClient, setSupabaseClient] = useState<SupabaseClient<Database> | null>(null)
   const [configError, setConfigError] = useState<Error | null>(null)
+  const isMountedRef = useRef(true)
+  const hasHandledSignInRedirectRef = useRef(false)
   const router = useRouter()
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   const resolveRedirectDestination = useCallback(() => {
     if (typeof window === 'undefined') {
@@ -51,13 +60,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const client = getSupabaseClient()
-      setSupabaseClient(client)
+      if (isMountedRef.current) {
+        setSupabaseClient(client)
+      }
     } catch (err) {
       const supabaseError = err as Error
       console.error('Unable to initialize Supabase client:', supabaseError)
-      setConfigError(supabaseError)
-      setError(supabaseError)
-      setLoading(false)
+      if (isMountedRef.current) {
+        setConfigError(supabaseError)
+        setError(supabaseError)
+        setLoading(false)
+      }
     }
   }, [])
 
@@ -76,13 +89,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (error) throw error
 
+        if (!isMountedRef.current) {
+          return
+        }
+
         setSession(session)
         setUser(session?.user ?? null)
+        if (session) {
+          hasHandledSignInRedirectRef.current = true
+        }
       } catch (err) {
         console.error('Error initializing auth:', err)
-        setError(err as Error)
+        if (isMountedRef.current) {
+          setError(err as Error)
+        }
       } finally {
-        setLoading(false)
+        if (isMountedRef.current) {
+          setLoading(false)
+        }
       }
     }
 
@@ -92,13 +116,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+      if (!isMountedRef.current) {
+        return
+      }
+
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
 
       if (event === 'SIGNED_IN') {
         const destination = resolveRedirectDestination()
-        router.push(destination)
+        const shouldRedirect =
+          !hasHandledSignInRedirectRef.current || destination !== '/app'
+
+        if (shouldRedirect) {
+          router.push(destination)
+        }
+
+        hasHandledSignInRedirectRef.current = true
+      }
+
+      if (event === 'SIGNED_OUT') {
+        hasHandledSignInRedirectRef.current = false
       }
 
       // Refresh the router to update Server Components
@@ -118,14 +157,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return supabaseClient
   }
 
-  const signUp = async ({ email, password }: SignUpData) => {
+  const runAuthOperation = async <T,>(
+    operation: (client: SupabaseClient<Database>) => Promise<T>
+  ) => {
+    if (!isMountedRef.current) {
+      throw new Error('AuthProvider is unmounted')
+    }
+
+    setError(null)
+    setLoading(true)
+
     try {
-      setError(null)
-      setLoading(true)
-
       const client = ensureSupabaseClient()
+      return await operation(client)
+    } catch (err) {
+      console.error('Auth operation failed:', err)
+      if (isMountedRef.current) {
+        setError(err as Error)
+      }
+      throw err
+    } finally {
+      if (isMountedRef.current) {
+        setLoading(false)
+      }
+    }
+  }
 
-      const { data, error } = await client.auth.signUp({
+  const signUp = async ({ email, password }: SignUpData) => {
+    await runAuthOperation(async (client) => {
+      const { error } = await client.auth.signUp({
         email,
         password,
         options: {
@@ -134,113 +194,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (error) throw error
-
-      // Note: User won't be logged in until they confirm their email
-      // Show a message to check email for confirmation link
-    } catch (err) {
-      console.error('Error signing up:', err)
-      setError(err as Error)
-      throw err
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   const signIn = async ({ email, password }: SignInData) => {
-    try {
-      setError(null)
-      setLoading(true)
-
-      const client = ensureSupabaseClient()
-
-      const { data, error } = await client.auth.signInWithPassword({
+    await runAuthOperation(async (client) => {
+      const { error } = await client.auth.signInWithPassword({
         email,
         password,
       })
 
       if (error) throw error
-    } catch (err) {
-      console.error('Error signing in:', err)
-      setError(err as Error)
-      throw err
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   const signOut = async () => {
-    try {
-      setError(null)
-      setLoading(true)
-
-      const client = ensureSupabaseClient()
-
+    await runAuthOperation(async (client) => {
       const { error } = await client.auth.signOut()
 
       if (error) throw error
 
-      // Session will be cleared by onAuthStateChange listener
-      router.push('/app')
-    } catch (err) {
-      console.error('Error signing out:', err)
-      setError(err as Error)
-      throw err
-    } finally {
-      setLoading(false)
-    }
+      if (isMountedRef.current) {
+        hasHandledSignInRedirectRef.current = false
+        router.push('/app')
+      }
+    })
   }
 
   const resetPassword = async ({ email }: ResetPasswordData) => {
-    try {
-      setError(null)
-      setLoading(true)
-
-      const client = ensureSupabaseClient()
-
+    await runAuthOperation(async (client) => {
       const { error } = await client.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       })
 
       if (error) throw error
-    } catch (err) {
-      console.error('Error resetting password:', err)
-      setError(err as Error)
-      throw err
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   const updatePassword = async ({ password }: UpdatePasswordData) => {
-    try {
-      setError(null)
-      setLoading(true)
-
-      const client = ensureSupabaseClient()
-
+    await runAuthOperation(async (client) => {
       const { error } = await client.auth.updateUser({
         password,
       })
 
       if (error) throw error
 
-      router.push('/app')
-    } catch (err) {
-      console.error('Error updating password:', err)
-      setError(err as Error)
-      throw err
-    } finally {
-      setLoading(false)
-    }
+      if (isMountedRef.current) {
+        router.push('/app')
+      }
+    })
   }
 
   const signInWithGoogle = async () => {
-    try {
-      setError(null)
-      setLoading(true)
-
-      const client = ensureSupabaseClient()
-
+    await runAuthOperation(async (client) => {
       const { error } = await client.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -249,22 +255,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (error) throw error
-    } catch (err) {
-      console.error('Error signing in with Google:', err)
-      setError(err as Error)
-      throw err
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   const signInWithGithub = async () => {
-    try {
-      setError(null)
-      setLoading(true)
-
-      const client = ensureSupabaseClient()
-
+    await runAuthOperation(async (client) => {
       const { error } = await client.auth.signInWithOAuth({
         provider: 'github',
         options: {
@@ -273,13 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (error) throw error
-    } catch (err) {
-      console.error('Error signing in with GitHub:', err)
-      setError(err as Error)
-      throw err
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   const value: AuthContextType = {
