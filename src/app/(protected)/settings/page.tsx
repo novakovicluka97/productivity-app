@@ -28,16 +28,14 @@ export default function SettingsPage() {
   const { theme, setTheme } = useThemeWithStore()
   const { permission, isSupported, isEnabled, requestPermission, showNotification } = useNotifications()
 
-  // Get initial durations from Zustand store
-  const storeDurations = useSettingsStore((state) => ({
-    sessionDuration: Math.round(state.defaultSessionDuration / 60),
-    breakDuration: Math.round(state.defaultBreakDuration / 60)
-  }))
+  // Get initial durations from Zustand store - subscribe individually to avoid re-renders
+  const defaultSessionDuration = useSettingsStore((state) => state.defaultSessionDuration)
+  const defaultBreakDuration = useSettingsStore((state) => state.defaultBreakDuration)
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(isEnabled)
   const [soundEnabled, setSoundEnabled] = useState(true)
-  const [sessionDuration, setSessionDuration] = useState(storeDurations.sessionDuration)
-  const [breakDuration, setBreakDuration] = useState(storeDurations.breakDuration)
+  const [sessionDuration, setSessionDuration] = useState(Math.round(defaultSessionDuration / 60))
+  const [breakDuration, setBreakDuration] = useState(Math.round(defaultBreakDuration / 60))
   const [isSaving, setIsSaving] = useState(false)
   const [showSavedNotification, setShowSavedNotification] = useState(false)
 
