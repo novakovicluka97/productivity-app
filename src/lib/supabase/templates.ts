@@ -4,8 +4,22 @@
  * CRUD operations for the session_templates table
  */
 
-import { supabase } from './client'
+import { getSupabaseClient } from './client'
 import type { SessionTemplate, CardConfiguration } from './types'
+
+async function getSupabaseWithUser() {
+  const supabase = getSupabaseClient()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    throw new Error('User not authenticated')
+  }
+
+  return { supabase, user }
+}
 
 export interface TemplateInsert {
   name: string
@@ -25,16 +39,7 @@ export interface TemplateUpdate {
  * Get all templates for the current user (owned + public)
  */
 export async function getTemplates() {
-  
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error('User not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { data, error } = await supabase
     .from('session_templates')
@@ -53,16 +58,7 @@ export async function getTemplates() {
  * Get a single template by ID
  */
 export async function getTemplate(templateId: string) {
-  
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error('User not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { data, error } = await supabase
     .from('session_templates')
@@ -87,16 +83,7 @@ export async function getTemplate(templateId: string) {
  * Create a new template
  */
 export async function createTemplate(template: TemplateInsert) {
-  
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error('User not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { data, error } = await supabase
     .from('session_templates')
@@ -120,16 +107,7 @@ export async function createTemplate(template: TemplateInsert) {
  * Update template
  */
 export async function updateTemplate(templateId: string, updates: TemplateUpdate) {
-  
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error('User not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { data, error } = await supabase
     .from('session_templates')
@@ -151,16 +129,7 @@ export async function updateTemplate(templateId: string, updates: TemplateUpdate
  * Delete template
  */
 export async function deleteTemplate(templateId: string) {
-  
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error('User not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { error } = await supabase
     .from('session_templates')
@@ -179,7 +148,7 @@ export async function deleteTemplate(templateId: string) {
  * Increment usage count
  */
 export async function incrementTemplateUsage(templateId: string) {
-  
+  const supabase = getSupabaseClient()
 
   const { data: templateData, error: fetchError } = await supabase
     .from('session_templates')
@@ -212,16 +181,7 @@ export async function incrementTemplateUsage(templateId: string) {
  * Duplicate template
  */
 export async function duplicateTemplate(templateId: string) {
-  
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error('User not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const original = await getTemplate(templateId)
 

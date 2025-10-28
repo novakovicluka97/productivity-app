@@ -1,4 +1,15 @@
-import { supabase } from './client'
+import { getSupabaseClient } from './client'
+
+async function getSupabaseWithUser() {
+  const supabase = getSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Not authenticated')
+  }
+
+  return { supabase, user }
+}
 
 /**
  * User Goals CRUD Operations
@@ -59,13 +70,7 @@ export interface GoalUpdate {
  * Get all goals for the current user
  */
 export async function getUserGoals(includeCompleted = false): Promise<Goal[]> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   let query = supabase
     .from('goals')
@@ -91,13 +96,7 @@ export async function getUserGoals(includeCompleted = false): Promise<Goal[]> {
  * Get active goals for the current user
  */
 export async function getActiveGoals(): Promise<Goal[]> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { data, error } = await supabase
     .from('goals')
@@ -119,13 +118,7 @@ export async function getActiveGoals(): Promise<Goal[]> {
  * Get a single goal by ID
  */
 export async function getGoalById(goalId: string): Promise<Goal | null> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { data, error } = await supabase
     .from('goals')
@@ -149,13 +142,7 @@ export async function getGoalById(goalId: string): Promise<Goal | null> {
  * Create a new goal
  */
 export async function createGoal(goal: GoalInsert): Promise<Goal> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const newGoal = {
     ...goal,
@@ -187,13 +174,7 @@ export async function createGoal(goal: GoalInsert): Promise<Goal> {
  * Update an existing goal
  */
 export async function updateGoal(goalId: string, updates: GoalUpdate): Promise<Goal> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const updateData = {
     ...updates,
@@ -255,13 +236,7 @@ export async function incrementGoalProgress(goalId: string, increment = 1): Prom
  * Delete a goal
  */
 export async function deleteGoal(goalId: string): Promise<void> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { error } = await supabase
     .from('goals')
@@ -304,13 +279,7 @@ export async function checkGoalProgress(goalId: string): Promise<{
  * Get goals by type
  */
 export async function getGoalsByType(type: GoalType): Promise<Goal[]> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { data, error } = await supabase
     .from('goals')
@@ -332,13 +301,7 @@ export async function getGoalsByType(type: GoalType): Promise<Goal[]> {
  * Archive completed goals
  */
 export async function archiveCompletedGoals(): Promise<number> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { data, error } = await supabase
     .from('goals')

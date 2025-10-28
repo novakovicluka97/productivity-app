@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { createPortal } from 'react-dom'
-import { useProtectedLayoutPortals } from '@/app/(protected)/layout'
+import { useProtectedLayoutPortals } from '@/components/layout/ProtectedLayoutContext'
 
 interface ProtectedHeaderPortalProps {
   children: React.ReactNode

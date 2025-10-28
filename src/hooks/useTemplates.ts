@@ -18,6 +18,8 @@ import {
   type TemplateInsert,
   type TemplateUpdate,
 } from '@/lib/supabase/templates'
+import { useAuth } from '@/hooks/useAuth'
+import { isSupabaseConfigured } from '@/lib/supabase/client'
 
 /**
  * Query key factory for templates
@@ -34,10 +36,16 @@ export const templateKeys = {
  * Fetch all templates
  */
 export function useTemplates() {
+  const { user, loading } = useAuth()
+  const supabaseConfigured = isSupabaseConfigured()
+  const shouldFetch = supabaseConfigured && !!user && !loading
+
   return useQuery({
-    queryKey: templateKeys.list(),
+    queryKey: [...templateKeys.list(), user?.id ?? 'anonymous'],
     queryFn: getTemplates,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: shouldFetch,
+    placeholderData: [] as Awaited<ReturnType<typeof getTemplates>>,
   })
 }
 
@@ -45,10 +53,14 @@ export function useTemplates() {
  * Fetch a single template by ID
  */
 export function useTemplate(templateId: string | null) {
+  const { user, loading } = useAuth()
+  const supabaseConfigured = isSupabaseConfigured()
+  const shouldFetch = supabaseConfigured && !!user && !loading && !!templateId
+
   return useQuery({
-    queryKey: templateKeys.detail(templateId || ''),
+    queryKey: [...templateKeys.detail(templateId || ''), user?.id ?? 'anonymous'],
     queryFn: () => getTemplate(templateId!),
-    enabled: !!templateId,
+    enabled: shouldFetch,
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }

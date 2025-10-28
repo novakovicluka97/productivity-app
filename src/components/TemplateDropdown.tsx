@@ -14,6 +14,8 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/hooks/useAuth'
+import { isSupabaseConfigured } from '@/lib/supabase/client'
 
 interface TemplateDropdownProps {
   onApplyTemplate: (cards: Card[]) => void
@@ -27,8 +29,52 @@ interface TemplateDropdownProps {
  * immediately by replacing all existing cards.
  */
 export function TemplateDropdown({ onApplyTemplate }: TemplateDropdownProps) {
+  const { user, loading } = useAuth()
+  const supabaseConfigured = isSupabaseConfigured()
   const { data: templates, isLoading } = useTemplates()
   const incrementUsage = useIncrementTemplateUsage()
+
+  if (!supabaseConfigured) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        disabled
+        className="theme-btn-secondary"
+      >
+        <FileStack className="h-4 w-4 mr-2" />
+        Templates unavailable
+      </Button>
+    )
+  }
+
+  if (loading) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        disabled
+        className="theme-btn-secondary"
+      >
+        <FileStack className="h-4 w-4 mr-2" />
+        Loading...
+      </Button>
+    )
+  }
+
+  if (!user) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        disabled
+        className="theme-btn-secondary"
+      >
+        <FileStack className="h-4 w-4 mr-2" />
+        Sign in to use templates
+      </Button>
+    )
+  }
 
   const convertTemplateToCards = (template: SessionTemplate): Card[] => {
     return template.configuration.map((config, index) => ({
@@ -81,7 +127,17 @@ export function TemplateDropdown({ onApplyTemplate }: TemplateDropdownProps) {
   }
 
   if (!templates || templates.length === 0) {
-    return null
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        disabled
+        className="theme-btn-secondary"
+      >
+        <FileStack className="h-4 w-4 mr-2" />
+        No templates yet
+      </Button>
+    )
   }
 
   return (

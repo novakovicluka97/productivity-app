@@ -15,6 +15,8 @@ import {
   deleteSession,
   getSessionStats,
 } from '@/lib/supabase/sessions'
+import { useAuth } from '@/hooks/useAuth'
+import { isSupabaseConfigured } from '@/lib/supabase/client'
 
 /**
  * Query options for fetching sessions
@@ -43,10 +45,17 @@ export const sessionKeys = {
  * Fetch sessions with optional filtering
  */
 export function useSessions(options: SessionQueryOptions = {}) {
+  const { user, loading } = useAuth()
+  const supabaseConfigured = isSupabaseConfigured()
+
+  const shouldFetch = supabaseConfigured && !!user && !loading
+
   return useQuery({
-    queryKey: sessionKeys.list(options),
+    queryKey: [...sessionKeys.list(options), user?.id ?? 'anonymous'],
     queryFn: () => getSessions(options),
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: shouldFetch,
+    placeholderData: [] as Awaited<ReturnType<typeof getSessions>>,
   })
 }
 
@@ -54,10 +63,15 @@ export function useSessions(options: SessionQueryOptions = {}) {
  * Fetch a single session by ID
  */
 export function useSession(sessionId: string | null) {
+  const { user, loading } = useAuth()
+  const supabaseConfigured = isSupabaseConfigured()
+
+  const shouldFetch = supabaseConfigured && !!user && !loading && !!sessionId
+
   return useQuery({
-    queryKey: sessionKeys.detail(sessionId || ''),
+    queryKey: [...sessionKeys.detail(sessionId || ''), user?.id ?? 'anonymous'],
     queryFn: () => getSessionById(sessionId!),
-    enabled: !!sessionId,
+    enabled: shouldFetch,
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
@@ -66,10 +80,16 @@ export function useSession(sessionId: string | null) {
  * Fetch session statistics for a date range
  */
 export function useSessionStatistics(startDate: string, endDate: string) {
+  const { user, loading } = useAuth()
+  const supabaseConfigured = isSupabaseConfigured()
+
+  const shouldFetch = supabaseConfigured && !!user && !loading
+
   return useQuery({
-    queryKey: [...sessionKeys.statistics(), startDate, endDate],
+    queryKey: [...sessionKeys.statistics(), startDate, endDate, user?.id ?? 'anonymous'],
     queryFn: () => getSessionStats(startDate, endDate),
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: shouldFetch,
   })
 }
 
