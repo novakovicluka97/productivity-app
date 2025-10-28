@@ -89,9 +89,10 @@ export default function Home() {
       const sessionDate = format(new Date(), 'yyyy-MM-dd')
 
       // Create session record
+      // Note: card_id is intentionally NOT included to allow cards to generate multiple sessions
+      // (e.g., when a card is reset and completed again)
       const session = await createSessionMutation.mutateAsync({
         user_id: undefined as any, // Will be set by RLS
-        card_id: card.id, // Store card ID to prevent duplicates at DB level
         session_date: sessionDate,
         type: card.type,
         duration: card.duration,
@@ -128,14 +129,23 @@ export default function Home() {
     }
   }, [createSessionMutation, queryClient])
 
+  // Use a ref to track hydration status to avoid callback recreation
+  const appStateHydratedRef = React.useRef(appStateHydrated)
+  React.useEffect(() => {
+    appStateHydratedRef.current = appStateHydrated
+  }, [appStateHydrated])
+
   const handlePersistedStateChange = React.useCallback(
     (state: AppState) => {
       // Only persist to localStorage after hydration to prevent overwriting stored data
-      if (appStateHydrated) {
+      if (appStateHydratedRef.current) {
         setAppState(state)
+      } else {
+        // Queue state changes that happen before hydration
+        console.log('[State Persistence] Skipping pre-hydration state change')
       }
     },
-    [setAppState, appStateHydrated]
+    [setAppState]
   )
 
   // Ref to hold timer completion handler that will be set after we get timer functions

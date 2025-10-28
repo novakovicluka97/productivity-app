@@ -1,19 +1,31 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, lazy, Suspense } from 'react'
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, format } from 'date-fns'
 import { CalendarLayout, type ViewMode } from '@/components/calendar/CalendarLayout'
-import { MonthView } from '@/components/calendar/MonthView'
-import { WeekView } from '@/components/calendar/WeekView'
-import { DayView } from '@/components/calendar/DayView'
-import { YearView } from '@/components/calendar/YearView'
-import { SessionDetailModal } from '@/components/calendar/SessionDetailModal'
 import { useSessions } from '@/hooks/useSessions'
 import type { Database } from '@/types/supabase'
 import { TopHeader } from '@/components/layout/TopHeader'
 import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 
+// Lazy load heavy calendar components
+const MonthView = lazy(() => import('@/components/calendar/MonthView').then(m => ({ default: m.MonthView })))
+const WeekView = lazy(() => import('@/components/calendar/WeekView').then(m => ({ default: m.WeekView })))
+const DayView = lazy(() => import('@/components/calendar/DayView').then(m => ({ default: m.DayView })))
+const YearView = lazy(() => import('@/components/calendar/YearView').then(m => ({ default: m.YearView })))
+const SessionDetailModal = lazy(() => import('@/components/calendar/SessionDetailModal').then(m => ({ default: m.SessionDetailModal })))
+
 type Session = Database['public']['Tables']['sessions']['Row']
+
+// Loading fallback component
+const ViewLoadingFallback = () => (
+  <div className="flex h-full items-center justify-center">
+    <div className="text-center">
+      <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+      <p className="text-slate-600 dark:text-slate-400">Loading view...</p>
+    </div>
+  </div>
+)
 
 /**
  * Tracker Page
@@ -118,35 +130,43 @@ export default function TrackerPage() {
     switch (viewMode) {
       case 'day':
         return (
-          <DayView
-            currentDate={currentDate}
-            sessions={sessions}
-            onSessionClick={handleSessionClick}
-          />
+          <Suspense fallback={<ViewLoadingFallback />}>
+            <DayView
+              currentDate={currentDate}
+              sessions={sessions}
+              onSessionClick={handleSessionClick}
+            />
+          </Suspense>
         )
       case 'week':
         return (
-          <WeekView
-            currentDate={currentDate}
-            sessions={sessions}
-            onSessionClick={handleSessionClick}
-          />
+          <Suspense fallback={<ViewLoadingFallback />}>
+            <WeekView
+              currentDate={currentDate}
+              sessions={sessions}
+              onSessionClick={handleSessionClick}
+            />
+          </Suspense>
         )
       case 'month':
         return (
-          <MonthView
-            currentDate={currentDate}
-            sessions={sessions}
-            onDayClick={handleDayClick}
-          />
+          <Suspense fallback={<ViewLoadingFallback />}>
+            <MonthView
+              currentDate={currentDate}
+              sessions={sessions}
+              onDayClick={handleDayClick}
+            />
+          </Suspense>
         )
       case 'year':
         return (
-          <YearView
-            currentDate={currentDate}
-            sessions={sessions}
-            onDayClick={handleDayClick}
-          />
+          <Suspense fallback={<ViewLoadingFallback />}>
+            <YearView
+              currentDate={currentDate}
+              sessions={sessions}
+              onDayClick={handleDayClick}
+            />
+          </Suspense>
         )
       default:
         return null
@@ -168,11 +188,13 @@ export default function TrackerPage() {
         {renderView()}
       </CalendarLayout>
 
-      <SessionDetailModal
-        session={selectedSession}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
+      <Suspense fallback={null}>
+        <SessionDetailModal
+          session={selectedSession}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      </Suspense>
     </>
   )
 }

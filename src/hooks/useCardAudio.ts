@@ -55,7 +55,11 @@ export function useCardAudio({
         currentTrackRef.current = selectedTrack
       }
     }
-  }, [selectedTrack, isMusicPlaying, volume, isPlaying])
+    // Only recreate Howl when track changes
+    // Volume is handled by separate effect below
+    // isPlaying is internal state and shouldn't trigger recreation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTrack, isMusicPlaying])
 
   // Update volume
   useEffect(() => {

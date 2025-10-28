@@ -13,9 +13,11 @@ export function useSoundNotification() {
     }
 
     return () => {
-      // Cleanup
-      if (audioContextRef.current) {
-        audioContextRef.current.close()
+      // Cleanup: Only close if AudioContext exists and is not already closed
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close().catch((err) => {
+          console.warn('Error closing AudioContext:', err)
+        })
       }
     }
   }, [])

@@ -170,6 +170,10 @@ export async function deleteSessions(ids: string[]) {
 /**
  * Save completed card as a session
  * This is the main function to call when a card is completed
+ *
+ * Note: card_id is intentionally NOT included in the session record.
+ * This allows cards to generate multiple sessions over time (e.g., when reset and completed again).
+ * The database has a unique constraint on card_id which would prevent this otherwise.
  */
 export async function saveCompletedCard(card: Card, sessionDate: string) {
   const session: Omit<SessionInsert, 'id' | 'created_at' | 'updated_at'> = {
