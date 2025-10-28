@@ -2,11 +2,12 @@
 
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
-  useState,
-  useCallback,
+  useMemo,
   useRef,
+  useState,
 } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -32,17 +33,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<Error | null>(null)
   const [supabaseClient, setSupabaseClient] = useState<SupabaseClient<Database> | null>(null)
   const [configError, setConfigError] = useState<Error | null>(null)
-  const isMountedRef = useRef(true)
-  const hasHandledSignInRedirectRef = useRef(false)
   const router = useRouter()
 
+  const isMountedRef = useRef(false)
+  const handledInitialRedirectRef = useRef(false)
+  const pendingRefreshRef = useRef<number | null>(null)
+
   useEffect(() => {
+    isMountedRef.current = true
     return () => {
       isMountedRef.current = false
+      if (typeof window !== 'undefined' && pendingRefreshRef.current !== null) {
+        window.cancelAnimationFrame(pendingRefreshRef.current)
+      }
     }
   }, [])
 
-  const resolveRedirectDestination = useCallback(() => {
+  const scheduleRefresh = useCallback(() => {
+    if (!isMountedRef.current) {
+      return
+    }
+
+    if (typeof window === 'undefined') {
+      router.refresh()
+      return
+    }
+
+    if (pendingRefreshRef.current !== null) {
+      return
+    }
+
+    pendingRefreshRef.current = window.requestAnimationFrame(() => {
+      pendingRefreshRef.current = null
+      router.refresh()
+    })
+  }, [router])
+
+  const resolveRedirectDestination = useCallback((): string => {
     if (typeof window === 'undefined') {
       return '/app'
     }
@@ -79,8 +106,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
-    // Get initial session
-    const initializeAuth = async () => {
+    let cancelled = false
+
+    const initialiseSession = async () => {
       try {
         const {
           data: { session },
@@ -88,164 +116,177 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } = await supabaseClient.auth.getSession()
 
         if (error) throw error
-
-        if (!isMountedRef.current) {
+        if (!isMountedRef.current || cancelled) {
           return
         }
 
         setSession(session)
         setUser(session?.user ?? null)
-        if (session) {
-          hasHandledSignInRedirectRef.current = true
-        }
+        handledInitialRedirectRef.current = Boolean(session)
       } catch (err) {
         console.error('Error initializing auth:', err)
-        if (isMountedRef.current) {
+        if (isMountedRef.current && !cancelled) {
           setError(err as Error)
         }
       } finally {
-        if (isMountedRef.current) {
+        if (isMountedRef.current && !cancelled) {
           setLoading(false)
         }
       }
     }
 
-    initializeAuth()
+    initialiseSession()
 
-    // Listen for auth changes
     const {
       data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    } = supabaseClient.auth.onAuthStateChange((event, nextSession) => {
       if (!isMountedRef.current) {
         return
       }
 
-      setSession(session)
-      setUser(session?.user ?? null)
+      setSession(nextSession)
+      setUser(nextSession?.user ?? null)
       setLoading(false)
 
       if (event === 'SIGNED_IN') {
         const destination = resolveRedirectDestination()
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname : null
         const shouldRedirect =
-          !hasHandledSignInRedirectRef.current || destination !== '/app'
+          !handledInitialRedirectRef.current || (currentPath && destination !== currentPath)
 
-        if (shouldRedirect) {
+        handledInitialRedirectRef.current = true
+
+        if (shouldRedirect && destination && destination !== currentPath) {
           router.push(destination)
+          scheduleRefresh()
+          return
         }
-
-        hasHandledSignInRedirectRef.current = true
       }
 
       if (event === 'SIGNED_OUT') {
-        hasHandledSignInRedirectRef.current = false
+        handledInitialRedirectRef.current = false
       }
 
-      // Refresh the router to update Server Components
-      router.refresh()
+      scheduleRefresh()
     })
 
     return () => {
+      cancelled = true
       subscription.unsubscribe()
     }
-  }, [supabaseClient, router, resolveRedirectDestination])
+  }, [supabaseClient, resolveRedirectDestination, router, scheduleRefresh])
 
-  const ensureSupabaseClient = () => {
-    if (!supabaseClient) {
-      throw configError ?? new MissingSupabaseEnvError()
+  const requireSupabaseClient = useCallback((): SupabaseClient<Database> => {
+    if (supabaseClient) {
+      return supabaseClient
     }
 
-    return supabaseClient
-  }
+    throw configError ?? new MissingSupabaseEnvError()
+  }, [supabaseClient, configError])
 
-  const runAuthOperation = async <T,>(
-    operation: (client: SupabaseClient<Database>) => Promise<T>
-  ) => {
-    if (!isMountedRef.current) {
-      throw new Error('AuthProvider is unmounted')
-    }
-
-    setError(null)
-    setLoading(true)
-
-    try {
-      const client = ensureSupabaseClient()
-      return await operation(client)
-    } catch (err) {
-      console.error('Auth operation failed:', err)
-      if (isMountedRef.current) {
-        setError(err as Error)
+  const runAuthOperation = useCallback(
+    async <T,>(operation: (client: SupabaseClient<Database>) => Promise<T>) => {
+      if (!isMountedRef.current) {
+        throw new Error('AuthProvider is unmounted')
       }
-      throw err
-    } finally {
-      if (isMountedRef.current) {
-        setLoading(false)
+
+      setError(null)
+      setLoading(true)
+
+      try {
+        const client = requireSupabaseClient()
+        return await operation(client)
+      } catch (err) {
+        console.error('Auth operation failed:', err)
+        if (isMountedRef.current) {
+          setError(err as Error)
+        }
+        throw err
+      } finally {
+        if (isMountedRef.current) {
+          setLoading(false)
+        }
       }
-    }
-  }
+    },
+    [requireSupabaseClient]
+  )
 
-  const signUp = async ({ email, password }: SignUpData) => {
-    await runAuthOperation(async (client) => {
-      const { error } = await client.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
+  const signUp = useCallback(
+    async ({ email, password }: SignUpData) => {
+      await runAuthOperation(async (client) => {
+        const { error } = await client.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        })
+
+        if (error) throw error
       })
+    },
+    [runAuthOperation]
+  )
 
-      if (error) throw error
-    })
-  }
+  const signIn = useCallback(
+    async ({ email, password }: SignInData) => {
+      await runAuthOperation(async (client) => {
+        const { error } = await client.auth.signInWithPassword({
+          email,
+          password,
+        })
 
-  const signIn = async ({ email, password }: SignInData) => {
-    await runAuthOperation(async (client) => {
-      const { error } = await client.auth.signInWithPassword({
-        email,
-        password,
+        if (error) throw error
       })
+    },
+    [runAuthOperation]
+  )
 
-      if (error) throw error
-    })
-  }
-
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await runAuthOperation(async (client) => {
       const { error } = await client.auth.signOut()
-
       if (error) throw error
 
-      if (isMountedRef.current) {
-        hasHandledSignInRedirectRef.current = false
-        router.push('/app')
+      if (isMountedRef.current && typeof window !== 'undefined') {
+        handledInitialRedirectRef.current = false
+        if (window.location.pathname !== '/app') {
+          router.push('/app')
+        }
       }
     })
-  }
+  }, [runAuthOperation, router])
 
-  const resetPassword = async ({ email }: ResetPasswordData) => {
-    await runAuthOperation(async (client) => {
-      const { error } = await client.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+  const resetPassword = useCallback(
+    async ({ email }: ResetPasswordData) => {
+      await runAuthOperation(async (client) => {
+        const { error } = await client.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/reset-password`,
+        })
+
+        if (error) throw error
       })
+    },
+    [runAuthOperation]
+  )
 
-      if (error) throw error
-    })
-  }
+  const updatePassword = useCallback(
+    async ({ password }: UpdatePasswordData) => {
+      await runAuthOperation(async (client) => {
+        const { error } = await client.auth.updateUser({
+          password,
+        })
 
-  const updatePassword = async ({ password }: UpdatePasswordData) => {
-    await runAuthOperation(async (client) => {
-      const { error } = await client.auth.updateUser({
-        password,
+        if (error) throw error
+
+        if (isMountedRef.current && typeof window !== 'undefined' && window.location.pathname !== '/app') {
+          router.push('/app')
+        }
       })
+    },
+    [runAuthOperation, router]
+  )
 
-      if (error) throw error
-
-      if (isMountedRef.current) {
-        router.push('/app')
-      }
-    })
-  }
-
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     await runAuthOperation(async (client) => {
       const { error } = await client.auth.signInWithOAuth({
         provider: 'google',
@@ -256,9 +297,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error
     })
-  }
+  }, [runAuthOperation])
 
-  const signInWithGithub = async () => {
+  const signInWithGithub = useCallback(async () => {
     await runAuthOperation(async (client) => {
       const { error } = await client.auth.signInWithOAuth({
         provider: 'github',
@@ -269,35 +310,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error
     })
-  }
+  }, [runAuthOperation])
 
-  const value: AuthContextType = {
-    user,
-    session,
-    loading,
-    error,
-    signUp,
-    signIn,
-    signOut,
-    resetPassword,
-    updatePassword,
-    signInWithGoogle,
-    signInWithGithub,
-  }
+  const contextValue = useMemo<AuthContextType>(
+    () => ({
+      user,
+      session,
+      loading,
+      error,
+      signUp,
+      signIn,
+      signOut,
+      resetPassword,
+      updatePassword,
+      signInWithGoogle,
+      signInWithGithub,
+    }),
+    [
+      user,
+      session,
+      loading,
+      error,
+      signUp,
+      signIn,
+      signOut,
+      resetPassword,
+      updatePassword,
+      signInWithGoogle,
+      signInWithGithub,
+    ]
+  )
 
   const showConfigurationError =
     !supabaseClient && configError instanceof MissingSupabaseEnvError
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={contextValue}>
       {showConfigurationError ? (
         <div className="p-6 text-sm text-red-600">
           <p className="font-semibold">Supabase configuration is missing.</p>
           <p className="mt-2">
             Add <code className="font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and{' '}
-            <code className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to your
-            <code className="font-mono">.env.local</code> file and restart the development
-            server.
+            <code className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to your{' '}
+            <code className="font-mono">.env.local</code> file and restart the development server.
           </p>
         </div>
       ) : (
