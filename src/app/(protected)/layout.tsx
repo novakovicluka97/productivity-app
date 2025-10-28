@@ -3,20 +3,7 @@
 import React, { useMemo, useRef, useState } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileNav } from '@/components/layout/MobileNav'
-
-interface ProtectedLayoutPortalContextValue {
-  headerContainerRef: React.RefObject<HTMLDivElement>
-}
-
-const ProtectedLayoutPortalContext = React.createContext<ProtectedLayoutPortalContextValue | null>(null)
-
-export function useProtectedLayoutPortals() {
-  const context = React.useContext(ProtectedLayoutPortalContext)
-  if (!context) {
-    throw new Error('useProtectedLayoutPortals must be used within ProtectedLayout')
-  }
-  return context
-}
+import { ProtectedLayoutPortalContext } from '@/components/layout/ProtectedLayoutContext'
 
 /**
  * Protected Layout

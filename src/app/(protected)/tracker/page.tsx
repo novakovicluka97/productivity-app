@@ -7,6 +7,8 @@ import { useSessions } from '@/hooks/useSessions'
 import type { Database } from '@/types/supabase'
 import { TopHeader } from '@/components/layout/TopHeader'
 import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
+import { useAuth } from '@/hooks/useAuth'
+import { isSupabaseConfigured } from '@/lib/supabase/client'
 
 // Lazy load heavy calendar components
 const MonthView = lazy(() => import('@/components/calendar/MonthView').then(m => ({ default: m.MonthView })))
@@ -48,6 +50,8 @@ export default function TrackerPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentDate, setCurrentDate] = useState<Date>(new Date())
   const [viewMode, setViewMode] = useState<ViewMode>('month')
+  const { user, loading: authLoading } = useAuth()
+  const supabaseConfigured = isSupabaseConfigured()
 
   // Calculate date range based on view mode
   const getDateRange = (view: ViewMode, date: Date) => {
@@ -79,6 +83,7 @@ export default function TrackerPage() {
 
   // Fetch sessions for the current date range
   const { data: sessions = [], isLoading, error } = useSessions(dateRange)
+  const canQuerySessions = supabaseConfigured && !!user && !authLoading
 
   const handleSessionClick = (session: Session) => {
     setSelectedSession(session)
@@ -104,6 +109,43 @@ export default function TrackerPage() {
   }
 
   const renderView = () => {
+    if (!supabaseConfigured) {
+      return (
+        <div className="flex h-full items-center justify-center">
+          <div className="max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-700/50 dark:bg-slate-900">
+            <p className="font-semibold text-slate-800 dark:text-slate-100">Supabase configuration missing</p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              Add <code className="font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to use the tracker.
+            </p>
+          </div>
+        </div>
+      )
+    }
+
+    if (authLoading) {
+      return (
+        <div className="flex h-full items-center justify-center">
+          <div className="text-center">
+            <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+            <p className="text-slate-600 dark:text-slate-400">Checking your account...</p>
+          </div>
+        </div>
+      )
+    }
+
+    if (!user) {
+      return (
+        <div className="flex h-full items-center justify-center">
+          <div className="max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-700/50 dark:bg-slate-900">
+            <p className="font-semibold text-slate-800 dark:text-slate-100">Sign in to see your tracker</p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              The tracker syncs completed sessions from your account. Sign in to review your progress.
+            </p>
+          </div>
+        </div>
+      )
+    }
+
     if (isLoading) {
       return (
         <div className="flex h-full items-center justify-center">
@@ -188,13 +230,15 @@ export default function TrackerPage() {
         {renderView()}
       </CalendarLayout>
 
-      <Suspense fallback={null}>
-        <SessionDetailModal
-          session={selectedSession}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      </Suspense>
+      {canQuerySessions && (
+        <Suspense fallback={null}>
+          <SessionDetailModal
+            session={selectedSession}
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+          />
+        </Suspense>
+      )}
     </>
   )
 }

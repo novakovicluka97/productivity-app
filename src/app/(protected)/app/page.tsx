@@ -16,6 +16,8 @@ import { updateGoalsForSession } from '@/lib/utils/goalHelpers'
 import { getUserPreferences, type UserPreferences } from '@/lib/supabase/preferences'
 import { format } from 'date-fns'
 import { Card, AppState } from '@/lib/types'
+import { useAuth } from '@/hooks/useAuth'
+import { isSupabaseConfigured } from '@/lib/supabase/client'
 
 // Demo data for Step 1 testing
 const initialCards: Card[] = [
@@ -78,6 +80,8 @@ export default function Home() {
   const [volume, setVolume] = useLocalStorage<number>('productivity-volume', 50)
   const [isMusicPlaying, setIsMusicPlaying] = useLocalStorage<boolean>('productivity-music-playing', false)
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null)
+  const { user } = useAuth()
+  const supabaseConfigured = React.useMemo(() => isSupabaseConfigured(), [])
 
   // Session sync and query invalidation
   const createSessionMutation = useCreateSession()
@@ -85,6 +89,10 @@ export default function Home() {
 
   // Save completed card to Supabase and update goals
   const saveCompletedCardToSupabase = useCallback(async (card: Card) => {
+    if (!supabaseConfigured || !user) {
+      return
+    }
+
     try {
       const sessionDate = format(new Date(), 'yyyy-MM-dd')
 
@@ -127,7 +135,7 @@ export default function Home() {
       console.error('Error saving session to Supabase:', error)
       // Don't throw - session saving should not block UI
     }
-  }, [createSessionMutation, queryClient])
+  }, [createSessionMutation, queryClient, supabaseConfigured, user])
 
   // Use a ref to track hydration status to avoid callback recreation
   const appStateHydratedRef = React.useRef(appStateHydrated)
@@ -153,6 +161,10 @@ export default function Home() {
 
   // Load user preferences from Supabase on mount
   React.useEffect(() => {
+    if (!supabaseConfigured || !user) {
+      return
+    }
+
     const loadUserPreferences = async () => {
       try {
         const prefs = await getUserPreferences()
@@ -164,7 +176,7 @@ export default function Home() {
       }
     }
     loadUserPreferences()
-  }, [])
+  }, [supabaseConfigured, user])
 
   React.useEffect(() => {
     if (typeof window === 'undefined') {

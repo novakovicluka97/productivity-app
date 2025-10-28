@@ -1,5 +1,16 @@
-import { supabase } from './client'
+import { getSupabaseClient } from './client'
 import type { Database } from '@/types/supabase'
+
+async function getSupabaseWithUser() {
+  const supabase = getSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Not authenticated')
+  }
+
+  return { supabase, user }
+}
 
 type PreferencesRow = Database['public']['Tables']['user_preferences']['Row']
 type PreferencesInsert = Database['public']['Tables']['user_preferences']['Insert']
@@ -27,13 +38,7 @@ export interface UserPreferences {
  * Creates default preferences if they don't exist
  */
 export async function getUserPreferences(): Promise<UserPreferences> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const { data, error } = await supabase
     .from('user_preferences')
@@ -69,13 +74,7 @@ export async function getUserPreferences(): Promise<UserPreferences> {
  * Create default preferences for a new user
  */
 export async function createDefaultPreferences(): Promise<UserPreferences> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   const defaultPrefs: PreferencesInsert = {
     user_id: user.id,
@@ -118,13 +117,7 @@ export async function createDefaultPreferences(): Promise<UserPreferences> {
 export async function updateUserPreferences(
   updates: Partial<UserPreferences>
 ): Promise<UserPreferences> {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   // Convert from camelCase to snake_case
   const dbUpdates: PreferencesUpdate = {
@@ -204,13 +197,7 @@ export async function toggleNotifications(enabled: boolean) {
  * Reset preferences to defaults
  */
 export async function resetPreferencesToDefaults() {
-  
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
+  const { supabase, user } = await getSupabaseWithUser()
 
   // Delete existing preferences
   await supabase
