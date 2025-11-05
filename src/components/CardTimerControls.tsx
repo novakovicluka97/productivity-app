@@ -65,9 +65,19 @@ export function CardTimerControls({
             size="sm"
             disabled={!canEdit}
             onClick={(e) => e.stopPropagation()}
-            className="bg-blue-500 hover:bg-blue-600 text-white"
+            className="
+              bg-blue-500 hover:bg-blue-600
+              dark:bg-blue-600 dark:hover:bg-blue-700
+              forest:bg-emerald-600 forest:hover:bg-emerald-700
+              ocean:bg-cyan-600 ocean:hover:bg-cyan-700
+              text-white
+              transition-all duration-200 ease-in-out
+              hover:scale-105 hover:shadow-lg
+              active:scale-95 active:shadow-md
+              disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed
+            "
           >
-            <Timer className="h-4 w-4 mr-1" />
+            <Timer className="h-4 w-4 mr-1 transition-transform group-hover:rotate-12" />
             Edit Timer
           </Button>
         </DialogTrigger>
@@ -135,9 +145,20 @@ export function CardTimerControls({
           onResetCard(cardId)
         }}
         disabled={!canEdit}
-        className="bg-orange-500 hover:bg-orange-600 text-white"
+        className="
+          bg-orange-500 hover:bg-orange-600
+          dark:bg-orange-600 dark:hover:bg-orange-700
+          forest:bg-amber-600 forest:hover:bg-amber-700
+          ocean:bg-amber-500 ocean:hover:bg-amber-600
+          text-white
+          transition-all duration-200 ease-in-out
+          hover:scale-105 hover:shadow-lg
+          active:scale-95 active:shadow-md
+          active:rotate-[-15deg]
+          disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed
+        "
       >
-        <RotateCcw className="h-4 w-4 mr-1" />
+        <RotateCcw className="h-4 w-4 mr-1 transition-transform group-hover:rotate-[-180deg] duration-500" />
         Reset
       </Button>
 
@@ -148,20 +169,40 @@ export function CardTimerControls({
           e.stopPropagation()
           onToggleTimer(cardId)
         }}
-        className={isActive && isPlaying
-          ? "bg-red-500 hover:bg-red-600 text-white"
-          : "bg-green-500 hover:bg-green-600 text-white"
+        className={
+          isActive && isPlaying
+            ? `
+              bg-red-500 hover:bg-red-600
+              dark:bg-red-600 dark:hover:bg-red-700
+              forest:bg-rose-600 forest:hover:bg-rose-700
+              ocean:bg-red-500 ocean:hover:bg-red-600
+              text-white
+              transition-all duration-200 ease-in-out
+              hover:scale-105 hover:shadow-lg
+              active:scale-95 active:shadow-md
+              animate-pulse
+            `
+            : `
+              bg-green-500 hover:bg-green-600
+              dark:bg-green-600 dark:hover:bg-green-700
+              forest:bg-green-600 forest:hover:bg-green-700
+              ocean:bg-teal-600 ocean:hover:bg-teal-700
+              text-white
+              transition-all duration-200 ease-in-out
+              hover:scale-105 hover:shadow-lg
+              active:scale-95 active:shadow-md
+            `
         }
       >
         {isActive && isPlaying ? (
           <>
-            <Pause className="h-4 w-4 mr-1" />
+            <Pause className="h-4 w-4 mr-1 animate-pulse" />
             Stop
           </>
         ) : (
           <>
             <Play className="h-4 w-4 mr-1" />
-            Play
+            Start
           </>
         )}
       </Button>

@@ -193,6 +193,11 @@ export const useAppStore = create<AppState>()(
           const targetCard = cards.find(c => c.id === targetCardId)
           if (targetCard && targetCard.timeRemaining > 0 && !targetCard.isCompleted) {
             set({
+              cards: cards.map(card =>
+                card.id === targetCardId
+                  ? { ...card, isActive: true }
+                  : { ...card, isActive: false }
+              ),
               activeCardId: targetCardId,
               isPlaying: true,
               selectedCardId: targetCardId,
@@ -203,7 +208,14 @@ export const useAppStore = create<AppState>()(
       },
 
       pauseTimer: () => {
+        const { cards, activeCardId } = get()
+
         set({
+          cards: cards.map(card =>
+            card.id === activeCardId
+              ? { ...card, isActive: false }
+              : card
+          ),
           isPlaying: false,
           activeCardId: null,
           lastUpdated: Date.now()
