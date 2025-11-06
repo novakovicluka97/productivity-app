@@ -14,6 +14,7 @@ import {
 } from './ui/dialog'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
+import { cn } from '@/lib/utils'
 
 interface CardTimerControlsProps {
   cardId: string
@@ -58,6 +59,7 @@ export function CardTimerControls({
 
   return (
     <div className="flex gap-2 justify-center mt-4">
+      {/* Edit Timer Button */}
       <Dialog open={dialogOpen} onOpenChange={handleDialogOpen}>
         <DialogTrigger asChild>
           <Button
@@ -65,19 +67,29 @@ export function CardTimerControls({
             size="sm"
             disabled={!canEdit}
             onClick={(e) => e.stopPropagation()}
-            className="
-              bg-blue-500 hover:bg-blue-600
-              dark:bg-blue-600 dark:hover:bg-blue-700
-              forest:bg-emerald-600 forest:hover:bg-emerald-700
-              ocean:bg-cyan-600 ocean:hover:bg-cyan-700
-              text-white
-              transition-all duration-200 ease-in-out
-              hover:scale-105 hover:shadow-lg
-              active:scale-95 active:shadow-md
-              disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed
-            "
+            className={cn(
+              // Base styling with theme-aware colors
+              "group relative overflow-hidden",
+              "bg-gradient-to-r from-blue-500 to-blue-600",
+              "dark:from-blue-600 dark:to-blue-700",
+              "forest:from-emerald-600 forest:to-emerald-700",
+              "ocean:from-cyan-600 ocean:to-cyan-700",
+              "text-white font-medium",
+              // Elegant hover effect
+              "hover:from-blue-600 hover:to-blue-700",
+              "dark:hover:from-blue-700 dark:hover:to-blue-800",
+              "forest:hover:from-emerald-700 forest:hover:to-emerald-800",
+              "ocean:hover:from-cyan-700 ocean:hover:to-cyan-800",
+              // Smooth transitions and subtle scale
+              "transition-all duration-300 ease-out",
+              "hover:shadow-lg hover:-translate-y-0.5",
+              "active:translate-y-0 active:shadow-md",
+              // Disabled state
+              "disabled:opacity-50 disabled:cursor-not-allowed",
+              "disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            )}
           >
-            <Timer className="h-4 w-4 mr-1 transition-transform group-hover:rotate-12" />
+            <Timer className="h-4 w-4 mr-1.5 transition-transform duration-300 group-hover:rotate-12" />
             Edit Timer
           </Button>
         </DialogTrigger>
@@ -137,6 +149,7 @@ export function CardTimerControls({
         </DialogContent>
       </Dialog>
 
+      {/* Reset Button */}
       <Button
         variant="default"
         size="sm"
@@ -145,63 +158,80 @@ export function CardTimerControls({
           onResetCard(cardId)
         }}
         disabled={!canEdit}
-        className="
-          bg-orange-500 hover:bg-orange-600
-          dark:bg-orange-600 dark:hover:bg-orange-700
-          forest:bg-amber-600 forest:hover:bg-amber-700
-          ocean:bg-amber-500 ocean:hover:bg-amber-600
-          text-white
-          transition-all duration-200 ease-in-out
-          hover:scale-105 hover:shadow-lg
-          active:scale-95 active:shadow-md
-          active:rotate-[-15deg]
-          disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed
-        "
+        className={cn(
+          // Base styling with theme-aware colors
+          "group relative overflow-hidden",
+          "bg-gradient-to-r from-orange-500 to-orange-600",
+          "dark:from-orange-600 dark:to-orange-700",
+          "forest:from-amber-600 forest:to-amber-700",
+          "ocean:from-amber-500 ocean:to-amber-600",
+          "text-white font-medium",
+          // Elegant hover effect
+          "hover:from-orange-600 hover:to-orange-700",
+          "dark:hover:from-orange-700 dark:hover:to-orange-800",
+          "forest:hover:from-amber-700 forest:hover:to-amber-800",
+          "ocean:hover:from-amber-600 ocean:hover:to-amber-700",
+          // Smooth transitions and subtle scale
+          "transition-all duration-300 ease-out",
+          "hover:shadow-lg hover:-translate-y-0.5",
+          "active:translate-y-0 active:shadow-md",
+          // Disabled state
+          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "disabled:hover:translate-y-0 disabled:hover:shadow-none"
+        )}
       >
-        <RotateCcw className="h-4 w-4 mr-1 transition-transform group-hover:rotate-[-180deg] duration-500" />
+        <RotateCcw className="h-4 w-4 mr-1.5 transition-transform duration-500 group-hover:-rotate-180" />
         Reset
       </Button>
 
+      {/* Start/Stop Button */}
       <Button
-        variant={isActive && isPlaying ? "destructive" : "default"}
+        variant="default"
         size="sm"
         onClick={(e) => {
           e.stopPropagation()
           onToggleTimer(cardId)
         }}
-        className={
-          isActive && isPlaying
-            ? `
-              bg-red-500 hover:bg-red-600
-              dark:bg-red-600 dark:hover:bg-red-700
-              forest:bg-rose-600 forest:hover:bg-rose-700
-              ocean:bg-red-500 ocean:hover:bg-red-600
-              text-white
-              transition-all duration-200 ease-in-out
-              hover:scale-105 hover:shadow-lg
-              active:scale-95 active:shadow-md
-              animate-pulse
-            `
-            : `
-              bg-green-500 hover:bg-green-600
-              dark:bg-green-600 dark:hover:bg-green-700
-              forest:bg-green-600 forest:hover:bg-green-700
-              ocean:bg-teal-600 ocean:hover:bg-teal-700
-              text-white
-              transition-all duration-200 ease-in-out
-              hover:scale-105 hover:shadow-lg
-              active:scale-95 active:shadow-md
-            `
-        }
+        className={cn(
+          // Base styling
+          "group relative overflow-hidden font-medium",
+          // Conditional colors based on state - NO BLINKING
+          isActive && isPlaying ? [
+            // Stop button (red)
+            "bg-gradient-to-r from-red-500 to-red-600",
+            "dark:from-red-600 dark:to-red-700",
+            "forest:from-rose-600 forest:to-rose-700",
+            "ocean:from-red-500 ocean:to-red-600",
+            "hover:from-red-600 hover:to-red-700",
+            "dark:hover:from-red-700 dark:hover:to-red-800",
+            "forest:hover:from-rose-700 forest:hover:to-rose-800",
+            "ocean:hover:from-red-600 ocean:hover:to-red-700",
+          ] : [
+            // Start button (green)
+            "bg-gradient-to-r from-green-500 to-green-600",
+            "dark:from-green-600 dark:to-green-700",
+            "forest:from-green-600 forest:to-green-700",
+            "ocean:from-teal-600 ocean:to-teal-700",
+            "hover:from-green-600 hover:to-green-700",
+            "dark:hover:from-green-700 dark:hover:to-green-800",
+            "forest:hover:from-green-700 forest:hover:to-green-800",
+            "ocean:hover:from-teal-700 ocean:hover:to-teal-800",
+          ],
+          "text-white",
+          // Smooth transitions and subtle scale
+          "transition-all duration-300 ease-out",
+          "hover:shadow-lg hover:-translate-y-0.5",
+          "active:translate-y-0 active:shadow-md"
+        )}
       >
         {isActive && isPlaying ? (
           <>
-            <Pause className="h-4 w-4 mr-1 animate-pulse" />
+            <Pause className="h-4 w-4 mr-1.5" />
             Stop
           </>
         ) : (
           <>
-            <Play className="h-4 w-4 mr-1" />
+            <Play className="h-4 w-4 mr-1.5" />
             Start
           </>
         )}
