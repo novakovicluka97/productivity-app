@@ -396,7 +396,7 @@ export function TopHeader({
   return (
     <TooltipProvider>
       <header className="sticky top-0 z-50 border-b border-slate-200/50 bg-white/80 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/80">
-        <div className="container mx-auto px-4 sm:px-6 py-3">
+        <div className="w-full px-4 sm:px-6 py-3">
           {/* Desktop Layout */}
           <div className="hidden md:flex items-center gap-4">
             {/* Logo and Title */}
