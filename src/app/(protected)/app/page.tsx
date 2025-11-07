@@ -347,9 +347,9 @@ export default function Home() {
           onApplyTemplate={handleApplyTemplate}
         />
       </ProtectedHeaderPortal>
-      <div className="relative flex min-h-full flex-col overflow-hidden">
+      <div className="relative flex min-h-full flex-col overflow-x-hidden">
         {/* Main content area below header */}
-        <main className="relative flex-1 overflow-hidden">
+        <main className="relative flex-1 overflow-x-hidden">
           {/* Animated gradient background */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900 forest:from-green-50 forest:via-emerald-50 forest:to-teal-50 ocean:from-cyan-50 ocean:via-blue-50 ocean:to-sky-50" />
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent dark:via-slate-800/30 forest:via-green-100/30 ocean:via-blue-100/30" />

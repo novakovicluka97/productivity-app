@@ -47,7 +47,7 @@ export function Card({
 
 
   return (
-    <div className="relative flex-shrink-0 w-full mx-0 md:mx-2 md:w-auto">
+    <div className="relative flex-shrink-0 w-full mx-0 md:mx-2 md:w-auto mb-8">
       {/* Animated gradient background for active/selected cards */}
       {(card.isActive || card.isSelected) && (
         <div className={cn(

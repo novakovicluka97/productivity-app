@@ -51,20 +51,17 @@ export function useKeyboardNavigation({
 
     switch (e.key) {
       case 'ArrowLeft':
-        if (selectedIndex > 0) {
-          e.preventDefault()
-          const newCardId = cards[selectedIndex - 1].id
-          onSelectCard(newCardId)
-          scrollCardIntoView(selectedIndex - 1)
-        }
-        break
-
       case 'ArrowRight':
-        if (selectedIndex < cards.length - 1) {
-          e.preventDefault()
-          const newCardId = cards[selectedIndex + 1].id
-          onSelectCard(newCardId)
-          scrollCardIntoView(selectedIndex + 1)
+        e.preventDefault()
+        // Pan the viewport horizontally
+        const viewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
+        if (viewport) {
+          const scrollAmount = Math.max(viewport.clientWidth * 0.6, 320)
+          const direction = e.key === 'ArrowRight' ? scrollAmount : -scrollAmount
+          viewport.scrollTo({
+            left: viewport.scrollLeft + direction,
+            behavior: 'smooth'
+          })
         }
         break
 
@@ -123,7 +120,7 @@ export function useKeyboardNavigation({
   return {
     shortcuts: {
       navigation: {
-        'Left/Right': 'Navigate between cards',
+        'Left/Right': 'Pan viewport horizontally',
         '1-9': 'Select card by number',
         'Home/End': 'First/Last card'
       },

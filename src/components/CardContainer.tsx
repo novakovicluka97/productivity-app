@@ -128,31 +128,6 @@ export function CardContainer({
     })
   }
 
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (!canEdit) return // Only allow navigation when editing is enabled
-
-      // Don't intercept arrow keys when editing text
-      if (editingCardId) return
-
-      const selectedIndex = cards.findIndex(card => card.isSelected)
-
-      if (e.key === 'ArrowLeft' && selectedIndex > 0) {
-        e.preventDefault()
-        const targetCardId = cards[selectedIndex - 1].id
-        onSelectCard(targetCardId)
-      } else if (e.key === 'ArrowRight' && selectedIndex < cards.length - 1) {
-        e.preventDefault()
-        const targetCardId = cards[selectedIndex + 1].id
-        onSelectCard(targetCardId)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [cards, onSelectCard, canEdit, editingCardId])
-
   if (cards.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[500px]">
@@ -206,7 +181,7 @@ export function CardContainer({
           <div
             ref={containerRef}
             className={cn(
-              'flex items-start gap-4 py-8 px-6',
+              'flex items-start gap-4 py-16 px-6',
               cards.length === 1 && 'justify-center'
             )}
             role="list"

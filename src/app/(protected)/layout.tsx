@@ -97,12 +97,12 @@ export default function ProtectedLayout({
           />
 
           {/* Main Content Area */}
-          <div className="flex flex-1 flex-col overflow-hidden">
+          <div className="flex flex-1 flex-col min-h-screen overflow-hidden">
             {/* Mobile Navigation */}
             <MobileNav onMenuClick={handleMenuClick} />
 
             {/* Page Content */}
-            <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
+            <main className="flex-1 overflow-y-auto min-h-screen pb-20 lg:pb-0">
               {children}
             </main>
           </div>
