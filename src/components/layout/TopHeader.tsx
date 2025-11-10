@@ -22,6 +22,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { useEditorContext } from '@/components/EditorManager'
 import { MusicPlayer } from '@/components/MusicPlayer'
 import { TemplateDropdown } from '@/components/TemplateDropdown'
+import { SessionIndicator } from '@/components/SessionIndicator'
 import type { Card } from '@/lib/types'
 import {
   DropdownMenu,
@@ -435,6 +436,14 @@ export function TopHeader({
               </>
             )}
 
+            {/* Session Indicator - Always visible on /app route */}
+            {showMusicAndTemplate && (
+              <>
+                <Separator orientation="vertical" className="h-8" />
+                <SessionIndicator />
+              </>
+            )}
+
             {/* Text Formatting Controls - Only visible when editing */}
             {isEditing && (
               <>
@@ -558,6 +567,13 @@ export function TopHeader({
                 onPlayToggle={onMusicToggle}
                 className="w-full"
               />
+            )}
+
+            {/* Session Indicator - Always visible on /app route */}
+            {showMusicAndTemplate && (
+              <div className="flex justify-center">
+                <SessionIndicator />
+              </div>
             )}
 
             {/* Formatting Controls Row - Only visible when editing */}
