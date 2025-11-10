@@ -50,9 +50,15 @@ export const audioTracks: AudioTrack[] = [
   },
   {
     id: 'track-08',
-    name: 'Night Sounds',
-    filename: 'night.mp3',
-    description: 'Peaceful crickets and evening ambience'
+    name: 'Rainy Day',
+    filename: 'rain2.mp3',
+    description: 'Quiet rainfall ambience'
+  },
+  {
+    id: 'track-09',
+    name: 'White noise',
+    filename: 'white-noise.mp3',
+    description: 'White noise'
   }
 ]
 
