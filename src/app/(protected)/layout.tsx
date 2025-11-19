@@ -3,20 +3,10 @@
 import React, { useMemo, useRef, useState } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileNav } from '@/components/layout/MobileNav'
-
-interface ProtectedLayoutPortalContextValue {
-  headerContainerRef: React.RefObject<HTMLDivElement>
-}
-
-const ProtectedLayoutPortalContext = React.createContext<ProtectedLayoutPortalContextValue | null>(null)
-
-export function useProtectedLayoutPortals() {
-  const context = React.useContext(ProtectedLayoutPortalContext)
-  if (!context) {
-    throw new Error('useProtectedLayoutPortals must be used within ProtectedLayout')
-  }
-  return context
-}
+import {
+  ProtectedLayoutPortalProvider,
+  type ProtectedLayoutPortalContextValue,
+} from './protected-layout-context'
 
 /**
  * Protected Layout
@@ -71,7 +61,7 @@ export default function ProtectedLayout({
   }
 
   return (
-    <ProtectedLayoutPortalContext.Provider value={portalContextValue}>
+    <ProtectedLayoutPortalProvider value={portalContextValue}>
       <div className="flex h-screen flex-col overflow-hidden">
         {/* Header Region (populated via portal from child routes) */}
         <div ref={headerContainerRef} className="flex-none" />
@@ -108,6 +98,6 @@ export default function ProtectedLayout({
           </div>
         </div>
       </div>
-    </ProtectedLayoutPortalContext.Provider>
+    </ProtectedLayoutPortalProvider>
   )
 }
