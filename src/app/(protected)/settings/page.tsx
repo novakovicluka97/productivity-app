@@ -34,8 +34,8 @@ export default function SettingsPage() {
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(isEnabled)
   const [soundEnabled, setSoundEnabled] = useState(true)
-  const [sessionDuration, setSessionDuration] = useState(Math.round(defaultSessionDuration / 60))
-  const [breakDuration, setBreakDuration] = useState(Math.round(defaultBreakDuration / 60))
+  const [sessionDuration, setSessionDuration] = useState(defaultSessionDuration / 60)
+  const [breakDuration, setBreakDuration] = useState(defaultBreakDuration / 60)
   const [isSaving, setIsSaving] = useState(false)
   const [showSavedNotification, setShowSavedNotification] = useState(false)
 
@@ -44,9 +44,9 @@ export default function SettingsPage() {
     const loadPreferences = async () => {
       try {
         const prefs = await getUserPreferences()
-        // Convert seconds to minutes
-        setSessionDuration(Math.round(prefs.defaultSessionDuration / 60))
-        setBreakDuration(Math.round(prefs.defaultBreakDuration / 60))
+        // Convert seconds to minutes (allow decimals for sub-minute durations)
+        setSessionDuration(prefs.defaultSessionDuration / 60)
+        setBreakDuration(prefs.defaultBreakDuration / 60)
 
         // Update Zustand store
         useSettingsStore.getState().updatePreferences({
@@ -95,9 +95,9 @@ export default function SettingsPage() {
   const handleSavePreferences = async () => {
     setIsSaving(true)
     try {
-      // Convert minutes to seconds
-      const sessionSeconds = sessionDuration * 60
-      const breakSeconds = breakDuration * 60
+      // Convert minutes to seconds (round to handle floating point precision)
+      const sessionSeconds = Math.round(sessionDuration * 60)
+      const breakSeconds = Math.round(breakDuration * 60)
 
       await updateDefaultDurations(sessionSeconds, breakSeconds)
 
@@ -214,28 +214,30 @@ export default function SettingsPage() {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium theme-text">
-                  Session Duration (minutes)
+                  Session Duration (min 30 seconds)
                 </label>
                 <input
                   type="number"
                   value={sessionDuration}
                   onChange={(e) => setSessionDuration(Number(e.target.value))}
                   className="mt-1 w-full theme-input focus:outline-none"
-                  min={1}
+                  min={0.5}
                   max={180}
+                  step={0.5}
                 />
               </div>
               <div>
                 <label className="text-sm font-medium theme-text">
-                  Break Duration (minutes)
+                  Break Duration (min 30 seconds)
                 </label>
                 <input
                   type="number"
                   value={breakDuration}
                   onChange={(e) => setBreakDuration(Number(e.target.value))}
                   className="mt-1 w-full theme-input focus:outline-none"
-                  min={1}
+                  min={0.5}
                   max={60}
+                  step={0.5}
                 />
               </div>
               <div className="relative">

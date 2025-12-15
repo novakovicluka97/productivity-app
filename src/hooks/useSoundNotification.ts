@@ -33,90 +33,40 @@ export function useSoundNotification() {
       context.resume()
     }
 
-    const duration = 10 // 10 seconds total
+    const duration = 1.5 // Short bell sound
     const now = context.currentTime
 
-    // Create a series of pleasant chimes
-    const playChime = (frequency: number, startTime: number, chimeDuration: number = 0.8) => {
-      const oscillator = context.createOscillator()
+    // Bell partial helper - creates one harmonic of the bell
+    const playBellPartial = (
+      freq: number,
+      startTime: number,
+      gain: number,
+      decay: number
+    ) => {
+      const osc = context.createOscillator()
       const gainNode = context.createGain()
 
-      oscillator.connect(gainNode)
+      osc.connect(gainNode)
       gainNode.connect(context.destination)
 
-      // Use sine wave for pleasant sound
-      oscillator.type = 'sine'
-      oscillator.frequency.setValueAtTime(frequency, startTime)
+      // Sine wave for pure bell tone
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(freq, startTime)
 
-      // Envelope for each chime (fade in and out)
-      gainNode.gain.setValueAtTime(0, startTime)
-      gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.05)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + chimeDuration)
+      // Bell envelope: instant attack, exponential decay
+      gainNode.gain.setValueAtTime(gain, startTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + decay)
 
-      oscillator.start(startTime)
-      oscillator.stop(startTime + chimeDuration)
+      osc.start(startTime)
+      osc.stop(startTime + decay)
     }
 
-    // Play a melody pattern (major chord progression)
-    const baseFreq = 523.25 // C5
-    const pattern = [
-      { freq: baseFreq, time: 0 },           // C
-      { freq: baseFreq * 1.25, time: 0.3 },  // E
-      { freq: baseFreq * 1.5, time: 0.6 },   // G
-      { freq: baseFreq * 2, time: 0.9 },     // C6
-
-      // Repeat pattern
-      { freq: baseFreq * 2, time: 2 },       // C6
-      { freq: baseFreq * 1.5, time: 2.3 },   // G
-      { freq: baseFreq * 1.25, time: 2.6 },  // E
-      { freq: baseFreq, time: 2.9 },         // C
-
-      // Another variation
-      { freq: baseFreq * 1.25, time: 4 },    // E
-      { freq: baseFreq * 1.5, time: 4.2 },   // G
-      { freq: baseFreq * 2, time: 4.4 },     // C6
-      { freq: baseFreq * 1.5, time: 4.6 },   // G
-      { freq: baseFreq * 1.25, time: 4.8 },  // E
-
-      // Final chimes
-      { freq: baseFreq, time: 6 },           // C
-      { freq: baseFreq * 1.25, time: 6.5 },  // E
-      { freq: baseFreq * 1.5, time: 7 },     // G
-      { freq: baseFreq * 2, time: 7.5 },     // C6
-
-      // Ending
-      { freq: baseFreq * 2, time: 8.5 },     // C6
-      { freq: baseFreq, time: 9 },           // C
-      { freq: baseFreq * 2, time: 9.3 },     // C6 (final)
-    ]
-
-    // Play all chimes
-    pattern.forEach(({ freq, time }) => {
-      playChime(freq, now + time)
-    })
-
-    // Add a soft background pad
-    const padOsc = context.createOscillator()
-    const padGain = context.createGain()
-    const padFilter = context.createBiquadFilter()
-
-    padOsc.connect(padFilter)
-    padFilter.connect(padGain)
-    padGain.connect(context.destination)
-
-    padOsc.type = 'triangle'
-    padOsc.frequency.setValueAtTime(baseFreq / 4, now) // Two octaves lower
-    padFilter.type = 'lowpass'
-    padFilter.frequency.setValueAtTime(800, now)
-
-    // Pad envelope
-    padGain.gain.setValueAtTime(0, now)
-    padGain.gain.linearRampToValueAtTime(0.05, now + 1)
-    padGain.gain.setValueAtTime(0.05, now + 8)
-    padGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
-
-    padOsc.start(now)
-    padOsc.stop(now + duration)
+    // Bell harmonics (880Hz base = A5 - pleasant bell tone)
+    const baseFreq = 880
+    playBellPartial(baseFreq, now, 0.4, duration) // Fundamental
+    playBellPartial(baseFreq * 2.0, now, 0.25, duration * 0.8) // Octave
+    playBellPartial(baseFreq * 2.4, now, 0.15, duration * 0.6) // Bell "minor third"
+    playBellPartial(baseFreq * 3.0, now, 0.08, duration * 0.4) // Brightness
 
     // Reset playing flag after duration
     setTimeout(() => {

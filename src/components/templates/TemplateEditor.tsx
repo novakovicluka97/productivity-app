@@ -81,8 +81,10 @@ export function TemplateEditor({
   }
 
   const handleUpdateDuration = (index: number, duration: number) => {
+    // Clamp to minimum 0.5 minutes (30 seconds) and round to 1 decimal place to avoid floating point issues
+    const clampedDuration = Math.max(0.5, Math.round(duration * 10) / 10)
     const updated = [...configuration]
-    updated[index] = { ...updated[index], duration }
+    updated[index] = { ...updated[index], duration: clampedDuration }
     setConfiguration(updated)
   }
 
@@ -125,9 +127,21 @@ export function TemplateEditor({
 
   const totalDuration = configuration.reduce((sum, c) => sum + c.duration, 0)
   const formatDuration = (minutes: number) => {
+    // Handle sub-minute durations (< 1 minute)
+    if (minutes < 1) {
+      return `${Math.round(minutes * 60)}s`
+    }
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
-    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
+    if (hours > 0) {
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`
+    }
+    // Handle decimal minutes (e.g., 1.5 = "1m 30s")
+    if (mins % 1 !== 0) {
+      const secs = Math.round((mins % 1) * 60)
+      return `${Math.floor(mins)}m ${secs}s`
+    }
+    return `${mins}m`
   }
 
   return (
@@ -247,11 +261,12 @@ export function TemplateEditor({
                       <div className="flex items-center gap-2">
                         <Input
                           type="number"
-                          min="1"
+                          min="0.5"
                           max="120"
+                          step="0.5"
                           value={card.duration}
                           onChange={(e) =>
-                            handleUpdateDuration(index, parseInt(e.target.value) || 1)
+                            handleUpdateDuration(index, parseFloat(e.target.value) || 0.5)
                           }
                           className="w-20 text-center"
                         />
