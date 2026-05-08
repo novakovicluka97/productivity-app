@@ -137,7 +137,7 @@ export default function TemplatesPage() {
   if (error) {
     return (
       <>
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-violet-50/50 via-white to-slate-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
           <div className="rounded-xl border border-red-200 bg-white p-8 text-center shadow-lg dark:border-red-900/30 dark:bg-slate-800">
             <h2 className="mb-2 text-xl font-bold text-red-600 dark:text-red-400">
               Error Loading Templates
@@ -159,7 +159,7 @@ export default function TemplatesPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-violet-50/50 via-white to-slate-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
       <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="mb-8">
@@ -176,7 +176,7 @@ export default function TemplatesPage() {
             <button
               onClick={handleCreateNew}
               disabled={isLoading}
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-blue-700 hover:to-purple-700 hover:shadow-xl disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-violet-700 hover:to-purple-700 hover:shadow-xl disabled:opacity-50"
             >
               <Plus className="h-5 w-5" />
               Create Template
@@ -199,7 +199,7 @@ export default function TemplatesPage() {
               <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 My Templates
               </div>
-              <div className="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">
+              <div className="mt-1 text-2xl font-bold text-violet-600 dark:text-violet-400">
                 {templates.filter((t) => t.user_id === user?.id).length}
               </div>
             </div>
@@ -230,7 +230,7 @@ export default function TemplatesPage() {
         {actionLoading && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="rounded-lg bg-white p-6 shadow-xl dark:bg-slate-800">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
             </div>
           </div>
         )}

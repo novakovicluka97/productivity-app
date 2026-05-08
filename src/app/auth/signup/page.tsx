@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function SignupPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 px-4 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-violet-50/50 via-white to-slate-50 px-4 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
       <div className="w-full max-w-md space-y-8">
         {/* Logo/Brand */}
         <div className="text-center">

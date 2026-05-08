@@ -26,7 +26,7 @@ export function CardInsertButton({ onInsert, position, canEdit }: CardInsertButt
             <Button
               onClick={() => onInsert('session', position)}
               size="icon"
-              className="h-10 w-full md:h-7 md:w-7 rounded-full bg-blue-500 hover:bg-blue-600 text-white text-sm md:text-base"
+              className="h-10 w-full md:h-7 md:w-7 rounded-full bg-violet-500 hover:bg-violet-600 text-white text-sm md:text-base"
               aria-label="Add session card"
             >
               <span className="hidden md:inline">S</span>

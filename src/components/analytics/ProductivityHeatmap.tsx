@@ -46,15 +46,15 @@ export function ProductivityHeatmap({
     }
 
     if (intensity <= 0.25) {
-      return 'bg-blue-200 dark:bg-blue-900 border-blue-300 dark:border-blue-800'
+      return 'bg-violet-200 dark:bg-violet-900 border-violet-300 dark:border-violet-800'
     }
     if (intensity <= 0.5) {
-      return 'bg-blue-400 dark:bg-blue-700 border-blue-500 dark:border-blue-600'
+      return 'bg-violet-400 dark:bg-violet-700 border-violet-500 dark:border-violet-600'
     }
     if (intensity <= 0.75) {
-      return 'bg-blue-600 dark:bg-blue-500 border-blue-700 dark:border-blue-400'
+      return 'bg-violet-600 dark:bg-violet-500 border-violet-700 dark:border-violet-400'
     }
-    return 'bg-blue-800 dark:bg-blue-300 border-blue-900 dark:border-blue-200'
+    return 'bg-violet-800 dark:bg-violet-300 border-violet-900 dark:border-violet-200'
   }
 
   // Format hour for display
@@ -77,10 +77,10 @@ export function ProductivityHeatmap({
           <span>Less</span>
           <div className="flex gap-1">
             <div className="h-4 w-4 rounded border bg-slate-100 dark:bg-slate-800" />
-            <div className="h-4 w-4 rounded border bg-blue-200 dark:bg-blue-900" />
-            <div className="h-4 w-4 rounded border bg-blue-400 dark:bg-blue-700" />
-            <div className="h-4 w-4 rounded border bg-blue-600 dark:bg-blue-500" />
-            <div className="h-4 w-4 rounded border bg-blue-800 dark:bg-blue-300" />
+            <div className="h-4 w-4 rounded border bg-violet-200 dark:bg-violet-900" />
+            <div className="h-4 w-4 rounded border bg-violet-400 dark:bg-violet-700" />
+            <div className="h-4 w-4 rounded border bg-violet-600 dark:bg-violet-500" />
+            <div className="h-4 w-4 rounded border bg-violet-800 dark:bg-violet-300" />
           </div>
           <span>More</span>
         </div>

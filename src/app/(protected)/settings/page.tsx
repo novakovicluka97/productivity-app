@@ -59,7 +59,7 @@ export default function SettingsPage() {
   }, [])
 
   const themes = [
-    { value: 'default', label: 'Default', gradient: 'from-blue-500 to-purple-600' },
+    { value: 'default', label: 'Default', gradient: 'from-violet-600 to-purple-700' },
     { value: 'dark', label: 'Dark', gradient: 'from-slate-700 to-slate-900' },
     { value: 'forest', label: 'Forest', gradient: 'from-green-500 to-emerald-600' },
     { value: 'ocean', label: 'Ocean', gradient: 'from-cyan-500 to-blue-600' },
@@ -182,7 +182,7 @@ export default function SettingsPage() {
                   onClick={() => setTheme(themeOption.value)}
                   className={`relative overflow-hidden rounded-lg border-2 p-4 transition-all ${
                     theme === themeOption.value
-                      ? 'border-blue-500 shadow-md'
+                      ? 'border-violet-500 shadow-md'
                       : 'border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600'
                   }`}
                 >
@@ -191,7 +191,7 @@ export default function SettingsPage() {
                     {themeOption.label}
                   </div>
                   {theme === themeOption.value && (
-                    <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-white">
+                    <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-violet-500 text-white">
                       ✓
                     </div>
                   )}

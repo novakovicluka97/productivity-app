@@ -69,7 +69,7 @@ export function WeekView({ currentDate, sessions, onSessionClick }: WeekViewProp
                 <div
                   className={`border-b px-4 py-3 ${
                     isDayToday
-                      ? 'border-blue-200 bg-blue-50 dark:border-blue-900/30 dark:bg-blue-900/20'
+                      ? 'border-violet-200 bg-violet-50 dark:border-violet-900/30 dark:bg-violet-900/20'
                       : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900'
                   }`}
                 >
@@ -79,7 +79,7 @@ export function WeekView({ currentDate, sessions, onSessionClick }: WeekViewProp
                   <div
                     className={`text-2xl font-bold ${
                       isDayToday
-                        ? 'text-blue-600 dark:text-blue-400'
+                        ? 'text-violet-600 dark:text-violet-400'
                         : 'text-slate-900 dark:text-white'
                     }`}
                   >
@@ -106,7 +106,7 @@ export function WeekView({ currentDate, sessions, onSessionClick }: WeekViewProp
                           onClick={() => onSessionClick(session)}
                           className={`group w-full rounded-lg border p-3 text-left transition-all hover:shadow-md ${
                             session.type === 'session'
-                              ? 'border-blue-200 bg-blue-50 hover:bg-blue-100 dark:border-blue-900/30 dark:bg-blue-900/20 dark:hover:bg-blue-900/30'
+                              ? 'border-violet-200 bg-violet-50 hover:bg-violet-100 dark:border-violet-900/30 dark:bg-violet-900/20 dark:hover:bg-violet-900/30'
                               : 'border-green-200 bg-green-50 hover:bg-green-100 dark:border-green-900/30 dark:bg-green-900/20 dark:hover:bg-green-900/30'
                           }`}
                         >
@@ -115,7 +115,7 @@ export function WeekView({ currentDate, sessions, onSessionClick }: WeekViewProp
                             <span
                               className={`text-xs font-semibold uppercase ${
                                 session.type === 'session'
-                                  ? 'text-blue-600 dark:text-blue-400'
+                                  ? 'text-violet-600 dark:text-violet-400'
                                   : 'text-green-600 dark:text-green-400'
                               }`}
                             >
@@ -125,7 +125,7 @@ export function WeekView({ currentDate, sessions, onSessionClick }: WeekViewProp
                               <CheckCircle2
                                 className={`h-4 w-4 ${
                                   session.type === 'session'
-                                    ? 'text-blue-600 dark:text-blue-400'
+                                    ? 'text-violet-600 dark:text-violet-400'
                                     : 'text-green-600 dark:text-green-400'
                                 }`}
                               />
@@ -133,7 +133,7 @@ export function WeekView({ currentDate, sessions, onSessionClick }: WeekViewProp
                               <Circle
                                 className={`h-4 w-4 ${
                                   session.type === 'session'
-                                    ? 'text-blue-300 dark:text-blue-700'
+                                    ? 'text-violet-300 dark:text-violet-700'
                                     : 'text-green-300 dark:text-green-700'
                                 }`}
                               />

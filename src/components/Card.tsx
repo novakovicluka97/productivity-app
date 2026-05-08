@@ -53,8 +53,8 @@ export function Card({
         <div className={cn(
           "absolute inset-0 rounded-3xl blur-2xl transition-all duration-500",
           isSession
-            ? "bg-gradient-to-br from-blue-400/30 via-purple-400/30 to-pink-400/30 dark:from-blue-600/20 dark:via-purple-600/20 dark:to-pink-600/20"
-            : "bg-gradient-to-br from-green-400/30 via-teal-400/30 to-cyan-400/30 dark:from-green-600/20 dark:via-teal-600/20 dark:to-cyan-600/20",
+            ? "bg-gradient-to-br from-violet-500/25 via-purple-500/25 to-fuchsia-500/20 dark:from-violet-600/15 dark:via-purple-600/15 dark:to-fuchsia-600/10"
+            : "bg-gradient-to-br from-emerald-400/25 via-teal-400/25 to-cyan-400/20 dark:from-emerald-600/15 dark:via-teal-600/15 dark:to-cyan-600/10",
           card.isActive && "animate-pulse"
         )} />
       )}
@@ -75,7 +75,7 @@ export function Card({
           card.isSelected && 'shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)] border-2',
           card.isActive && 'shadow-2xl',
           card.isCompleted && 'opacity-60 grayscale',
-          isEditing && 'ring-2 ring-blue-500'
+          isEditing && 'ring-2 ring-violet-500'
         )}
         onClick={() => onSelect(card.id)}
         data-card-id={card.id}
@@ -139,8 +139,8 @@ export function Card({
         <div className={cn(
           "absolute inset-0 bg-gradient-to-r opacity-90",
           isSession
-            ? "from-blue-500 via-purple-500 to-pink-500 dark:from-blue-700 dark:via-purple-700 dark:to-pink-700 forest:from-green-600 forest:via-emerald-600 forest:to-teal-600 ocean:from-blue-600 ocean:via-cyan-600 ocean:to-teal-600"
-            : "from-green-500 via-teal-500 to-cyan-500 dark:from-green-700 dark:via-teal-700 dark:to-cyan-700 forest:from-lime-600 forest:via-green-600 forest:to-emerald-600 ocean:from-cyan-600 ocean:via-sky-600 ocean:to-blue-600"
+            ? "from-violet-600 via-purple-600 to-fuchsia-600 dark:from-violet-700 dark:via-purple-700 dark:to-fuchsia-700 forest:from-green-600 forest:via-emerald-600 forest:to-teal-600 ocean:from-blue-600 ocean:via-cyan-600 ocean:to-teal-600"
+            : "from-emerald-500 via-teal-500 to-cyan-500 dark:from-emerald-700 dark:via-teal-700 dark:to-cyan-700 forest:from-lime-600 forest:via-green-600 forest:to-emerald-600 ocean:from-cyan-600 ocean:via-sky-600 ocean:to-blue-600"
         )} />
         <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 dark:to-white/5" />
 

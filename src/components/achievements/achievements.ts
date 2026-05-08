@@ -257,7 +257,7 @@ export function getRarityColor(rarity: Achievement['rarity']): string {
     case 'common':
       return 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20'
     case 'rare':
-      return 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20'
+      return 'bg-violet-500/10 text-violet-700 dark:text-violet-400 border-violet-500/20'
     case 'epic':
       return 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20'
     case 'legendary':

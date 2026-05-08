@@ -111,7 +111,7 @@ export function DateNavigator({ currentDate, onDateChange, viewMode }: DateNavig
       {/* Today Button */}
       <button
         onClick={handleToday}
-        className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-100 dark:border-blue-900/30 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
+        className="rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-medium text-violet-600 transition-colors hover:bg-violet-100 dark:border-violet-900/30 dark:bg-violet-900/20 dark:text-violet-400 dark:hover:bg-violet-900/30"
       >
         Today
       </button>

@@ -309,13 +309,13 @@ export default function Home() {
         {/* Main content area below header */}
         <main className="relative flex-1 overflow-x-hidden">
           {/* Animated gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900 forest:from-green-50 forest:via-emerald-50 forest:to-teal-50 ocean:from-cyan-50 ocean:via-blue-50 ocean:to-sky-50" />
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-50/50 via-white to-slate-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900 forest:from-green-50 forest:via-emerald-50 forest:to-teal-50 ocean:from-cyan-50 ocean:via-blue-50 ocean:to-sky-50" />
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent dark:via-slate-800/30 forest:via-green-100/30 ocean:via-blue-100/30" />
 
           {/* Animated floating orbs for depth */}
-          <div className="absolute top-20 left-20 h-72 w-72 animate-pulse rounded-full bg-blue-300/30 blur-3xl dark:bg-blue-900/20 forest:bg-green-300/30 ocean:bg-cyan-300/30" />
-          <div className="animation-delay-2000 absolute bottom-20 right-20 h-96 w-96 animate-pulse rounded-full bg-purple-300/30 blur-3xl dark:bg-purple-900/20 forest:bg-emerald-300/30 ocean:bg-blue-300/30" />
-          <div className="animation-delay-4000 absolute top-1/2 left-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-pink-300/20 blur-3xl dark:bg-pink-900/10 forest:bg-teal-300/20 ocean:bg-sky-300/20" />
+          <div className="absolute top-20 left-20 h-72 w-72 animate-pulse rounded-full bg-violet-200/20 blur-3xl dark:bg-violet-900/15 forest:bg-green-300/30 ocean:bg-cyan-300/30" />
+          <div className="animation-delay-2000 absolute bottom-20 right-20 h-96 w-96 animate-pulse rounded-full bg-purple-200/20 blur-3xl dark:bg-purple-900/15 forest:bg-emerald-300/30 ocean:bg-blue-300/30" />
+          <div className="animation-delay-4000 absolute top-1/2 left-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-fuchsia-200/15 blur-3xl dark:bg-fuchsia-900/10 forest:bg-teal-300/20 ocean:bg-sky-300/20" />
 
           <div className="relative z-10 flex flex-col h-full">
             <div className="card-container flex-1 container mx-auto px-0 md:px-4">

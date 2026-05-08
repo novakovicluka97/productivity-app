@@ -78,7 +78,7 @@ export function DayView({ currentDate, sessions, onSessionClick }: DayViewProps)
                 onClick={() => onSessionClick(session)}
                 className={`group w-full rounded-xl border p-6 text-left transition-all hover:shadow-lg ${
                   session.type === 'session'
-                    ? 'border-blue-200 bg-blue-50/50 hover:bg-blue-50 dark:border-blue-900/30 dark:bg-blue-900/10 dark:hover:bg-blue-900/20'
+                    ? 'border-violet-200 bg-violet-50/50 hover:bg-violet-50 dark:border-violet-900/30 dark:bg-violet-900/10 dark:hover:bg-violet-900/20'
                     : 'border-green-200 bg-green-50/50 hover:bg-green-50 dark:border-green-900/30 dark:bg-green-900/10 dark:hover:bg-green-900/20'
                 }`}
               >
@@ -90,7 +90,7 @@ export function DayView({ currentDate, sessions, onSessionClick }: DayViewProps)
                       <CheckCircle2
                         className={`h-6 w-6 ${
                           session.type === 'session'
-                            ? 'text-blue-600 dark:text-blue-400'
+                            ? 'text-violet-600 dark:text-violet-400'
                             : 'text-green-600 dark:text-green-400'
                         }`}
                       />
@@ -98,7 +98,7 @@ export function DayView({ currentDate, sessions, onSessionClick }: DayViewProps)
                       <Circle
                         className={`h-6 w-6 ${
                           session.type === 'session'
-                            ? 'text-blue-300 dark:text-blue-700'
+                            ? 'text-violet-300 dark:text-violet-700'
                             : 'text-green-300 dark:text-green-700'
                         }`}
                       />
@@ -109,7 +109,7 @@ export function DayView({ currentDate, sessions, onSessionClick }: DayViewProps)
                       <span
                         className={`text-base font-bold uppercase ${
                           session.type === 'session'
-                            ? 'text-blue-600 dark:text-blue-400'
+                            ? 'text-violet-600 dark:text-violet-400'
                             : 'text-green-600 dark:text-green-400'
                         }`}
                       >
@@ -138,7 +138,7 @@ export function DayView({ currentDate, sessions, onSessionClick }: DayViewProps)
                       <div
                         className={`h-full rounded-full ${
                           session.type === 'session'
-                            ? 'bg-blue-600 dark:bg-blue-400'
+                            ? 'bg-violet-600 dark:bg-violet-400'
                             : 'bg-green-600 dark:bg-green-400'
                         }`}
                         style={{

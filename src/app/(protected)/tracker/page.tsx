@@ -19,7 +19,7 @@ type Session = Database['public']['Tables']['sessions']['Row']
 const ViewLoadingFallback = () => (
   <div className="flex h-full items-center justify-center">
     <div className="text-center">
-      <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+      <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
       <p className="text-slate-600 dark:text-slate-400">Loading view...</p>
     </div>
   </div>
@@ -106,7 +106,7 @@ export default function TrackerPage() {
       return (
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
-            <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+            <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
             <p className="text-slate-600 dark:text-slate-400">Loading sessions...</p>
           </div>
         </div>

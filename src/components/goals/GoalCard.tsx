@@ -49,7 +49,7 @@ export function GoalCard({ goal, onEdit }: GoalCardProps) {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'daily':
-        return 'bg-blue-500/10 text-blue-700 dark:text-blue-400'
+        return 'bg-violet-500/10 text-violet-700 dark:text-violet-400'
       case 'weekly':
         return 'bg-purple-500/10 text-purple-700 dark:text-purple-400'
       case 'monthly':

@@ -70,14 +70,14 @@ export function CardTimerControls({
             className={cn(
               // Base styling with theme-aware colors
               "group relative overflow-hidden",
-              "bg-gradient-to-r from-blue-500 to-blue-600",
-              "dark:from-blue-600 dark:to-blue-700",
+              "bg-gradient-to-r from-violet-600 to-purple-600",
+              "dark:from-violet-600 dark:to-purple-700",
               "forest:from-emerald-600 forest:to-emerald-700",
               "ocean:from-cyan-600 ocean:to-cyan-700",
               "text-white font-semibold uppercase tracking-wider",
               // Elegant hover effect
-              "hover:from-blue-600 hover:to-blue-700",
-              "dark:hover:from-blue-700 dark:hover:to-blue-800",
+              "hover:from-violet-700 hover:to-purple-700",
+              "dark:hover:from-violet-700 dark:hover:to-purple-800",
               "forest:hover:from-emerald-700 forest:hover:to-emerald-800",
               "ocean:hover:from-cyan-700 ocean:hover:to-cyan-800",
               // Smooth transitions and subtle scale

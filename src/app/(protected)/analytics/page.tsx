@@ -176,9 +176,9 @@ export default function AnalyticsPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-violet-50/50 via-white to-slate-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
         <div className="text-center">
-          <Loader2 className="mx-auto h-12 w-12 animate-spin text-blue-600 dark:text-blue-400" />
+          <Loader2 className="mx-auto h-12 w-12 animate-spin text-violet-600 dark:text-violet-400" />
           <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">
             Loading analytics...
           </p>
@@ -190,7 +190,7 @@ export default function AnalyticsPage() {
   // Error state
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-violet-50/50 via-white to-slate-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
         <div className="text-center">
           <AlertCircle className="mx-auto h-12 w-12 text-red-600 dark:text-red-400" />
           <p className="mt-4 text-lg text-slate-900 dark:text-white">
@@ -206,12 +206,12 @@ export default function AnalyticsPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-violet-50/50 via-white to-slate-50 p-6 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8">
           <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg">
               <BarChart3 className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -249,8 +249,8 @@ export default function AnalyticsPage() {
             icon={BarChart3}
             trend="neutral"
             subtitle="Across all types"
-            gradientFrom="from-blue-500"
-            gradientTo="to-blue-600"
+            gradientFrom="from-violet-500"
+            gradientTo="to-violet-600"
           />
 
           <StatisticsCard
@@ -297,7 +297,7 @@ export default function AnalyticsPage() {
             trend="neutral"
             subtitle="Rest periods"
             gradientFrom="from-cyan-500"
-            gradientTo="to-blue-600"
+            gradientTo="to-violet-600"
           />
 
           <StatisticsCard

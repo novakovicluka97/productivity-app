@@ -41,7 +41,7 @@ export function MusicPlayer({
       className
     )}>
       {/* Gradient overlay for depth */}
-      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 dark:from-blue-600/10 dark:via-purple-600/10 dark:to-pink-600/10 pointer-events-none" />
+      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-fuchsia-500/5 dark:from-violet-600/10 dark:via-purple-600/10 dark:to-fuchsia-600/10 pointer-events-none" />
 
       {/* Compact single-row layout */}
       <div className="relative z-10 flex items-center gap-2">
@@ -82,10 +82,10 @@ export function MusicPlayer({
           variant="ghost"
           className={cn(
             "h-8 w-8 rounded-full flex-shrink-0",
-            "bg-gradient-to-br from-blue-500/20 to-purple-500/20",
-            "dark:from-blue-600/30 dark:to-purple-600/30",
-            "hover:from-blue-500/30 hover:to-purple-500/30",
-            "dark:hover:from-blue-600/40 dark:hover:to-purple-600/40",
+            "bg-gradient-to-br from-violet-500/20 to-purple-500/20",
+            "dark:from-violet-600/30 dark:to-purple-600/30",
+            "hover:from-violet-500/30 hover:to-purple-500/30",
+            "dark:hover:from-violet-600/40 dark:hover:to-purple-600/40",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
           disabled={!selectedTrack}

@@ -29,7 +29,7 @@ export function GoalProgress({
             'h-full transition-all duration-500 ease-out',
             isComplete
               ? 'bg-gradient-to-r from-green-500 to-emerald-500'
-              : 'bg-gradient-to-r from-blue-500 to-indigo-500'
+              : 'bg-gradient-to-r from-violet-500 to-purple-600'
           )}
           style={{ width: `${percentage}%` }}
         />

@@ -83,8 +83,8 @@ export function TimeSeriesChart({
         <Chart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="colorSessions" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
+              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1} />
             </linearGradient>
             <linearGradient id="colorBreaks" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
@@ -125,7 +125,7 @@ export function TimeSeriesChart({
           <DataComponent
             type="monotone"
             dataKey="sessions"
-            stroke="#3b82f6"
+            stroke="#8b5cf6"
             fill={chartType === 'area' ? 'url(#colorSessions)' : undefined}
             strokeWidth={2}
             name="Sessions"

@@ -100,7 +100,7 @@ export function MonthView({ currentDate, sessions, onDayClick }: MonthViewProps)
                       : 'bg-slate-50 dark:bg-slate-900'
                   } ${
                     hasActivity
-                      ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-slate-700'
+                      ? 'cursor-pointer hover:bg-violet-50 dark:hover:bg-slate-700'
                       : 'cursor-default'
                   }`}
                 >
@@ -108,7 +108,7 @@ export function MonthView({ currentDate, sessions, onDayClick }: MonthViewProps)
                   <div
                     className={`mb-1 inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium ${
                       isDayToday
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-violet-600 text-white'
                         : isCurrentMonth
                         ? 'text-slate-900 dark:text-white'
                         : 'text-slate-400 dark:text-slate-600'
@@ -121,7 +121,7 @@ export function MonthView({ currentDate, sessions, onDayClick }: MonthViewProps)
                   {hasActivity && (
                     <div className="flex flex-wrap gap-1">
                       {dayStats.sessionCount > 0 && (
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                        <span className="inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
                           {dayStats.sessionCount}
                           <span className="ml-1 hidden sm:inline">
                             {dayStats.sessionCount === 1 ? 'session' : 'sessions'}

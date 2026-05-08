@@ -74,7 +74,7 @@ export function UserMenu({ isCollapsed = false }: UserMenuProps) {
     >
       {/* Avatar */}
       <div className={cn(
-        'flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-semibold text-white shadow-lg shrink-0',
+        'flex items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 font-semibold text-white shadow-lg shrink-0',
         isCollapsed ? 'h-8 w-8 text-sm' : 'h-10 w-10'
       )}>
         {avatarLetter}

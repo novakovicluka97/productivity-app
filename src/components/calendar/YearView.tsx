@@ -58,13 +58,13 @@ export function YearView({ currentDate, sessions, onDayClick }: YearViewProps) {
       case 0:
         return 'bg-slate-100 dark:bg-slate-800'
       case 1:
-        return 'bg-blue-200 dark:bg-blue-900/40'
+        return 'bg-violet-200 dark:bg-violet-900/40'
       case 2:
-        return 'bg-blue-400 dark:bg-blue-700/60'
+        return 'bg-violet-400 dark:bg-violet-700/60'
       case 3:
-        return 'bg-blue-600 dark:bg-blue-600/80'
+        return 'bg-violet-600 dark:bg-violet-600/80'
       case 4:
-        return 'bg-blue-800 dark:bg-blue-500'
+        return 'bg-violet-800 dark:bg-violet-500'
       default:
         return 'bg-slate-100 dark:bg-slate-800'
     }
@@ -188,7 +188,7 @@ export function YearView({ currentDate, sessions, onDayClick }: YearViewProps) {
                         onClick={() => sessionCount > 0 && onDayClick(day)}
                         disabled={sessionCount === 0}
                         className={`group relative h-3 w-3 rounded-sm transition-all ${getColorClass(intensity)} ${
-                          isDayToday ? 'ring-2 ring-blue-600 ring-offset-1 dark:ring-blue-400' : ''
+                          isDayToday ? 'ring-2 ring-violet-600 ring-offset-1 dark:ring-violet-400' : ''
                         } ${
                           sessionCount > 0
                             ? 'cursor-pointer hover:ring-2 hover:ring-slate-400 hover:ring-offset-1'

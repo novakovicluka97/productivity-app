@@ -91,7 +91,7 @@ export function SessionDetailModal({ session, isOpen, onClose, onEdit }: Session
           <div
             className={`border-b px-6 py-4 ${
               session.type === 'session'
-                ? 'border-blue-200 bg-blue-50 dark:border-blue-900/30 dark:bg-blue-900/20'
+                ? 'border-violet-200 bg-violet-50 dark:border-violet-900/30 dark:bg-violet-900/20'
                 : 'border-green-200 bg-green-50 dark:border-green-900/30 dark:bg-green-900/20'
             }`}
           >
@@ -101,7 +101,7 @@ export function SessionDetailModal({ session, isOpen, onClose, onEdit }: Session
                   <CheckCircle2
                     className={`h-8 w-8 ${
                       session.type === 'session'
-                        ? 'text-blue-600 dark:text-blue-400'
+                        ? 'text-violet-600 dark:text-violet-400'
                         : 'text-green-600 dark:text-green-400'
                     }`}
                   />
@@ -109,7 +109,7 @@ export function SessionDetailModal({ session, isOpen, onClose, onEdit }: Session
                   <Circle
                     className={`h-8 w-8 ${
                       session.type === 'session'
-                        ? 'text-blue-300 dark:text-blue-700'
+                        ? 'text-violet-300 dark:text-violet-700'
                         : 'text-green-300 dark:text-green-700'
                     }`}
                   />
@@ -118,7 +118,7 @@ export function SessionDetailModal({ session, isOpen, onClose, onEdit }: Session
                   <h2
                     className={`text-2xl font-bold uppercase ${
                       session.type === 'session'
-                        ? 'text-blue-600 dark:text-blue-400'
+                        ? 'text-violet-600 dark:text-violet-400'
                         : 'text-green-600 dark:text-green-400'
                     }`}
                   >
@@ -165,7 +165,7 @@ export function SessionDetailModal({ session, isOpen, onClose, onEdit }: Session
                     <div
                       className={`h-full rounded-full ${
                         session.type === 'session'
-                          ? 'bg-blue-600 dark:bg-blue-400'
+                          ? 'bg-violet-600 dark:bg-violet-400'
                           : 'bg-green-600 dark:bg-green-400'
                       }`}
                       style={{
@@ -240,7 +240,7 @@ export function SessionDetailModal({ session, isOpen, onClose, onEdit }: Session
                   onClick={() => onEdit(session)}
                   className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
                     session.type === 'session'
-                      ? 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600'
+                      ? 'bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600'
                       : 'bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600'
                   }`}
                 >

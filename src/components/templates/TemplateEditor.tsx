@@ -225,7 +225,7 @@ export function TemplateEditor({
                       key={index}
                       className={`flex items-center gap-3 rounded-lg border p-3 ${
                         card.type === 'session'
-                          ? 'border-blue-200 bg-blue-50 dark:border-blue-900/30 dark:bg-blue-900/20'
+                          ? 'border-violet-200 bg-violet-50 dark:border-violet-900/30 dark:bg-violet-900/20'
                           : 'border-green-200 bg-green-50 dark:border-green-900/30 dark:bg-green-900/20'
                       }`}
                     >
@@ -233,7 +233,7 @@ export function TemplateEditor({
                       <div
                         className={`flex h-10 w-10 items-center justify-center rounded-lg ${
                           card.type === 'session'
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-violet-600 text-white'
                             : 'bg-green-600 text-white'
                         }`}
                       >
@@ -249,7 +249,7 @@ export function TemplateEditor({
                         <div
                           className={`font-medium ${
                             card.type === 'session'
-                              ? 'text-blue-900 dark:text-blue-300'
+                              ? 'text-violet-900 dark:text-violet-300'
                               : 'text-green-900 dark:text-green-300'
                           }`}
                         >
@@ -312,7 +312,7 @@ export function TemplateEditor({
               <div className="flex gap-2 pt-2">
                 <button
                   onClick={() => handleAddCard('session')}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-700 transition-colors hover:border-blue-400 hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:border-blue-800 dark:hover:bg-blue-900/30"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-dashed border-violet-300 bg-violet-50 px-4 py-3 text-sm font-medium text-violet-700 transition-colors hover:border-violet-400 hover:bg-violet-100 dark:border-violet-900/50 dark:bg-violet-900/20 dark:text-violet-400 dark:hover:border-violet-800 dark:hover:bg-violet-900/30"
                 >
                   <Plus className="h-4 w-4" />
                   Add Session
@@ -335,7 +335,7 @@ export function TemplateEditor({
           </Button>
           <Button
             onClick={handleSave}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
           >
             <Save className="mr-2 h-4 w-4" />
             {mode === 'create' ? 'Create Template' : 'Save Changes'}

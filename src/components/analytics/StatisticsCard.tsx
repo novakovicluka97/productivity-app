@@ -29,7 +29,7 @@ export function StatisticsCard({
   trend = 'neutral',
   changePercentage,
   subtitle,
-  gradientFrom = 'from-blue-500',
+  gradientFrom = 'from-violet-500',
   gradientTo = 'to-purple-600',
 }: StatisticsCardProps) {
   const getTrendColor = () => {

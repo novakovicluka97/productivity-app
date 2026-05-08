@@ -47,7 +47,7 @@ export function TemplateCard({
   return (
     <div className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-lg dark:border-slate-700 dark:bg-slate-800">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-gradient-to-r from-blue-50 to-purple-50 p-4 dark:border-slate-700 dark:from-blue-900/20 dark:to-purple-900/20">
+      <div className="border-b border-slate-200 bg-gradient-to-r from-violet-50 to-purple-50 p-4 dark:border-slate-700 dark:from-violet-900/20 dark:to-purple-900/20">
         <div className="mb-2 flex items-start justify-between">
           <div className="flex-1">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -61,7 +61,7 @@ export function TemplateCard({
           </div>
           <div className="ml-3 flex items-center gap-1">
             {template.is_public ? (
-              <div className="flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+              <div className="flex items-center gap-1 rounded-full bg-violet-100 px-2 py-1 text-xs font-medium text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
                 <Users className="h-3 w-3" />
                 <span>Public</span>
               </div>
@@ -79,11 +79,11 @@ export function TemplateCard({
       <div className="p-4">
         {/* Stats Grid */}
         <div className="mb-4 grid grid-cols-3 gap-3">
-          <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+          <div className="rounded-lg bg-violet-50 p-3 dark:bg-violet-900/20">
             <div className="mb-1 text-xs font-medium uppercase text-slate-600 dark:text-slate-400">
               Sessions
             </div>
-            <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+            <div className="text-xl font-bold text-violet-600 dark:text-violet-400">
               {sessionCount}
             </div>
           </div>
@@ -116,7 +116,7 @@ export function TemplateCard({
                 key={index}
                 className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
                   card.type === 'session'
-                    ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                    ? 'bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400'
                     : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
                 }`}
               >
@@ -143,7 +143,7 @@ export function TemplateCard({
         <div className="flex gap-2">
           <button
             onClick={() => onApply(template)}
-            className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            className="flex-1 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600"
           >
             <Calendar className="mr-2 inline-block h-4 w-4" />
             Apply

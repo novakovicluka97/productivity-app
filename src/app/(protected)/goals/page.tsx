@@ -24,12 +24,12 @@ const mockUserAchievements = [
 export default function GoalsPage() {
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-violet-50/50 via-white to-slate-50 p-6 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg">
               <Target className="h-6 w-6 text-white" />
             </div>
             <div>

@@ -38,7 +38,7 @@ function generateId() {
 }
 
 const typeStyles: Record<ToastType, string> = {
-  info: 'border-blue-300/70 bg-blue-50/95 text-blue-900 dark:border-blue-400/30 dark:bg-blue-900/30 dark:text-blue-100',
+  info: 'border-violet-300/70 bg-violet-50/95 text-violet-900 dark:border-violet-400/30 dark:bg-violet-900/30 dark:text-violet-100',
   success:
     'border-emerald-300/70 bg-emerald-50/95 text-emerald-900 dark:border-emerald-400/30 dark:bg-emerald-900/30 dark:text-emerald-100',
   error:

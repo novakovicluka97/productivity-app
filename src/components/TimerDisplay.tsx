@@ -35,7 +35,7 @@ export function TimerDisplay({ time, totalTime, className, showSevenSegment = tr
     return (
       <div className={cn("relative inline-block", className)}>
         {/* Animated gradient background */}
-        <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-pink-400/20 blur-2xl animate-pulse" />
+        <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-violet-400/20 via-purple-400/20 to-fuchsia-400/20 blur-2xl animate-pulse" />
 
         {/* Progress ring */}
         <svg
@@ -69,9 +69,9 @@ export function TimerDisplay({ time, totalTime, className, showSevenSegment = tr
           )}
           <defs>
             <linearGradient id="timer-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6" />
+              <stop offset="0%" stopColor="#8b5cf6" />
               <stop offset="50%" stopColor="#8b5cf6" />
-              <stop offset="100%" stopColor="#ec4899" />
+              <stop offset="100%" stopColor="#d946ef" />
             </linearGradient>
           </defs>
         </svg>
@@ -85,9 +85,9 @@ export function TimerDisplay({ time, totalTime, className, showSevenSegment = tr
             {hours > 0 && (
               <>
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl blur-md" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-xl blur-md" />
                   <div className="relative bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-xl border border-white/50">
-                    <span className="text-5xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent tabular-nums">
+                    <span className="text-5xl font-bold bg-gradient-to-br from-violet-600 to-purple-600 bg-clip-text text-transparent tabular-nums">
                       {formatSegment(hours)}
                     </span>
                   </div>
@@ -96,18 +96,18 @@ export function TimerDisplay({ time, totalTime, className, showSevenSegment = tr
               </>
             )}
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl blur-md" />
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 rounded-xl blur-md" />
               <div className="relative bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-xl border border-white/50">
-                <span className="text-5xl font-bold bg-gradient-to-br from-purple-600 to-pink-600 bg-clip-text text-transparent tabular-nums">
+                <span className="text-5xl font-bold bg-gradient-to-br from-purple-600 to-fuchsia-600 bg-clip-text text-transparent tabular-nums">
                   {formatSegment(minutes)}
                 </span>
               </div>
             </div>
             <span className="text-4xl font-light text-gray-400 mx-2 animate-pulse">:</span>
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-red-500/20 rounded-xl blur-md" />
+              <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/20 to-red-500/20 rounded-xl blur-md" />
               <div className="relative bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-xl border border-white/50">
-                <span className="text-5xl font-bold bg-gradient-to-br from-pink-600 to-red-600 bg-clip-text text-transparent tabular-nums">
+                <span className="text-5xl font-bold bg-gradient-to-br from-fuchsia-600 to-red-600 bg-clip-text text-transparent tabular-nums">
                   {formatSegment(seconds)}
                 </span>
               </div>
@@ -160,9 +160,9 @@ export function TimerDisplay({ time, totalTime, className, showSevenSegment = tr
         {/* Gradient Definition */}
         <defs>
           <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#60a5fa" />
+            <stop offset="0%" stopColor="#a78bfa" />
             <stop offset="50%" stopColor="#a78bfa" />
-            <stop offset="100%" stopColor="#f472b6" />
+            <stop offset="100%" stopColor="#e879f9" />
           </linearGradient>
         </defs>
       </svg>
@@ -196,8 +196,8 @@ export function TimerDisplay({ time, totalTime, className, showSevenSegment = tr
         </div>
 
         {/* Decorative Elements */}
-        <div className="absolute top-2 w-1 h-3 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full" />
-        <div className="absolute bottom-2 w-1 h-3 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full" />
+        <div className="absolute top-2 w-1 h-3 bg-gradient-to-b from-violet-400 to-purple-400 rounded-full" />
+        <div className="absolute bottom-2 w-1 h-3 bg-gradient-to-b from-purple-400 to-fuchsia-400 rounded-full" />
       </div>
     </div>
   )

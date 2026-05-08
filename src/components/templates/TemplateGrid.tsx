@@ -65,7 +65,7 @@ export function TemplateGrid({
   if (templates.length === 0) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-white p-8 dark:border-slate-700 dark:bg-slate-800">
-        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-xl">
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 shadow-xl">
           <LayoutGrid className="h-10 w-10 text-white" />
         </div>
         <h3 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
@@ -78,7 +78,7 @@ export function TemplateGrid({
         {onCreateNew && (
           <button
             onClick={onCreateNew}
-            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-violet-700 hover:to-purple-700 hover:shadow-xl"
           >
             <Plus className="h-5 w-5" />
             Create Your First Template

@@ -53,10 +53,10 @@ const typeStyles = {
     title: 'text-yellow-900 dark:text-yellow-100',
   },
   info: {
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
-    border: 'border-blue-200 dark:border-blue-800',
-    icon: 'text-blue-600 dark:text-blue-400',
-    title: 'text-blue-900 dark:text-blue-100',
+    bg: 'bg-violet-50 dark:bg-violet-900/20',
+    border: 'border-violet-200 dark:border-violet-800',
+    icon: 'text-violet-600 dark:text-violet-400',
+    title: 'text-violet-900 dark:text-violet-100',
   },
   achievement: {
     bg: 'bg-purple-50 dark:bg-purple-900/20',
@@ -73,7 +73,7 @@ export function InsightsPanel({
   return (
     <Card className="border-slate-200 bg-white/80 p-6 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
       <div className="mb-6 flex items-center gap-2">
-        <Lightbulb className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        <Lightbulb className="h-5 w-5 text-violet-600 dark:text-violet-400" />
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
           {title}
         </h3>
