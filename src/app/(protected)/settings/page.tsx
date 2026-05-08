@@ -9,8 +9,6 @@ import { useSettingsStore } from '@/stores/settingsStore'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { toggleNotifications, updateDefaultDurations, getUserPreferences } from '@/lib/supabase/preferences'
-import { TopHeader } from '@/components/layout/TopHeader'
-import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 
 /**
  * Settings Page
@@ -126,9 +124,6 @@ export default function SettingsPage() {
 
   return (
     <>
-      <ProtectedHeaderPortal>
-        <TopHeader />
-      </ProtectedHeaderPortal>
       <div className="min-h-screen theme-page-bg p-6">
       <div className="mx-auto max-w-4xl">
         {/* Header */}

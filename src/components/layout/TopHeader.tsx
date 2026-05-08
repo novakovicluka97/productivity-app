@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, type MouseEvent } from 'react'
+import React, { useState, useCallback, type MouseEvent } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   Moon,
   Sun,
@@ -23,6 +24,8 @@ import { useEditorContext } from '@/components/EditorManager'
 import { MusicPlayer } from '@/components/MusicPlayer'
 import { TemplateDropdown } from '@/components/TemplateDropdown'
 import { SessionIndicator } from '@/components/SessionIndicator'
+import { useAppStore, selectMusicState } from '@/stores/appStore'
+import { useShallow } from 'zustand/react/shallow'
 import type { Card } from '@/lib/types'
 import {
   DropdownMenu,
@@ -44,45 +47,30 @@ import {
 /**
  * TopHeader Component
  *
- * Single unified header for protected routes with:
- * - App branding/logo
- * - Music player (session builder route)
- * - Text formatting controls (for session cards)
- * - Theme switcher
- *
- * This is the ONLY header in protected routes
+ * Single unified header for protected routes.
+ * Reads all state from Zustand store and pathname.
+ * No props needed — rendered directly in the layout.
  */
 
-interface TopHeaderProps {
-  // Show music player and template dropdown on /app route
-  showMusicAndTemplate?: boolean
-  canEdit?: boolean
-  isEditing?: boolean
-  activeCardId?: string | null
-  // Music props
-  selectedTrack?: string
-  volume?: number
-  isMusicPlaying?: boolean
-  onTrackSelect?: (trackId: string) => void
-  onVolumeChange?: (volume: number) => void
-  onMusicToggle?: () => void
-  // Template props
-  onApplyTemplate?: (cards: Card[]) => void
-}
+export function TopHeader() {
+  const pathname = usePathname()
+  const showMusicAndTemplate = pathname === '/app'
 
-export function TopHeader({
-  showMusicAndTemplate = false,
-  canEdit = true,
-  isEditing = false,
-  activeCardId = null,
-  selectedTrack,
-  volume = 50,
-  isMusicPlaying = false,
-  onTrackSelect,
-  onVolumeChange,
-  onMusicToggle,
-  onApplyTemplate,
-}: TopHeaderProps) {
+  // Store state
+  const editingCardId = useAppStore((s) => s.editingCardId)
+  const musicState = useAppStore(useShallow(selectMusicState))
+  const setSelectedTrack = useAppStore((s) => s.setSelectedTrack)
+  const setVolume = useAppStore((s) => s.setVolume)
+  const toggleMusic = useAppStore((s) => s.toggleMusic)
+  const applyTemplate = useAppStore((s) => s.applyTemplate)
+
+  const isEditing = !!editingCardId
+
+  // Template handler
+  const handleApplyTemplate = useCallback((cards: Card[]) => {
+    applyTemplate(cards)
+  }, [applyTemplate])
+
   const { theme, setTheme } = useTheme()
   const { activeEditor } = useEditorContext()
   const [highlightColor, setHighlightColor] = useState('#FFFF00')
@@ -383,12 +371,12 @@ export function TopHeader({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {isEditing && activeCardId && (
+      {isEditing && editingCardId && (
         <Badge
           variant="outline"
           className={`text-xs ${badgeClassName ?? ''}`.trim()}
         >
-          Editing: {activeCardId}
+          Editing: {editingCardId}
         </Badge>
       )}
     </div>
@@ -402,26 +390,23 @@ export function TopHeader({
           <div className="hidden md:flex items-center gap-4">
             {/* Logo and Title */}
             <Link href="/app" className="flex items-center gap-2 shrink-0">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 font-bold text-white shadow-lg">
-                SB
-              </div>
-              <span className="text-xl font-bold text-slate-900 dark:text-white">
-                Session-Break
+              <span className="font-display text-xl font-extrabold tracking-tight text-slate-900 dark:text-white uppercase">
+                MaxMode
               </span>
             </Link>
 
             {/* Music Player - Always visible on /app route */}
-            {showMusicAndTemplate && onMusicToggle && (
+            {showMusicAndTemplate && (
               <>
                 <Separator orientation="vertical" className="h-8" />
                 <div className="min-w-[280px]">
                   <MusicPlayer
-                    selectedTrack={selectedTrack}
-                    volume={volume}
-                    isMusicPlaying={isMusicPlaying}
-                    onTrackSelect={onTrackSelect!}
-                    onVolumeChange={onVolumeChange!}
-                    onPlayToggle={onMusicToggle}
+                    selectedTrack={musicState.selectedTrack ?? undefined}
+                    volume={musicState.volume}
+                    isMusicPlaying={musicState.isMusicPlaying}
+                    onTrackSelect={setSelectedTrack}
+                    onVolumeChange={setVolume}
+                    onPlayToggle={toggleMusic}
                     className="min-w-[280px]"
                   />
                 </div>
@@ -429,10 +414,10 @@ export function TopHeader({
             )}
 
             {/* Template Dropdown - Always visible on /app route */}
-            {showMusicAndTemplate && onApplyTemplate && (
+            {showMusicAndTemplate && (
               <>
                 <Separator orientation="vertical" className="h-8" />
-                <TemplateDropdown onApplyTemplate={onApplyTemplate} />
+                <TemplateDropdown onApplyTemplate={handleApplyTemplate} />
               </>
             )}
 
@@ -505,11 +490,8 @@ export function TopHeader({
             <div className="flex items-center justify-between gap-3">
               {/* Logo and Title */}
               <Link href="/app" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 font-bold text-white shadow-lg text-sm">
-                  SB
-                </div>
-                <span className="text-lg font-bold text-slate-900 dark:text-white">
-                  Session-Break
+                <span className="font-display text-lg font-extrabold tracking-tight text-slate-900 dark:text-white uppercase">
+                  MaxMode
                 </span>
               </Link>
 
@@ -557,14 +539,14 @@ export function TopHeader({
             </div>
 
             {/* Music Player Row - Always visible on /app route */}
-            {showMusicAndTemplate && onMusicToggle && (
+            {showMusicAndTemplate && (
               <MusicPlayer
-                selectedTrack={selectedTrack}
-                volume={volume}
-                isMusicPlaying={isMusicPlaying}
-                onTrackSelect={onTrackSelect!}
-                onVolumeChange={onVolumeChange!}
-                onPlayToggle={onMusicToggle}
+                selectedTrack={musicState.selectedTrack ?? undefined}
+                volume={musicState.volume}
+                isMusicPlaying={musicState.isMusicPlaying}
+                onTrackSelect={setSelectedTrack}
+                onVolumeChange={setVolume}
+                onPlayToggle={toggleMusic}
                 className="w-full"
               />
             )}

@@ -4,8 +4,6 @@ import { GoalList } from '@/components/goals/GoalList'
 import { AchievementGrid } from '@/components/achievements/AchievementGrid'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Target, Trophy } from 'lucide-react'
-import { TopHeader } from '@/components/layout/TopHeader'
-import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 
 /**
  * Goals Page
@@ -26,9 +24,6 @@ const mockUserAchievements = [
 export default function GoalsPage() {
   return (
     <>
-      <ProtectedHeaderPortal>
-        <TopHeader />
-      </ProtectedHeaderPortal>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
       <div className="mx-auto max-w-7xl">
         {/* Header */}

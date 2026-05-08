@@ -27,8 +27,8 @@ export function TimeControls({ isPlaying, onPlayPause, onAddCard, canEdit }: Tim
             <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
               <div className="w-3 h-3 bg-primary-foreground rounded-sm" />
             </div>
-            <h1 className="text-xl font-semibold">
-              Session-Break
+            <h1 className="font-display text-xl font-extrabold tracking-tight uppercase">
+              MaxMode
             </h1>
           </div>
 

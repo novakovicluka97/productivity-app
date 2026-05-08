@@ -3,8 +3,8 @@ import Link from "next/link"
 import { SignupForm } from "@/components/auth/SignupForm"
 
 export const metadata = {
-  title: 'Sign up | Session-Break',
-  description: 'Create a new Session-Break account',
+  title: 'Sign up | MaxMode',
+  description: 'Create a new MaxMode account',
 }
 
 export default function SignupPage() {
@@ -13,8 +13,8 @@ export default function SignupPage() {
       <div className="w-full max-w-md space-y-8">
         {/* Logo/Brand */}
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
-            Session-Break
+          <h1 className="font-display text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white uppercase">
+            MaxMode
           </h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
             Create your account to get started

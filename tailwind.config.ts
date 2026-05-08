@@ -20,6 +20,11 @@ const config: Config = {
   				'system-ui',
   				'sans-serif'
   			],
+  			display: [
+  				'var(--font-poppins)',
+  				'system-ui',
+  				'sans-serif'
+  			],
   			mono: [
   				'var(--font-mono)',
   				'monospace'

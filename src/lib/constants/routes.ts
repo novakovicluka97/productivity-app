@@ -48,7 +48,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Home',
     path: ROUTES.HOME,
     badge: null,
-    description: 'Session-Break timer interface',
+    description: 'MaxMode timer interface',
   },
   {
     icon: Calendar,
@@ -92,5 +92,5 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
  */
 export function getPageTitle(pathname: string): string {
   const item = NAVIGATION_ITEMS.find(item => item.path === pathname)
-  return item ? `${item.label} | Session-Break` : 'Session-Break'
+  return item ? `${item.label} | MaxMode` : 'MaxMode'
 }

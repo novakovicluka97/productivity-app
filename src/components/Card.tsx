@@ -67,11 +67,11 @@ export function Card({
           'dark:bg-slate-800/80 dark:border-slate-700/50',
           'hover:shadow-2xl hover:bg-white/90 dark:hover:bg-slate-800/90',
           // Base size
-          'w-full min-h-[520px] max-h-[820px] md:w-96 md:min-h-[600px] md:max-h-[800px]',
+          'w-full min-h-[520px] max-h-[820px] md:w-80 lg:w-96 xl:w-[420px] md:min-h-[600px] md:max-h-[800px]',
           // Modern rounded corners
           'rounded-3xl',
           // Expand when selected - seamless expansion in all directions
-          card.isSelected && 'md:scale-105 md:w-[420px] md:min-h-[650px] md:max-h-[850px] md:z-20',
+          card.isSelected && 'md:scale-105 md:w-[360px] lg:w-[420px] xl:w-[460px] md:min-h-[650px] md:max-h-[850px] md:z-20',
           card.isSelected && 'shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)] border-2',
           card.isActive && 'shadow-2xl',
           card.isCompleted && 'opacity-60 grayscale',
@@ -149,7 +149,7 @@ export function Card({
             <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
               <Clock className="h-4 w-4" />
             </div>
-            <span className="capitalize font-semibold tracking-wide">{card.type}</span>
+            <span className="font-display uppercase font-bold tracking-wide">{card.type}</span>
           </div>
         </CardTitle>
         {card.isActive && (

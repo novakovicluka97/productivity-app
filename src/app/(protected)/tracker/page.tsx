@@ -5,8 +5,6 @@ import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYea
 import { CalendarLayout, type ViewMode } from '@/components/calendar/CalendarLayout'
 import { useSessions } from '@/hooks/useSessions'
 import type { Database } from '@/types/supabase'
-import { TopHeader } from '@/components/layout/TopHeader'
-import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 
 // Lazy load heavy calendar components
 const MonthView = lazy(() => import('@/components/calendar/MonthView').then(m => ({ default: m.MonthView })))
@@ -175,9 +173,6 @@ export default function TrackerPage() {
 
   return (
     <>
-      <ProtectedHeaderPortal>
-        <TopHeader />
-      </ProtectedHeaderPortal>
       <CalendarLayout
         currentDate={currentDate}
         viewMode={viewMode}

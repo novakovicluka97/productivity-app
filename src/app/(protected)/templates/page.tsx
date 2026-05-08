@@ -4,8 +4,6 @@ import React, { useState } from 'react'
 import { Plus, Loader2 } from 'lucide-react'
 import { TemplateGrid } from '@/components/templates/TemplateGrid'
 import { TemplateEditor } from '@/components/templates/TemplateEditor'
-import { TopHeader } from '@/components/layout/TopHeader'
-import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 import {
   useTemplates,
   useCreateTemplate,
@@ -139,9 +137,6 @@ export default function TemplatesPage() {
   if (error) {
     return (
       <>
-        <ProtectedHeaderPortal>
-          <TopHeader />
-        </ProtectedHeaderPortal>
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
           <div className="rounded-xl border border-red-200 bg-white p-8 text-center shadow-lg dark:border-red-900/30 dark:bg-slate-800">
             <h2 className="mb-2 text-xl font-bold text-red-600 dark:text-red-400">
@@ -164,9 +159,6 @@ export default function TemplatesPage() {
 
   return (
     <>
-      <ProtectedHeaderPortal>
-        <TopHeader />
-      </ProtectedHeaderPortal>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
       <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
         {/* Header */}

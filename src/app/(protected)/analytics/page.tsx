@@ -18,8 +18,6 @@ import { TimeSeriesChart } from '@/components/analytics/TimeSeriesChart'
 import { CompletionRateChart } from '@/components/analytics/CompletionRateChart'
 import { ProductivityHeatmap } from '@/components/analytics/ProductivityHeatmap'
 import { InsightsPanel, type Insight } from '@/components/analytics/InsightsPanel'
-import { TopHeader } from '@/components/layout/TopHeader'
-import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 import {
   Select,
   SelectContent,
@@ -208,9 +206,6 @@ export default function AnalyticsPage() {
 
   return (
     <>
-      <ProtectedHeaderPortal>
-        <TopHeader />
-      </ProtectedHeaderPortal>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-slate-900 dark:via-gray-900 dark:to-slate-900">
       <div className="mx-auto max-w-7xl">
         {/* Header */}

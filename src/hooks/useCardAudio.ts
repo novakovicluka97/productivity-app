@@ -43,9 +43,10 @@ export function useCardAudio({
 
         // Create new Howl instance with Web Audio API (html5: false)
         try {
-          howlRef.current = new Howl({
+          const createHowl = (useHtml5: boolean) => new Howl({
             src: [audioPath],
-            html5: false, // Use Web Audio API for better performance and fewer race conditions
+            format: ['mp3'],
+            html5: useHtml5,
             loop: true,
             volume: volume / 100,
             preload: true,
@@ -62,6 +63,13 @@ export function useCardAudio({
               }
             },
             onloaderror: (id, error) => {
+              if (!useHtml5) {
+                // Fallback to HTML5 audio if Web Audio API fails to decode
+                console.warn('Web Audio decode failed, falling back to HTML5 audio')
+                howlRef.current?.unload()
+                howlRef.current = createHowl(true)
+                return
+              }
               console.error('Error loading audio track:', error)
               setIsLoading(false)
               setIsPlaying(false)
@@ -86,6 +94,7 @@ export function useCardAudio({
             onend: () => setIsPlaying(false)
           })
 
+          howlRef.current = createHowl(false) // Start with Web Audio API
           currentTrackRef.current = selectedTrack
         } catch (error) {
           console.error('Error creating Howl instance:', error)

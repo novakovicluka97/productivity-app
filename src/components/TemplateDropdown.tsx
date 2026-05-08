@@ -27,7 +27,7 @@ interface TemplateDropdownProps {
  * immediately by replacing all existing cards.
  */
 export function TemplateDropdown({ onApplyTemplate }: TemplateDropdownProps) {
-  const { data: templates, isLoading } = useTemplates()
+  const { data: templates, isLoading, isError } = useTemplates()
   const incrementUsage = useIncrementTemplateUsage()
 
   const convertTemplateToCards = (template: SessionTemplate): Card[] => {
@@ -80,8 +80,33 @@ export function TemplateDropdown({ onApplyTemplate }: TemplateDropdownProps) {
     )
   }
 
+  if (isError) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        disabled
+        className="theme-btn-secondary opacity-50"
+        title="Sign in to load templates"
+      >
+        <FileStack className="h-4 w-4 mr-2" />
+        Sign in to load templates
+      </Button>
+    )
+  }
+
   if (!templates || templates.length === 0) {
-    return null
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        disabled
+        className="theme-btn-secondary opacity-50"
+      >
+        <FileStack className="h-4 w-4 mr-2" />
+        No saved templates
+      </Button>
+    )
   }
 
   return (

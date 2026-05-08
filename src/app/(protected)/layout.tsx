@@ -1,28 +1,16 @@
 'use client'
 
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileNav } from '@/components/layout/MobileNav'
-
-interface ProtectedLayoutPortalContextValue {
-  headerContainerRef: React.RefObject<HTMLDivElement>
-}
-
-const ProtectedLayoutPortalContext = React.createContext<ProtectedLayoutPortalContextValue | null>(null)
-
-export function useProtectedLayoutPortals() {
-  const context = React.useContext(ProtectedLayoutPortalContext)
-  if (!context) {
-    throw new Error('useProtectedLayoutPortals must be used within ProtectedLayout')
-  }
-  return context
-}
+import { TopHeader } from '@/components/layout/TopHeader'
+import { EditorProvider } from '@/components/EditorManager'
 
 /**
  * Protected Layout
  *
  * Wraps all protected routes with:
- * - TopHeader at the very top (full width)
+ * - TopHeader at the very top (full width, rendered directly)
  * - Collapsible sidebar navigation below header (desktop)
  * - Mobile navigation (hamburger + bottom bar)
  * - Responsive layout with proper spacing
@@ -34,14 +22,6 @@ export function useProtectedLayoutPortals() {
  * | SIDE |   MAIN   |
  * | BAR  |  CONTENT |
  * +------+-----------+
- *
- * Routes wrapped:
- * - /app (main session-break interface - shows all TopHeader controls)
- * - /tracker (calendar tracker - shows minimal TopHeader)
- * - /templates (session templates - shows minimal TopHeader)
- * - /analytics (analytics dashboard - shows minimal TopHeader)
- * - /settings (user settings - shows minimal TopHeader)
- * - /goals (goals tracking - shows minimal TopHeader)
  */
 
 export default function ProtectedLayout({
@@ -51,12 +31,6 @@ export default function ProtectedLayout({
 }) {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true)
-  const headerContainerRef = useRef<HTMLDivElement>(null)
-
-  const portalContextValue = useMemo(
-    () => ({ headerContainerRef }),
-    [headerContainerRef]
-  )
 
   const handleMenuClick = () => {
     setIsMobileSidebarOpen(true)
@@ -71,10 +45,12 @@ export default function ProtectedLayout({
   }
 
   return (
-    <ProtectedLayoutPortalContext.Provider value={portalContextValue}>
+    <EditorProvider>
       <div className="flex h-screen flex-col overflow-hidden">
-        {/* Header Region (populated via portal from child routes) */}
-        <div ref={headerContainerRef} className="flex-none" />
+        {/* Header - rendered directly, no portal needed */}
+        <div className="flex-none">
+          <TopHeader />
+        </div>
 
         {/* Content Area: Sidebar + Main */}
         <div className="flex flex-1 overflow-hidden">
@@ -108,6 +84,6 @@ export default function ProtectedLayout({
           </div>
         </div>
       </div>
-    </ProtectedLayoutPortalContext.Provider>
+    </EditorProvider>
   )
 }

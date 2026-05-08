@@ -7,6 +7,7 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '@/hooks/useAuth'
 import {
   getTemplates,
   getTemplate,
@@ -34,9 +35,11 @@ export const templateKeys = {
  * Fetch all templates
  */
 export function useTemplates() {
+  const { user, loading } = useAuth()
   return useQuery({
     queryKey: templateKeys.list(),
     queryFn: getTemplates,
+    enabled: !!user && !loading,
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }

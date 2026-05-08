@@ -44,6 +44,9 @@ interface AppState {
   setMusicPlaying: (playing: boolean) => void
   toggleMusic: () => void
 
+  // Template actions
+  applyTemplate: (cards: Card[]) => void
+
   // Utility
   getNextIncompleteCard: (fromIndex: number) => Card | null
   resetState: () => void
@@ -368,6 +371,19 @@ export const useAppStore = create<AppState>()(
         set((state) => ({ isMusicPlaying: !state.isMusicPlaying }))
       },
 
+      // Template actions
+      applyTemplate: (cards) => {
+        set({
+          cards,
+          selectedCardId: cards[0]?.id ?? null,
+          activeCardId: null,
+          editingCardId: null,
+          isPlaying: false,
+          isMusicPlaying: false,
+          lastUpdated: Date.now()
+        })
+      },
+
       // Utility
       getNextIncompleteCard: (fromIndex) => {
         const { cards } = get()
@@ -392,14 +408,16 @@ export const useAppStore = create<AppState>()(
       name: 'productivity-app-state',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        cards: state.cards,
+        cards: state.cards.map(card => ({
+          ...card,
+          isActive: false, // Never persist active state across tabs
+        })),
         selectedCardId: state.selectedCardId,
-        activeCardId: state.activeCardId,
-        isPlaying: state.isPlaying,
+        // Exclude transient timer state to prevent cross-tab conflicts
+        // isPlaying, activeCardId, and isMusicPlaying are tab-specific
         lastUpdated: state.lastUpdated,
         selectedTrack: state.selectedTrack,
         volume: state.volume,
-        isMusicPlaying: state.isMusicPlaying
       })
     }
   )

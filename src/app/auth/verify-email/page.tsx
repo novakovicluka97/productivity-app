@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 export const metadata = {
-  title: 'Verify Email | Session-Break',
+  title: 'Verify Email | MaxMode',
   description: 'Verify your email address',
 }
 
@@ -13,8 +13,8 @@ export default function VerifyEmailPage() {
       <div className="w-full max-w-md space-y-8">
         {/* Logo/Brand */}
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
-            Session-Break
+          <h1 className="font-display text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white uppercase">
+            MaxMode
           </h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
             Email verification

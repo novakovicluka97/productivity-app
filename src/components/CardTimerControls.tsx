@@ -74,7 +74,7 @@ export function CardTimerControls({
               "dark:from-blue-600 dark:to-blue-700",
               "forest:from-emerald-600 forest:to-emerald-700",
               "ocean:from-cyan-600 ocean:to-cyan-700",
-              "text-white font-medium",
+              "text-white font-semibold uppercase tracking-wider",
               // Elegant hover effect
               "hover:from-blue-600 hover:to-blue-700",
               "dark:hover:from-blue-700 dark:hover:to-blue-800",
@@ -165,7 +165,7 @@ export function CardTimerControls({
           "dark:from-orange-600 dark:to-orange-700",
           "forest:from-amber-600 forest:to-amber-700",
           "ocean:from-amber-500 ocean:to-amber-600",
-          "text-white font-medium",
+          "text-white font-semibold uppercase tracking-wider",
           // Elegant hover effect
           "hover:from-orange-600 hover:to-orange-700",
           "dark:hover:from-orange-700 dark:hover:to-orange-800",
@@ -194,7 +194,7 @@ export function CardTimerControls({
         }}
         className={cn(
           // Base styling
-          "group relative overflow-hidden font-medium",
+          "group relative overflow-hidden font-semibold uppercase tracking-wider",
           // Conditional colors based on state - NO BLINKING
           isActive && isPlaying ? [
             // Stop button (red)

@@ -1,10 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { TopHeader } from '@/components/layout/TopHeader'
-import { ProtectedHeaderPortal } from '@/components/layout/ProtectedHeaderPortal'
 import { CardContainer } from '@/components/CardContainer'
-import { EditorProvider } from '@/components/EditorManager'
 import { useTimerWithStore } from '@/hooks/useTimer.zustand'
 import { useAutoTransferWithStore } from '@/hooks/useAutoTransfer.zustand'
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
@@ -46,7 +43,7 @@ export default function Home() {
   const musicState = { selectedTrack, volume, isMusicPlaying }
 
   // Store actions
-  const setCards = useAppStore((state) => state.setCards)
+
   const selectCard = useAppStore((state) => state.selectCard)
   const updateCardTime = useAppStore((state) => state.updateCardTime)
   const resetCard = useAppStore((state) => state.resetCard)
@@ -55,9 +52,6 @@ export default function Home() {
   const updateCardContent = useAppStore((state) => state.updateCardContent)
   const setEditingCard = useAppStore((state) => state.setEditingCard)
   const completeCard = useAppStore((state) => state.completeCard)
-  const setSelectedTrack = useAppStore((state) => state.setSelectedTrack)
-  const setVolume = useAppStore((state) => state.setVolume)
-  const toggleMusic = useAppStore((state) => state.toggleMusic)
   const getNextIncompleteCard = useAppStore((state) => state.getNextIncompleteCard)
 
   // Settings store - subscribe individually
@@ -184,7 +178,7 @@ export default function Home() {
       const cardType = activeCard.type === 'session' ? 'Session' : 'Break'
       document.title = `${timeString} - ${cardType}`
     } else {
-      document.title = 'Session-Break'
+      document.title = 'MaxMode'
     }
   }, [cards, activeCardId, isPlaying])
 
@@ -292,31 +286,10 @@ export default function Home() {
     setEditingCard(null)
   }
 
-  const handleTrackSelect = (trackId: string) => {
-    setSelectedTrack(trackId)
-  }
-
-  const handleVolumeChange = (volume: number) => {
-    setVolume(volume)
-  }
-
-  const handleMusicToggle = () => {
-    toggleMusic()
-  }
-
-  const handleApplyTemplate = useCallback((templateCards: Card[]) => {
-    setCards(templateCards)
-
-    if (templateCards.length > 0) {
-      selectCard(templateCards[0].id)
-    }
-
-    setNextCardId(getNextCardId(templateCards))
-
-    if (isPlaying) {
-      useAppStore.getState().pauseTimer()
-    }
-  }, [setCards, selectCard, setNextCardId, isPlaying])
+  // Keep nextCardId in sync when cards change (e.g., from template application via header)
+  useEffect(() => {
+    setNextCardId(getNextCardId(cards))
+  }, [cards.length])
 
   const canEdit = true
 
@@ -331,22 +304,7 @@ export default function Home() {
   })
 
   return (
-    <EditorProvider>
-      <ProtectedHeaderPortal>
-        <TopHeader
-          showMusicAndTemplate={true}
-          canEdit={canEdit}
-          isEditing={!!editingCardId}
-          activeCardId={editingCardId}
-          selectedTrack={musicState.selectedTrack ?? undefined}
-          volume={musicState.volume}
-          isMusicPlaying={musicState.isMusicPlaying}
-          onTrackSelect={handleTrackSelect}
-          onVolumeChange={handleVolumeChange}
-          onMusicToggle={handleMusicToggle}
-          onApplyTemplate={handleApplyTemplate}
-        />
-      </ProtectedHeaderPortal>
+    <>
       <div className="relative flex min-h-full flex-col overflow-x-hidden">
         {/* Main content area below header */}
         <main className="relative flex-1 overflow-x-hidden">
@@ -381,6 +339,6 @@ export default function Home() {
           </div>
         </main>
       </div>
-    </EditorProvider>
+    </>
   )
 }

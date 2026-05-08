@@ -72,7 +72,7 @@ export function Sidebar({
       {/* Sidebar */}
       <aside className={sidebarClasses}>
         <div
-          className="flex h-full flex-col gap-y-5 overflow-y-auto border-r border-slate-200/50 bg-white/80 px-3 pb-4 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/80 cursor-pointer transition-all"
+          className="flex h-full flex-col gap-y-5 overflow-y-auto border-r border-slate-200/50 bg-white/80 px-3 pt-4 pb-4 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/80 cursor-pointer transition-all"
           onClick={!isMobile ? onToggleCollapse : undefined}
           aria-label={!isMobile ? (isCollapsed ? 'Expand sidebar' : 'Collapse sidebar') : undefined}
           role={!isMobile ? 'button' : undefined}
@@ -125,14 +125,21 @@ export function Sidebar({
                             isCollapsed && !isMobile ? 'justify-center' : ''
                           )}
                         >
-                          <Icon
-                            className={cn(
-                              'h-5 w-5 shrink-0',
-                              isActive
-                                ? 'text-blue-600 dark:text-blue-400'
-                                : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
-                            )}
-                          />
+                          <div className={cn(
+                            'flex items-center justify-center rounded-xl p-2 transition-colors',
+                            isActive
+                              ? 'bg-blue-100 dark:bg-blue-900/30'
+                              : 'bg-slate-100 dark:bg-slate-800/50 group-hover:bg-slate-200 dark:group-hover:bg-slate-700/50'
+                          )}>
+                            <Icon
+                              className={cn(
+                                'h-5 w-5 shrink-0',
+                                isActive
+                                  ? 'text-blue-600 dark:text-blue-400'
+                                  : 'text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-300'
+                              )}
+                            />
+                          </div>
                           {(!isCollapsed || isMobile) && (
                             <>
                               <span>{item.label}</span>

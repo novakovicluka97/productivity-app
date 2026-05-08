@@ -177,7 +177,13 @@ export function CardContainer({
           </Button>
         )}
 
-        <ScrollArea className="w-full">
+        <ScrollArea
+          className="w-full"
+          style={{
+            maskImage: 'linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent)',
+          }}
+        >
           <div
             ref={containerRef}
             className={cn(
