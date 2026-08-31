@@ -1,6 +1,10 @@
-import { supabase } from './client'
+import { getSupabaseBrowserClient } from './client'
 import type { Database } from '@/types/supabase'
 import type { Card } from '@/lib/types'
+
+function getSupabase() {
+  return getSupabaseBrowserClient()
+}
 
 type SessionRow = Database['public']['Tables']['sessions']['Row']
 type SessionInsert = Database['public']['Tables']['sessions']['Insert']
@@ -17,6 +21,8 @@ type SessionUpdate = Database['public']['Tables']['sessions']['Update']
  * Create a new session record
  */
 export async function createSession(session: Omit<SessionInsert, 'id' | 'created_at' | 'updated_at'>): Promise<SessionRow> {
+  const supabase = getSupabase()
+
   const { data, error } = await supabase
     .from('sessions')
     .insert(session as any)
@@ -41,6 +47,8 @@ export async function getSessions(options?: {
   limit?: number
   offset?: number
 }): Promise<SessionRow[]> {
+  const supabase = getSupabase()
+
   let query = supabase
     .from('sessions')
     .select('*')
@@ -78,6 +86,8 @@ export async function getSessions(options?: {
  * Get sessions for a specific date
  */
 export async function getSessionsByDate(date: string): Promise<SessionRow[]> {
+  const supabase = getSupabase()
+
   const { data, error } = await supabase
     .from('sessions')
     .select('*')
@@ -96,6 +106,8 @@ export async function getSessionsByDate(date: string): Promise<SessionRow[]> {
  * Get a single session by ID
  */
 export async function getSessionById(id: string): Promise<SessionRow> {
+  const supabase = getSupabase()
+
   const { data, error } = await supabase
     .from('sessions')
     .select('*')
@@ -114,6 +126,8 @@ export async function getSessionById(id: string): Promise<SessionRow> {
  * Update a session
  */
 export async function updateSession(id: string, updates: SessionUpdate): Promise<SessionRow> {
+  const supabase = getSupabase()
+
   const { data, error } = await supabase
     .from('sessions')
     // @ts-ignore - Supabase type inference issue with sessions table
@@ -137,6 +151,8 @@ export async function updateSession(id: string, updates: SessionUpdate): Promise
  * Delete a session
  */
 export async function deleteSession(id: string) {
+  const supabase = getSupabase()
+
   const { error } = await supabase
     .from('sessions')
     .delete()
@@ -154,6 +170,8 @@ export async function deleteSession(id: string) {
  * Delete multiple sessions
  */
 export async function deleteSessions(ids: string[]) {
+  const supabase = getSupabase()
+
   const { error } = await supabase
     .from('sessions')
     .delete()
@@ -199,6 +217,8 @@ export async function saveCompletedCard(card: Card, sessionDate: string) {
  * Get session statistics for a date range
  */
 export async function getSessionStats(startDate: string, endDate: string) {
+  const supabase = getSupabase()
+
   const { data, error } = await supabase
     .from('sessions')
     .select('type, duration, time_spent, is_completed, session_date')

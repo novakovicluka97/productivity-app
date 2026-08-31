@@ -1,4 +1,4 @@
-import { supabase } from './client'
+import { getSupabaseBrowserClient } from './client'
 import type { Database } from '@/types/supabase'
 
 type PreferencesRow = Database['public']['Tables']['user_preferences']['Row']
@@ -27,7 +27,7 @@ export interface UserPreferences {
  * Creates default preferences if they don't exist
  */
 export async function getUserPreferences(): Promise<UserPreferences> {
-  
+  const supabase = getSupabaseBrowserClient()
 
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -69,7 +69,7 @@ export async function getUserPreferences(): Promise<UserPreferences> {
  * Create default preferences for a new user
  */
 export async function createDefaultPreferences(): Promise<UserPreferences> {
-  
+  const supabase = getSupabaseBrowserClient()
 
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -118,7 +118,7 @@ export async function createDefaultPreferences(): Promise<UserPreferences> {
 export async function updateUserPreferences(
   updates: Partial<UserPreferences>
 ): Promise<UserPreferences> {
-  
+  const supabase = getSupabaseBrowserClient()
 
   const { data: { user } } = await supabase.auth.getUser()
 

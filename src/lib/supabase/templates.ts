@@ -4,8 +4,12 @@
  * CRUD operations for the session_templates table
  */
 
-import { supabase } from './client'
+import { getSupabaseBrowserClient } from './client'
 import type { SessionTemplate, CardConfiguration } from './types'
+
+function getSupabase() {
+  return getSupabaseBrowserClient()
+}
 
 export interface TemplateInsert {
   name: string
@@ -25,7 +29,7 @@ export interface TemplateUpdate {
  * Get all templates for the current user (owned + public)
  */
 export async function getTemplates() {
-  
+  const supabase = getSupabase()
 
   const {
     data: { user },
@@ -53,7 +57,7 @@ export async function getTemplates() {
  * Get a single template by ID
  */
 export async function getTemplate(templateId: string) {
-  
+  const supabase = getSupabase()
 
   const {
     data: { user },
@@ -87,7 +91,7 @@ export async function getTemplate(templateId: string) {
  * Create a new template
  */
 export async function createTemplate(template: TemplateInsert) {
-  
+  const supabase = getSupabase()
 
   const {
     data: { user },
@@ -120,7 +124,7 @@ export async function createTemplate(template: TemplateInsert) {
  * Update template
  */
 export async function updateTemplate(templateId: string, updates: TemplateUpdate) {
-  
+  const supabase = getSupabase()
 
   const {
     data: { user },
@@ -151,7 +155,7 @@ export async function updateTemplate(templateId: string, updates: TemplateUpdate
  * Delete template
  */
 export async function deleteTemplate(templateId: string) {
-  
+  const supabase = getSupabase()
 
   const {
     data: { user },
@@ -179,7 +183,7 @@ export async function deleteTemplate(templateId: string) {
  * Increment usage count
  */
 export async function incrementTemplateUsage(templateId: string) {
-  
+  const supabase = getSupabase()
 
   const { data: templateData, error: fetchError } = await supabase
     .from('session_templates')
@@ -212,7 +216,7 @@ export async function incrementTemplateUsage(templateId: string) {
  * Duplicate template
  */
 export async function duplicateTemplate(templateId: string) {
-  
+  const supabase = getSupabase()
 
   const {
     data: { user },

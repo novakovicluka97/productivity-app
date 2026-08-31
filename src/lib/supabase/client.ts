@@ -1,34 +1,65 @@
 'use client'
 
 import { createBrowserClient } from '@supabase/ssr'
-import type { Database } from '@/types/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/supabase'
 
-/**
- * Creates a Supabase client for client-side (browser) use
- * This should be used in Client Components and client-side hooks
- *
- * Features:
- * - Automatic token refresh
- * - Persists session to localStorage
- * - Type-safe database operations
- */
-export function createClient(): SupabaseClient<Database> {
+const missingConfigMessage =
+  'Supabase environment variables are not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
+
+class SupabaseConfigurationError extends Error {
+  constructor() {
+    super(missingConfigMessage)
+    this.name = 'SupabaseConfigurationError'
+  }
+}
+
+let browserClient: SupabaseClient<Database> | null = null
+
+function resolveSupabaseConfig() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Missing Supabase environment variables. Please check your .env.local file.\n' +
-      'Required: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY'
-    )
+    throw new SupabaseConfigurationError()
   }
 
-  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+  return { supabaseUrl, supabaseAnonKey }
 }
 
 /**
- * Singleton instance of the Supabase client
- * Use this in client components and hooks
+ * Lazily instantiate a browser Supabase client.
  */
-export const supabase: SupabaseClient<Database> = createClient()
+export function getSupabaseBrowserClient(): SupabaseClient<Database> {
+  if (browserClient) {
+    return browserClient
+  }
+
+  const { supabaseUrl, supabaseAnonKey } = resolveSupabaseConfig()
+  browserClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+  return browserClient
+}
+
+/**
+ * Attempt to create a Supabase client but return null when configuration is missing.
+ *
+ * This prevents the application from crashing during local development when
+ * environment variables are not provided, while still surfacing a helpful
+ * warning.
+ */
+export function tryGetSupabaseBrowserClient(): SupabaseClient<Database> | null {
+  try {
+    return getSupabaseBrowserClient()
+  } catch (error) {
+    if (error instanceof SupabaseConfigurationError) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(missingConfigMessage)
+      }
+      return null
+    }
+
+    throw error
+  }
+}
+
+export { SupabaseConfigurationError }
